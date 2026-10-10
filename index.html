@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AbsensiBot — Absensi Karyawan</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-icon">✓</div><div><strong>AbsensiBot</strong><small>Employee Assistant</small></div></div>
+      <nav>
+        <a class="active" href="#dashboard">▦ <span>Dashboard</span></a>
+        <a href="#chat">◉ <span>Chatbot Absensi</span></a>
+        <a href="#history">◷ <span>Riwayat Absensi</span></a>
+      </nav>
+      <div class="sidebar-note"><span class="online-dot"></span> Prototype aktif<small>Data tersimpan di browser ini</small></div>
+      <div class="profile"><div class="avatar">YK</div><div><b>Karyawan</b><small>Pengguna demo</small></div></div>
+    </aside>
+
+    <main class="main" id="dashboard">
+      <header class="topbar"><div><p class="eyebrow">PORTAL KARYAWAN</p><h1>Dashboard Absensi</h1><p class="muted">Halo! Pantau kehadiranmu dengan mudah.</p></div><div class="date-chip" id="todayLabel">Hari ini</div></header>
+      <section class="stats">
+        <article class="stat-card"><div class="stat-symbol green">✓</div><div><span>Status hari ini</span><strong id="statusValue">Belum absen</strong><small id="statusSub">Silakan check-in</small></div></article>
+        <article class="stat-card"><div class="stat-symbol blue">↗</div><div><span>Jam masuk</span><strong id="checkInValue">—</strong><small>Waktu check-in</small></div></article>
+        <article class="stat-card"><div class="stat-symbol purple">↙</div><div><span>Jam pulang</span><strong id="checkOutValue">—</strong><small>Waktu check-out</small></div></article>
+      </section>
+
+      <div class="content-grid">
+        <section class="panel attendance-panel">
+          <div class="panel-heading"><div><h2>Absensi Hari Ini</h2><p class="muted">Catat kehadiran dalam satu klik.</p></div><span class="pill">● Sistem demo</span></div>
+          <div class="clock" id="clock">00:00:00</div><div class="clock-date" id="clockDate"></div>
+          <div class="action-row"><button id="checkInBtn" class="btn btn-primary">✓ Check-in</button><button id="checkOutBtn" class="btn btn-dark">↗ Check-out</button></div>
+          <p class="helper" id="actionMessage" role="status">Mulai dengan menekan tombol Check-in.</p>
+          <div class="notice">ⓘ <span>Ini adalah prototipe. Catatan disimpan pada browser/perangkat ini, bukan server perusahaan.</span></div>
+        </section>
+
+        <section class="panel chat-panel" id="chat">
+          <div class="panel-heading"><div><h2>Chatbot Absensi</h2><p class="muted">Tanyakan informasi absensi.</p></div><span class="bot-badge">AI</span></div>
+          <div class="chat-window" id="chatWindow" aria-live="polite">
+            <div class="message bot-message"><div class="mini-avatar">✓</div><div class="bubble"><b>AbsensiBot</b><p>Halo! Saya siap membantu. Ketik <em>bantuan</em>, <em>status</em>, <em>riwayat</em>, atau <em>jam kerja</em>.</p></div></div>
+          </div>
+          <form id="chatForm" class="chat-input"><input id="chatInput" autocomplete="off" placeholder="Tulis pesan..." aria-label="Pesan untuk chatbot"><button aria-label="Kirim pesan" type="submit">➤</button></form>
+          <div class="quick-actions"><button data-message="status">Status</button><button data-message="riwayat">Riwayat</button><button data-message="bantuan">Bantuan</button></div>
+        </section>
+      </div>
+
+      <section class="panel history-panel" id="history">
+        <div class="panel-heading"><div><h2>Riwayat Absensi</h2><p class="muted">Riwayat yang tersimpan di perangkat ini.</p></div><button id="clearBtn" class="text-button">Reset data demo</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Check-in</th><th>Check-out</th><th>Status</th></tr></thead><tbody id="historyBody"><tr><td colspan="4" class="empty">Belum ada data absensi.</td></tr></tbody></table></div>
+      </section>
+      <footer>AbsensiBot · Final Project Prototype · Dibuat untuk demonstrasi</footer>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

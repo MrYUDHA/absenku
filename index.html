@@ -4,237 +4,429 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101827">
+  <meta name="theme-color" content="#087fbd">
   <meta name="description" content="ABSENKU - Sistem absensi karyawan berbasis web">
   <title>ABSENKU — Absensi Karyawan</title>
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* ===== ABSENKU PIRATE ADVENTURE ===== */
+    #login-screen {
+      position: relative;
+      overflow: hidden;
+      max-width: 440px !important;
+      margin: 35px auto !important;
+      padding: 28px 24px !important;
+      box-sizing: border-box;
+      border: 1px solid rgba(255,255,255,.8) !important;
+      border-radius: 26px !important;
+      background:
+        radial-gradient(circle at 10% 5%, #b9f0ff 0, transparent 35%),
+        linear-gradient(145deg, #ffffff, #e3f7ff 60%, #d5eaff) !important;
+      box-shadow: 0 24px 65px rgba(4,75,130,.23) !important;
+      animation: loginAppear .8s ease both;
+    }
+
+    #login-screen h2 {
+      text-align: center;
+      color: #123d70;
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      margin: 8px 0 10px;
+    }
+
+    #login-screen > p:not(.login-tagline) {
+      text-align: center;
+      color: #486782;
+      line-height: 1.6;
+    }
+
+    #login-screen label {
+      display: block;
+      color: #163e62;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    #login-screen input {
+      border: 1px solid #c3ddeb !important;
+      border-radius: 12px !important;
+      background: rgba(255,255,255,.94);
+      font: inherit;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    #login-screen input:focus {
+      border-color: #0891b2 !important;
+      box-shadow: 0 0 0 4px rgba(8,145,178,.13);
+    }
+
+    #login-screen button {
+      border: 0;
+      border-radius: 13px !important;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      background: linear-gradient(110deg,#06b6d4,#087fbd,#244ec7) !important;
+      box-shadow: 0 10px 25px rgba(8,127,189,.28);
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    #login-screen button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(8,127,189,.35);
+    }
+
+    .pirate-mascot {
+      min-height: 128px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .pirate-emoji {
+      font-size: 76px;
+      line-height: 1.2;
+      filter: drop-shadow(0 10px 8px rgba(10,70,130,.2));
+      animation: pirateFloat 2.5s ease-in-out infinite;
+    }
+
+    .pirate-speech {
+      max-width: 145px;
+      padding: 12px 14px;
+      border-radius: 18px 18px 18px 4px;
+      color: #fff;
+      background: linear-gradient(135deg,#06b6d4,#153b80);
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.5;
+      box-shadow: 0 8px 22px rgba(10,70,130,.22);
+      animation: pirateTalk 2.4s ease-in-out infinite;
+    }
+
+    .pirate-sparkle {
+      position: absolute;
+      top: 0;
+      left: 17%;
+      font-size: 24px;
+      animation: pirateSparkle 1.8s ease-in-out infinite;
+    }
+
+    .login-tagline {
+      margin: 0 0 23px;
+      text-align: center;
+      color: #087fbd;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.6;
+    }
+
+    @keyframes pirateFloat {
+      0%,100% { transform: translateY(0) rotate(-4deg); }
+      50% { transform: translateY(-12px) rotate(4deg); }
+    }
+
+    @keyframes pirateTalk {
+      0%,100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes pirateSparkle {
+      0%,100% { opacity: .4; transform: scale(.8) rotate(-12deg); }
+      50% { opacity: 1; transform: scale(1.2) rotate(12deg); }
+    }
+
+    @keyframes loginAppear {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+      #login-screen {
+        width: calc(100% - 28px);
+        margin: 22px auto !important;
+        padding: 22px 18px !important;
+      }
+
+      .pirate-emoji { font-size: 66px; }
+      .pirate-speech { font-size: 12px; padding: 10px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .pirate-emoji,
+      .pirate-speech,
+      .pirate-sparkle,
+      #login-screen {
+        animation: none !important;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  
+
 <div id="login-screen" style="max-width:400px;margin:40px auto;padding:24px;border:1px solid #ddd;border-radius:16px;">
+
+  <div class="login-mascot pirate-mascot">
+    <div class="pirate-sparkle">✨</div>
+    <div class="pirate-emoji" aria-label="Maskot bajak laut">🏴‍☠️</div>
+    <div class="mascot-speech pirate-speech">
+      Semangat, Nakama! 🌊
+    </div>
+  </div>
+
+  <p class="login-tagline">
+    Disiplin hari ini, raih impian esok hari!
+  </p>
+
   <h2>ABSENKU</h2>
   <p>Silakan masuk ke akun karyawan atau admin.</p>
+
   <form id="login-form">
     <label for="login-email">Email</label>
-    <input id="login-email" type="email" required placeholder="Masukkan email" style="display:block;width:100%;padding:12px;margin:8px 0 16px;box-sizing:border-box;">
+    <input
+      id="login-email"
+      type="email"
+      required
+      placeholder="Masukkan email"
+      style="display:block;width:100%;padding:12px;margin:8px 0 16px;box-sizing:border-box;"
+    >
+
     <label for="login-password">Kata sandi</label>
-    <input id="login-password" type="password" required placeholder="Masukkan kata sandi" style="display:block;width:100%;padding:12px;margin:8px 0 16px;box-sizing:border-box;">
-    <button type="submit" style="width:100%;padding:12px;">Masuk</button>
-    <p id="login-message"></p>
+    <input
+      id="login-password"
+      type="password"
+      required
+      placeholder="Masukkan kata sandi"
+      style="display:block;width:100%;padding:12px;margin:8px 0 16px;box-sizing:border-box;"
+    >
+
+    <button type="submit" style="width:100%;padding:12px;">
+      Masuk
+    </button>
+
+    <p id="login-message" role="status"></p>
   </form>
 </div>
+
 <div class="app-shell" id="app-dashboard" style="display:none;">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-icon">✓</div>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">✓</div>
+      <div>
+        <strong>ABSENKU</strong>
+        <small>Employee Attendance</small>
+      </div>
+    </div>
+
+    <nav aria-label="Navigasi utama">
+      <a class="active" href="#dashboard">▦ <span>Dashboard</span></a>
+      <a href="#chat">◉ <span>Chatbot Absensi</span></a>
+      <a href="#history">◷ <span>Riwayat Absensi</span></a>
+    </nav>
+
+    <div class="sidebar-note">
+      <span class="online-dot"></span> ABSENKU
+      <small>Portal absensi karyawan</small>
+    </div>
+
+    <div class="profile">
+      <div class="avatar">AK</div>
+      <div>
+        <b>Karyawan</b>
+        <small>Silakan masuk ke akun</small>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="dashboard">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">PORTAL KARYAWAN</p>
+        <h1>Dashboard ABSENKU</h1>
+        <p class="muted">Pantau kehadiran dan riwayat absensi kamu.</p>
+      </div>
+      <div class="date-chip" id="todayLabel">Hari ini</div>
+    </header>
+
+    <section class="stats">
+      <article class="stat-card">
+        <div class="stat-symbol green">✓</div>
         <div>
-          <strong>ABSENKU</strong>
-          <small>Employee Attendance</small>
+          <span>Status hari ini</span>
+          <strong id="statusValue">Belum absen</strong>
+          <small id="statusSub">Silakan check-in</small>
         </div>
-      </div>
+      </article>
 
-      <nav aria-label="Navigasi utama">
-        <a class="active" href="#dashboard">▦ <span>Dashboard</span></a>
-        <a href="#chat">◉ <span>Chatbot Absensi</span></a>
-        <a href="#history">◷ <span>Riwayat Absensi</span></a>
-      </nav>
-
-      <div class="sidebar-note">
-        <span class="online-dot"></span> ABSENKU
-        <small>Portal absensi karyawan</small>
-      </div>
-
-      <div class="profile">
-        <div class="avatar">AK</div>
+      <article class="stat-card">
+        <div class="stat-symbol blue">↗</div>
         <div>
-          <b>Karyawan</b>
-          <small>Silakan masuk ke akun</small>
+          <span>Jam masuk</span>
+          <strong id="checkInValue">—</strong>
+          <small>Waktu check-in</small>
         </div>
-      </div>
-    </aside>
+      </article>
 
-    <main class="main" id="dashboard">
-      <header class="topbar">
+      <article class="stat-card">
+        <div class="stat-symbol purple">↙</div>
         <div>
-          <p class="eyebrow">PORTAL KARYAWAN</p>
-          <h1>Dashboard ABSENKU</h1>
-          <p class="muted">Pantau kehadiran dan riwayat absensi kamu.</p>
+          <span>Jam pulang</span>
+          <strong id="checkOutValue">—</strong>
+          <small>Waktu check-out</small>
         </div>
-        <div class="date-chip" id="todayLabel">Hari ini</div>
-      </header>
+      </article>
+    </section>
 
-      <section class="stats">
-        <article class="stat-card">
-          <div class="stat-symbol green">✓</div>
-          <div>
-            <span>Status hari ini</span>
-            <strong id="statusValue">Belum absen</strong>
-            <small id="statusSub">Silakan check-in</small>
-          </div>
-        </article>
-
-        <article class="stat-card">
-          <div class="stat-symbol blue">↗</div>
-          <div>
-            <span>Jam masuk</span>
-            <strong id="checkInValue">—</strong>
-            <small>Waktu check-in</small>
-          </div>
-        </article>
-
-        <article class="stat-card">
-          <div class="stat-symbol purple">↙</div>
-          <div>
-            <span>Jam pulang</span>
-            <strong id="checkOutValue">—</strong>
-            <small>Waktu check-out</small>
-          </div>
-        </article>
-      </section>
-
-      <div class="content-grid">
-        <section class="panel attendance-panel">
-          <div class="panel-heading">
-            <div>
-              <h2>Absensi Hari Ini</h2>
-              <p class="muted">Catat kehadiran melalui sistem absensi.</p>
-            </div>
-            <span class="pill">ABSENKU</span>
-          </div>
-
-          <div class="clock" id="clock">00:00:00</div>
-          <div class="clock-date" id="clockDate"></div>
-
-          <div class="action-row">
-            <button id="checkInBtn" class="btn btn-primary" type="button">
-              ✓ Check-in
-            </button>
-            <button id="checkOutBtn" class="btn btn-dark" type="button">
-              ↗ Check-out
-            </button>
-          </div>
-
-          <p class="helper" id="actionMessage" role="status">
-            Silakan check-in untuk memulai absensi.
-          </p>
-
-          <div class="notice">
-            ⓘ
-            <span>
-              Pastikan akun dan lokasi kerja telah dikonfigurasi oleh admin.
-              Status koneksi server ditangani oleh aplikasi.
-            </span>
-          </div>
-        </section>
-
-        <section class="panel chat-panel" id="chat">
-          <div class="panel-heading">
-            <div>
-              <h2>Chatbot Absensi</h2>
-              <p class="muted">Tanyakan informasi seputar absensi.</p>
-            </div>
-            <span class="bot-badge">AI</span>
-          </div>
-
-          <div class="chat-window" id="chatWindow" aria-live="polite">
-            <div class="message bot-message">
-              <div class="mini-avatar">✓</div>
-              <div class="bubble">
-                <b>Asisten ABSENKU</b>
-                <p>
-                  Halo! Ketik <em>bantuan</em>, <em>status</em>,
-                  <em>riwayat</em>, atau <em>jam kerja</em>.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <form id="chatForm" class="chat-input">
-            <input
-              id="chatInput"
-              autocomplete="off"
-              placeholder="Tulis pesan..."
-              aria-label="Pesan untuk chatbot"
-              required
-            >
-            <button aria-label="Kirim pesan" type="submit">➤</button>
-          </form>
-
-          <div class="quick-actions">
-            <button type="button" data-message="status">Status</button>
-            <button type="button" data-message="riwayat">Riwayat</button>
-            <button type="button" data-message="bantuan">Bantuan</button>
-          </div>
-        </section>
-      </div>
-
-      <section class="panel history-panel" id="history">
+    <div class="content-grid">
+      <section class="panel attendance-panel">
         <div class="panel-heading">
           <div>
-            <h2>Riwayat Absensi</h2>
-            <p class="muted">Daftar catatan kehadiran.</p>
+            <h2>Absensi Hari Ini</h2>
+            <p class="muted">Catat kehadiran melalui sistem absensi.</p>
           </div>
-          <button id="clearBtn" class="text-button" type="button">
-            Reset data demo
+          <span class="pill">ABSENKU</span>
+        </div>
+
+        <div class="clock" id="clock">00:00:00</div>
+        <div class="clock-date" id="clockDate"></div>
+
+        <div class="action-row">
+          <button id="checkInBtn" class="btn btn-primary" type="button">
+            ✓ Check-in
+          </button>
+          <button id="checkOutBtn" class="btn btn-dark" type="button">
+            ↗ Check-out
           </button>
         </div>
 
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Tanggal</th>
-                <th>Check-in</th>
-                <th>Check-out</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="historyBody">
-              <tr>
-                <td colspan="4" class="empty">
-                  Belum ada data absensi.
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <p class="helper" id="actionMessage" role="status">
+          Silakan check-in untuk memulai absensi.
+        </p>
+
+        <div class="notice">
+          ⓘ
+          <span>
+            Pastikan akun dan lokasi kerja telah dikonfigurasi oleh admin.
+            Status koneksi server ditangani oleh aplikasi.
+          </span>
         </div>
       </section>
 
-      <footer>
-        ABSENKU · Sistem Absensi Karyawan
-        <br>
-        Developer: MR.Y OFFICIAL
-      </footer>
-    </main>
-  </div>
+      <section class="panel chat-panel" id="chat">
+        <div class="panel-heading">
+          <div>
+            <h2>Chatbot Absensi</h2>
+            <p class="muted">Tanyakan informasi seputar absensi.</p>
+          </div>
+          <span class="bot-badge">AI</span>
+        </div>
 
-  <!-- Konfigurasi Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js"></script>
+        <div class="chat-window" id="chatWindow" aria-live="polite">
+          <div class="message bot-message">
+            <div class="mini-avatar">✓</div>
+            <div class="bubble">
+              <b>Asisten ABSENKU</b>
+              <p>
+                Halo! Ketik <em>bantuan</em>, <em>status</em>,
+                <em>riwayat</em>, atau <em>jam kerja</em>.
+              </p>
+            </div>
+          </div>
+        </div>
 
-  <script>
-    window.ABSENKU_SUPABASE = null;
+        <form id="chatForm" class="chat-input">
+          <input
+            id="chatInput"
+            autocomplete="off"
+            placeholder="Tulis pesan..."
+            aria-label="Pesan untuk chatbot"
+            required
+          >
+          <button aria-label="Kirim pesan" type="submit">➤</button>
+        </form>
 
-    try {
-      if (
-        window.supabase &&
-        window.ABSENKU_SUPABASE_CONFIG &&
-        window.ABSENKU_SUPABASE_CONFIG.url &&
+        <div class="quick-actions">
+          <button type="button" data-message="status">Status</button>
+          <button type="button" data-message="riwayat">Riwayat</button>
+          <button type="button" data-message="bantuan">Bantuan</button>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel history-panel" id="history">
+      <div class="panel-heading">
+        <div>
+          <h2>Riwayat Absensi</h2>
+          <p class="muted">Daftar catatan kehadiran.</p>
+        </div>
+        <button id="clearBtn" class="text-button" type="button">
+          Reset data demo
+        </button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Check-in</th>
+              <th>Check-out</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr>
+              <td colspan="4" class="empty">
+                Belum ada data absensi.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      ABSENKU · Sistem Absensi Karyawan
+      <br>
+      Developer: MR.Y OFFICIAL
+    </footer>
+  </main>
+</div>
+
+<!-- Konfigurasi Supabase: dipertahankan -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<script>
+  window.ABSENKU_SUPABASE = null;
+
+  try {
+    if (
+      window.supabase &&
+      window.ABSENKU_SUPABASE_CONFIG &&
+      window.ABSENKU_SUPABASE_CONFIG.url &&
+      window.ABSENKU_SUPABASE_CONFIG.anonKey
+    ) {
+      window.ABSENKU_SUPABASE = window.supabase.createClient(
+        window.ABSENKU_SUPABASE_CONFIG.url,
         window.ABSENKU_SUPABASE_CONFIG.anonKey
-      ) {
-        window.ABSENKU_SUPABASE = window.supabase.createClient(
-          window.ABSENKU_SUPABASE_CONFIG.url,
-          window.ABSENKU_SUPABASE_CONFIG.anonKey
-        );
-      } else {
-        console.warn("Konfigurasi Supabase belum tersedia.");
-      }
-    } catch (error) {
-      console.error("Gagal memulai Supabase:", error);
+      );
+    } else {
+      console.warn("Konfigurasi Supabase belum tersedia.");
     }
-  </script>
+  } catch (error) {
+    console.error("Gagal memulai Supabase:", error);
+  }
+</script>
 
-  <!-- Logika aplikasi -->
-  <script src="app.js"></script>
+<!-- Logika aplikasi asli: jangan dihapus -->
+<script src="app.js"></script>
 </body>
 </html>

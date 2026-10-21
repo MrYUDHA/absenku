@@ -434,5 +434,78 @@
 
 <!-- Logika aplikasi asli: jangan dihapus -->
 <script src="app.js"></script>
+
+<!-- ABSENKU: PILIHAN BAHASA -->
+<div id="absenku-language-box" style="
+  margin:20px auto;
+  padding:16px;
+  max-width:500px;
+  background:linear-gradient(135deg,#e0f7ff,#ffffff);
+  border:1px solid #bae6fd;
+  border-radius:18px;
+  box-shadow:0 8px 25px rgba(8,127,189,.15);
+  font-family:Arial,sans-serif;
+  color:#123d70;
+">
+  <div style="font-size:22px;font-weight:800;margin-bottom:8px;">
+    🌐 Bahasa / Language
+  </div>
+
+  <label for="absenku-language" style="display:block;margin-bottom:8px;">
+    Pilih bahasa aplikasi:
+  </label>
+
+  <select id="absenku-language" style="
+    width:100%;
+    padding:12px;
+    border:1px solid #7dd3fc;
+    border-radius:10px;
+    background:white;
+    font-size:16px;
+  ">
+    <option value="id">🇮🇩 Bahasa Indonesia</option>
+    <option value="en">🇬🇧 English</option>
+    <option value="ms">🇲🇾 Bahasa Melayu</option>
+  </select>
+
+  <p id="absenku-language-message" style="margin:12px 0 0;font-size:14px;">
+    Pilihan bahasa tersimpan di perangkat ini.
+  </p>
+</div>
+
+<script>
+(function () {
+  const selector = document.getElementById("absenku-language");
+  const message = document.getElementById("absenku-language-message");
+
+  if (!selector || !message) return;
+
+  const translations = {
+    id: "Pilihan bahasa tersimpan di perangkat ini.",
+    en: "Your language preference is saved on this device.",
+    ms: "Pilihan bahasa anda disimpan pada peranti ini."
+  };
+
+  try {
+    const saved = localStorage.getItem("absenku-language");
+    if (saved && translations[saved]) {
+      selector.value = saved;
+    }
+  } catch (error) {}
+
+  message.textContent = translations[selector.value];
+
+  selector.addEventListener("change", function () {
+    const language = selector.value;
+
+    try {
+      localStorage.setItem("absenku-language", language);
+    } catch (error) {}
+
+    message.textContent = translations[language];
+  });
+})();
+</script>
+</body>
 </body>
 </html>

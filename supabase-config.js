@@ -47,6 +47,7 @@ if (loginForm) {
       }
 
       document.getElementById("login-screen").style.display = "none";
+      window.showDashboardAfterLogin();
 
       message.textContent =
         "Login berhasil. Selamat datang, " +

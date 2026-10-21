@@ -1,5 +1,5 @@
 const $ = (id) => document.getElementById(id);
-document.getElementById("app-dashboard").style.display = "";
+document.getElementById("app-dashboard").style.display = "none";
 const STORAGE_KEY = "absensibot-demo-v1";
 const dateKey = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; };
 const timeNow = () => new Date().toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit",hour12:false});

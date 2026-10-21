@@ -506,6 +506,113 @@
   });
 })();
 </script>
+ 
+<script>
+(function () {
+  const languageMenu = document.getElementById("absenku-language");
+  if (!languageMenu) return;
+
+  const dictionary = {
+    "Dashboard": {
+      en: "Dashboard", ms: "Papan Pemuka"
+    },
+    "Beranda": {
+      en: "Home", ms: "Laman Utama"
+    },
+    "Absensi": {
+      en: "Attendance", ms: "Kehadiran"
+    },
+    "Riwayat Absensi": {
+      en: "Attendance History", ms: "Sejarah Kehadiran"
+    },
+    "Karyawan": {
+      en: "Employees", ms: "Pekerja"
+    },
+    "Laporan": {
+      en: "Reports", ms: "Laporan"
+    },
+    "Pengaturan": {
+      en: "Settings", ms: "Tetapan"
+    },
+    "Profil": {
+      en: "Profile", ms: "Profil"
+    },
+    "Keluar": {
+      en: "Log Out", ms: "Log Keluar"
+    },
+    "Check-in": {
+      en: "Check In", ms: "Daftar Masuk"
+    },
+    "Check-out": {
+      en: "Check Out", ms: "Daftar Keluar"
+    },
+    "Hadir": {
+      en: "Present", ms: "Hadir"
+    },
+    "Terlambat": {
+      en: "Late", ms: "Lewat"
+    },
+    "Total Kehadiran": {
+      en: "Total Attendance", ms: "Jumlah Kehadiran"
+    },
+    "Semangat bekerja!": {
+      en: "Stay motivated at work!", ms: "Terus bersemangat bekerja!"
+    }
+  };
+
+  const originalTexts = new Map();
+
+  function collectTextNodes() {
+    const walker = document.createTreeWalker(
+      document.body,
+      NodeFilter.SHOW_TEXT
+    );
+
+    let node;
+    while ((node = walker.nextNode())) {
+      const parent = node.parentElement;
+
+      if (!parent ||
+          ["SCRIPT", "STYLE", "OPTION"].includes(parent.tagName)) {
+        continue;
+      }
+
+      const original = node.nodeValue.trim();
+      if (dictionary[original] && !originalTexts.has(node)) {
+        originalTexts.set(node, node.nodeValue);
+      }
+    }
+  }
+
+  function translate(language) {
+    collectTextNodes();
+
+    originalTexts.forEach(function (original, node) {
+      if (!node.isConnected) return;
+
+      const key = original.trim();
+      const translated = dictionary[key];
+
+      if (translated && translated[language]) {
+        const leading = original.match(/^\s*/)[0];
+        const trailing = original.match(/\s*$/)[0];
+        node.nodeValue = leading + translated[language] + trailing;
+      } else {
+        node.nodeValue = original;
+      }
+    });
+  }
+
+  languageMenu.addEventListener("change", function () {
+    translate(languageMenu.value);
+  });
+
+  translate(languageMenu.value);
+})();
+</script>
+</body>
+</html>
+
 </body>
 </body>
 </html>

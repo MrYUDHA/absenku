@@ -423,3 +423,105 @@ body {
   }
 }
 
+/* ===== ABSENKU DASHBOARD PREMIUM ===== */
+
+/* Latar dashboard */
+.app-shell {
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(16,185,129,.08), transparent 38%),
+    radial-gradient(ellipse at 100% 0%, rgba(99,102,241,.09), transparent 36%),
+    #f5f8fc;
+}
+
+/* Sidebar */
+.sidebar {
+  box-shadow: 8px 0 32px rgba(31,53,87,.07);
+}
+
+.brand-icon {
+  animation: absenkuBrandGlow 3s ease-in-out infinite;
+}
+
+/* Kartu statistik dan panel */
+.stat-card,
+.panel {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(220,230,242,.9);
+  border-radius: 20px;
+  background: rgba(255,255,255,.95);
+  box-shadow: 0 10px 28px rgba(31,53,87,.07);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.stat-card::before,
+.panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg,#10b981,#3b82f6,#8b5cf6);
+}
+
+.stat-card:hover,
+.panel:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 17px 38px rgba(31,53,87,.12);
+}
+
+/* Warna kartu */
+.stat-card.green {
+  background: linear-gradient(135deg,#ffffff,#e7fbf1);
+}
+
+.stat-card.blue {
+  background: linear-gradient(135deg,#ffffff,#eaf1ff);
+}
+
+.stat-card.purple {
+  background: linear-gradient(135deg,#ffffff,#f2ebff);
+}
+
+/* Tombol */
+.btn {
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(31,53,87,.13);
+}
+
+/* Animasi logo */
+@keyframes absenkuBrandGlow {
+  0%, 100% {
+    box-shadow: 0 5px 16px rgba(16,185,129,.2);
+  }
+  50% {
+    box-shadow: 0 8px 27px rgba(16,185,129,.42);
+  }
+}
+
+/* Tampilan ponsel */
+@media (max-width: 650px) {
+  .stat-card,
+  .panel {
+    border-radius: 16px;
+  }
+}
+
+/* Kurangi animasi jika diminta perangkat */
+@media (prefers-reduced-motion: reduce) {
+  .brand-icon {
+    animation: none;
+  }
+
+  .stat-card,
+  .panel,
+  .btn {
+    transition: none;
+  }
+}
+

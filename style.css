@@ -287,3 +287,139 @@ body {
   }
 }
 
+/* ===== ABSENKU PREMIUM LOGIN V2 ===== */
+
+/* Latar halaman lebih modern */
+body {
+  background-color: #eef4fb;
+  background-image:
+    radial-gradient(ellipse at 8% 8%, rgba(16,185,129,.19), transparent 35%),
+    radial-gradient(ellipse at 92% 12%, rgba(99,102,241,.17), transparent 34%),
+    linear-gradient(135deg, #f7fbff, #edf5f7, #f5f3ff);
+  background-size: 160% 160%;
+  animation: absenkuBackground 12s ease-in-out infinite alternate;
+}
+
+/* Panel login */
+#login-screen {
+  position: relative;
+  overflow: hidden;
+  width: calc(100% - 32px);
+  max-width: 430px;
+  margin: 7vh auto;
+  padding: 34px 28px;
+  border: 1px solid rgba(255,255,255,.9);
+  border-radius: 28px;
+  background: rgba(255,255,255,.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow:
+    0 30px 80px rgba(31,53,87,.14),
+    0 5px 18px rgba(16,185,129,.08);
+  animation: absenkuLoginEnter .75s cubic-bezier(.2,.8,.2,1) both;
+}
+
+/* Garis cahaya di atas panel */
+#login-screen::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 80%;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #10b981, #818cf8, transparent);
+  animation: absenkuLightSweep 4s ease-in-out infinite;
+}
+
+/* Judul login */
+#login-screen h2 {
+  color: #087f5b;
+  font-size: clamp(27px, 7vw, 34px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.2;
+  text-shadow: 0 3px 18px rgba(16,185,129,.12);
+}
+
+/* Kolom input */
+#login-screen input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid #dce6f0;
+  border-radius: 13px;
+  background: rgba(248,251,255,.96);
+  color: #172033;
+  transition: border-color .25s, box-shadow .25s, background .25s;
+}
+
+#login-screen input:focus {
+  outline: none;
+  border-color: #10b981;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(16,185,129,.13);
+}
+
+/* Tombol login */
+#login-screen button {
+  min-height: 48px;
+  border: none;
+  border-radius: 13px;
+  background: linear-gradient(115deg, #10b981, #087f8c, #2563eb);
+  background-size: 200% 200%;
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 10px 24px rgba(8,127,140,.22);
+  transition: transform .25s, box-shadow .25s, background-position .4s;
+}
+
+#login-screen button:hover {
+  background-position: 100% 50%;
+  box-shadow: 0 14px 30px rgba(8,127,140,.3);
+}
+
+#login-screen button:active {
+  transform: scale(.98);
+}
+
+/* Animasi lembut */
+@keyframes absenkuBackground {
+  from { background-position: 0% 0%; }
+  to { background-position: 100% 100%; }
+}
+
+@keyframes absenkuLoginEnter {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes absenkuLightSweep {
+  0% { left: -100%; }
+  55%, 100% { left: 130%; }
+}
+
+/* Tampilan HP */
+@media (max-width: 480px) {
+  #login-screen {
+    margin: 5vh auto;
+    padding: 28px 21px;
+    border-radius: 23px;
+  }
+}
+
+/* Hormati pengaturan pengurangan animasi */
+@media (prefers-reduced-motion: reduce) {
+  body,
+  #login-screen,
+  #login-screen::before {
+    animation: none !important;
+  }
+}
+

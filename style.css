@@ -602,3 +602,68 @@ body {
   }
 }
 
+/* ===== ABSENKU PIRATE ADVENTURE DASHBOARD ===== */
+
+body {
+  background:
+    radial-gradient(ellipse at 10% 0%, rgba(56,189,248,.16), transparent 38%),
+    linear-gradient(145deg, #edf8ff, #f5f8ff 55%, #e5f3ff);
+  background-attachment: fixed;
+}
+
+.sidebar {
+  background: linear-gradient(180deg, #123d70, #075985 60%, #082f49);
+  box-shadow: 8px 0 30px rgba(8,47,73,.15);
+}
+
+.brand-icon {
+  box-shadow: 0 0 20px rgba(56,189,248,.4);
+  animation: pirateGlow 3s ease-in-out infinite;
+}
+
+.stat-card,
+.panel {
+  border: 1px solid rgba(255,255,255,.85);
+  box-shadow: 0 12px 35px rgba(21,77,120,.09);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.stat-card:hover,
+.panel:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(21,77,120,.15);
+}
+
+.btn {
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(8,127,189,.22);
+}
+
+.clock {
+  text-shadow: 0 0 22px rgba(8,145,178,.15);
+}
+
+.pill,
+.bot-badge {
+  box-shadow: 0 4px 14px rgba(8,127,189,.12);
+}
+
+@keyframes pirateGlow {
+  0%,100% { box-shadow: 0 0 10px rgba(56,189,248,.2); }
+  50% { box-shadow: 0 0 25px rgba(56,189,248,.6); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-icon,
+  .stat-card,
+  .panel,
+  .btn {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+

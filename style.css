@@ -525,3 +525,80 @@ body {
   }
 }
 
+/* ===== FIX TAMPILAN LOGIN ABSENKU ===== */
+
+#login-screen {
+  box-sizing: border-box !important;
+  width: calc(100% - 32px) !important;
+  max-width: 440px !important;
+  margin: 7vh auto !important;
+  padding: 32px 26px !important;
+  border: 1px solid rgba(255,255,255,.95) !important;
+  border-radius: 26px !important;
+  background: linear-gradient(145deg, #ffffff, #effbf6) !important;
+  box-shadow:
+    0 25px 70px rgba(22, 45, 74, .17),
+    0 0 35px rgba(16, 185, 129, .10) !important;
+  animation: absenkuLoginEnter .7s ease both;
+}
+
+#login-screen h2 {
+  margin-top: 0;
+  font-size: 34px !important;
+  letter-spacing: -1px;
+  color: #087f5b !important;
+}
+
+#login-screen > p {
+  color: #64748b;
+  line-height: 1.7;
+}
+
+#login-screen label {
+  display: block;
+  margin-top: 12px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+#login-screen input {
+  width: 100% !important;
+  min-height: 48px;
+  padding: 13px !important;
+  border: 1px solid #d8e5e0 !important;
+  border-radius: 12px !important;
+  background: #f8fcfa !important;
+  box-sizing: border-box !important;
+}
+
+#login-screen input:focus {
+  outline: none !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 4px rgba(16,185,129,.14) !important;
+}
+
+#login-screen button {
+  width: 100% !important;
+  min-height: 49px;
+  padding: 13px !important;
+  border: 0 !important;
+  border-radius: 13px !important;
+  background: linear-gradient(110deg,#10b981,#087f8c,#2563eb) !important;
+  color: white !important;
+  font-weight: 800 !important;
+  box-shadow: 0 9px 23px rgba(8,127,140,.25) !important;
+  cursor: pointer;
+}
+
+#login-screen button:active {
+  transform: scale(.98);
+}
+
+@media (max-width: 480px) {
+  #login-screen {
+    margin: 5vh auto !important;
+    padding: 26px 20px !important;
+  }
+}
+

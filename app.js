@@ -224,7 +224,8 @@ function showCheckInCelebration(jamMasuk) {
     "Langkah kecil hari ini membawa kesuksesan esok hari! 🚀",
     "Kerja keras, kerja cerdas, dan tetap jaga semangat! ✨",
     "Hari baru, peluang baru untuk menjadi lebih baik! 🌟",
-    "Berikan yang terbaik hari ini. Kamu pasti bisa! 🔥"
+    "Berikan yang terbaik hari ini. Kamu pasti bisa! 🔥",
+    "kerja kerja kerja 🤣🤣🤣🤣🤣👻👻👻"
   ];
 
   const quote = messages[Math.floor(Math.random() * messages.length)];
@@ -421,3 +422,20 @@ setInterval(tick, 1000);
 
 // Jangan tampilkan data dasbor sebelum login.
 if (dashboard) dashboard.style.display = "none";
+
+function showCheckInCelebration(jamMasuk) {
+  const quotes = [
+    "YOSSH! Semangat, Nakama! Terus kejar impianmu! 🏴‍☠️",
+    "Satu langkah disiplin hari ini, satu langkah menuju impian besar! 🌊",
+    "Pantang menyerah! Jadikan hari ini petualangan terbaikmu! ⚓",
+    "Semangat bekerja! Harta karun kesuksesan dimulai dari disiplin! ✨"
+  ];
+
+  const quote = quotes[Math.floor(Math.random() * quotes.length)];
+
+  alert(
+    "🏴‍☠️ YOSSH! SEMANGAT, NAKAMA!\n\n" +
+    quote +
+    "\n\nCheck-in berhasil pukul " + jamMasuk + "."
+  );
+}

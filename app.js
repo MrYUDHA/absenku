@@ -298,8 +298,9 @@ $("checkInBtn").addEventListener("click", () => {
   $("actionMessage").textContent =
     "Check-in berhasil dicatat pukul " + data.days[k].checkIn + ".";
 
-  say("Check-in berhasil dicatat pukul " + data.days[k].checkIn + ".");
-  refresh();
+   say("Check-in berhasil dicatat pukul " + data.days[k].checkIn + ".");
+showCheckInCelebration(data.days[k].checkIn);
+refresh();
 });
 
 // ===============================

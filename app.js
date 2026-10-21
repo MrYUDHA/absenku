@@ -214,6 +214,68 @@ function reply(input) {
 // ===============================
 // CHECK-IN
 // ===============================
+/* ===== UCAPAN SEMANGAT ABSENKU ===== */
+function showCheckInCelebration(jamMasuk) {
+  const oldPopup = document.getElementById("absenku-celebration");
+  if (oldPopup) oldPopup.remove();
+
+  const messages = [
+    "Awali hari dengan semangat, akhiri dengan prestasi! 💪",
+    "Langkah kecil hari ini membawa kesuksesan esok hari! 🚀",
+    "Kerja keras, kerja cerdas, dan tetap jaga semangat! ✨",
+    "Hari baru, peluang baru untuk menjadi lebih baik! 🌟",
+    "Berikan yang terbaik hari ini. Kamu pasti bisa! 🔥"
+  ];
+
+  const quote = messages[Math.floor(Math.random() * messages.length)];
+  const popup = document.createElement("div");
+  popup.id = "absenku-celebration";
+
+  popup.innerHTML = `
+    <div class="celebration-card" role="dialog"
+         aria-modal="true" aria-labelledby="celebration-title">
+      <div class="celebration-icon">🎉</div>
+      <h2 id="celebration-title">Absen Masuk Berhasil!</h2>
+      <p class="celebration-time">Jam masuk: ${jamMasuk} WITA</p>
+      <p class="celebration-message">${quote}</p>
+      <p class="celebration-footer">
+        Selamat bekerja dan semoga harimu luar biasa!
+      </p>
+      <button type="button" id="celebration-close">
+        Mulai Hari dengan Semangat ✨
+      </button>
+    </div>
+    <div class="celebration-confetti" aria-hidden="true"></div>
+  `;
+
+  document.body.appendChild(popup);
+
+  const confetti = popup.querySelector(".celebration-confetti");
+  const colors = ["#10b981", "#fbbf24", "#60a5fa", "#c084fc", "#fb7185"];
+
+  for (let i = 0; i < 36; i++) {
+    const piece = document.createElement("i");
+    piece.style.left = Math.random() * 100 + "%";
+    piece.style.background = colors[i % colors.length];
+    piece.style.animationDelay = Math.random() * 1.5 + "s";
+    piece.style.animationDuration = 2 + Math.random() * 2 + "s";
+    piece.style.setProperty("--drift", (Math.random() * 160 - 80) + "px");
+    confetti.appendChild(piece);
+  }
+
+  const closePopup = () => popup.remove();
+  document.getElementById("celebration-close")
+    .addEventListener("click", closePopup);
+
+  popup.addEventListener("click", (event) => {
+    if (event.target === popup) closePopup();
+  });
+
+  setTimeout(() => {
+    if (popup.isConnected) closePopup();
+  }, 12000);
+}
+
 $("checkInBtn").addEventListener("click", () => {
   if (!isLoggedIn) {
     alert("Silakan login terlebih dahulu.");

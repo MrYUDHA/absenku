@@ -667,3 +667,95 @@ body {
   }
 }
 
+/* ===== PERAPIAN ABSENKU UNTUK HP ===== */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+}
+
+.main {
+  min-width: 0;
+  width: 100%;
+}
+
+.main .topbar {
+  padding: 18px 16px;
+}
+
+.main .stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 0 14px;
+}
+
+.main .content-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  padding: 0 14px 20px;
+}
+
+.main .panel {
+  min-width: 0;
+  width: 100%;
+  padding: 16px;
+  border-radius: 18px;
+}
+
+.main .panel-heading {
+  gap: 12px;
+  align-items: center;
+}
+
+.main h1 {
+  font-size: clamp(22px, 6vw, 30px);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.main h2 {
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.main p {
+  line-height: 1.6;
+}
+
+.main button,
+.main input,
+.main select,
+.main textarea {
+  max-width: 100%;
+}
+
+.main table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.main .history-panel {
+  overflow-x: auto;
+}
+
+@media (max-width: 600px) {
+  .main .stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .main .panel {
+    padding: 14px;
+  }
+}
+

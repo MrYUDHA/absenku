@@ -82,20 +82,35 @@ function todayRecord() {
 // ===============================
 // DASBOR DAN RIWAYAT
 // ===============================
+
+function absLang(id, en, ms) {
+  let lang = "id";
+
+  try {
+    lang = localStorage.getItem("absenku-language") || "id";
+  } catch (error) {}
+
+  if (lang === "en") return en;
+  if (lang === "ms") return ms;
+  return id;
+}
+
 function refresh() {
   if (!isLoggedIn) return;
 
   const rec = todayRecord();
 
+   
   $("statusValue").textContent =
-    rec.checkOut ? "Selesai" :
-    rec.checkIn ? "Sudah check-in" :
-    "Belum absen";
+    rec.checkOut ? absLang("Selesai", "Finished", "Selesai") :
+    rec.checkIn ? absLang("Sudah check-in", "Checked in", "Sudah daftar masuk") :
+    absLang("Belum absen", "Not checked in", "Belum daftar masuk");
 
   $("statusSub").textContent =
-    rec.checkOut ? "Absensi hari ini lengkap" :
-    rec.checkIn ? "Jangan lupa check-out" :
-    "Silakan check-in";
+    rec.checkOut ? absLang("Absensi hari ini lengkap", "Today's attendance is complete", "Kehadiran hari ini lengkap") :
+    rec.checkIn ? absLang("Jangan lupa check-out", "Don't forget to check out", "Jangan lupa daftar keluar") :
+    absLang("Silakan check-in", "Please check in", "Sila daftar masuk");
+
 
   $("checkInValue").textContent = rec.checkIn || "—";
   $("checkOutValue").textContent = rec.checkOut || "—";

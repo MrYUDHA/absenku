@@ -653,48 +653,54 @@ const dictionary = {
 };
 
 
-  const originalTexts = new Map();
+   
+const originalTexts = new Map();
 
-  function collectTextNodes() {
-    const walker = document.createTreeWalker(
-      document.body,
-      NodeFilter.SHOW_TEXT
-    );
+function collectTextNodes() {
+  const walker = document.createTreeWalker(
+    document.body,
+    NodeFilter.SHOW_TEXT
+  );
 
-    let node;
-    while ((node = walker.nextNode())) {
-      const parent = node.parentElement;
+  let node;
 
-      if (!parent ||
-          ["SCRIPT", "STYLE", "OPTION"].includes(parent.tagName)) {
-        continue;
-      }
+  while ((node = walker.nextNode())) {
+    const parent = node.parentElement;
 
-      const original = node.nodeValue.trim();
-      if (dictionary[original] && !originalTexts.has(node)) {
-        originalTexts.set(node, node.nodeValue);
-      }
+    if (
+      !parent ||
+      ["SCRIPT", "STYLE", "OPTION"].includes(parent.tagName)
+    ) {
+      continue;
+    }
+
+    if (!originalTexts.has(node)) {
+      originalTexts.set(node, node.nodeValue);
     }
   }
+}
 
-  function translate(language) {
-    collectTextNodes();
+function translate(language) {
+  collectTextNodes();
 
-    originalTexts.forEach(function (original, node) {
-      if (!node.isConnected) return;
+  originalTexts.forEach(function (original, node) {
+    if (!node.isConnected) return;
 
-      const key = original.trim();
-      const translated = dictionary[key];
+    const key = original.trim();
+    const translated = dictionary[key];
 
-      if (translated && translated[language]) {
-        const leading = original.match(/^\s*/)[0];
-        const trailing = original.match(/\s*$/)[0];
-        node.nodeValue = leading + translated[language] + trailing;
-      } else {
-        node.nodeValue = original;
-      }
-    });
-  }
+    if (translated && translated[language]) {
+      const leading = original.match(/^\s*/)[0];
+      const trailing = original.match(/\s*$/)[0];
+
+      node.nodeValue =
+        leading + translated[language] + trailing;
+    } else {
+      node.nodeValue = original;
+    }
+  });
+}
+
 
   languageMenu.addEventListener("change", function () {
     translate(languageMenu.value);

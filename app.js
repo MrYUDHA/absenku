@@ -123,11 +123,19 @@ function refresh() {
   const days = getData().days;
   const keys = Object.keys(days).sort((a, b) => b.localeCompare(a));
 
-  if (!keys.length) {
-    $("historyBody").innerHTML =
-      '<tr><td colspan="4" class="empty">Belum ada data absensi.</td></tr>';
-    return;
-  }
+   
+if (!keys.length) {
+  $("historyBody").innerHTML =
+    '<tr><td colspan="4" class="empty">' +
+    absLang(
+      "Belum ada data absensi.",
+      "No attendance records yet.",
+      "Belum ada rekod kehadiran."
+    ) +
+    '</td></tr>';
+  return;
+}
+
 
   keys.forEach((k) => {
     const r = days[k];

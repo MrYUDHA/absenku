@@ -140,11 +140,13 @@ if (!keys.length) {
   keys.forEach((k) => {
     const r = days[k];
     const tr = document.createElement("tr");
-    const status = r.checkOut
-      ? "Lengkap"
-      : r.checkIn
-      ? "Belum pulang"
-      : "Belum absen";
+     
+const status = r.checkOut
+  ? absLang("Lengkap", "Complete", "Lengkap")
+  : r.checkIn
+  ? absLang("Belum pulang", "Not checked out", "Belum daftar keluar")
+  : absLang("Belum absen", "Not checked in", "Belum daftar masuk");
+
 
     tr.innerHTML =
       `<td>${k}</td>` +

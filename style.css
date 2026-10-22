@@ -1035,14 +1035,15 @@ body {
     padding-bottom: 90px;
   }
 } 
-/* ===== ABSENKU MENU IKON ===== */
+ 
+/* ===== ABSENKU NAVIGASI IKON TRANSPARAN ===== */
 
 #main-nav {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 10px;
-  padding: 10px 6px;
+  gap: 8px;
+  padding: 8px 4px;
 }
 
 #main-nav a {
@@ -1052,46 +1053,49 @@ body {
   width: 100%;
   min-width: 0;
   min-height: 54px;
-  padding: 10px 4px;
-  border-radius: 14px;
+  padding: 8px 4px;
+  border: none;
+  border-radius: 12px;
   text-decoration: none;
   font-size: 28px;
   line-height: 1;
   text-align: center;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
-/* Sembunyikan tulisan, ikon tetap ada */
+/* Sembunyikan tulisan, pertahankan ikon */
 #main-nav a span {
   display: none !important;
 }
 
+/* Menu aktif tanpa kotak berwarna */
 #main-nav a.active {
-  background: rgba(0, 220, 210, 0.20);
-  box-shadow: 0 4px 16px rgba(0, 220, 210, 0.18);
+  background: transparent;
+  box-shadow: none;
+  color: #2dd4bf;
 }
 
 #main-nav a:active {
-  transform: scale(0.96);
+  transform: scale(0.94);
 }
 
-/* Menu bawah untuk HP Android */
+/* Navigasi bawah di HP */
 @media (max-width: 700px) {
   #main-nav {
     position: fixed;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
+    left: 0;
+    right: 0;
+    bottom: 0;
     z-index: 9999;
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
-    gap: 4px;
-    padding: 7px 5px;
-    border: 1px solid rgba(100, 200, 255, 0.25);
-    border-radius: 18px;
-    background: rgba(8, 20, 43, 0.97);
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+    gap: 0;
+    padding: 4px 8px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
   #main-nav a {
@@ -1100,9 +1104,31 @@ body {
     min-height: 48px;
     padding: 8px 2px;
     font-size: 28px;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  #main-nav a.active {
+    background: transparent;
+    box-shadow: none;
   }
 
   body {
-    padding-bottom: 90px;
+    padding-bottom: 64px;
+  }
+
+  .main {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .main .stats,
+  .main .content-grid,
+  .main .panel {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 }
+

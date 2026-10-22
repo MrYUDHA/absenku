@@ -759,3 +759,105 @@ body {
   }
 }
 
+/* ===== ABSENKU: MENU, IKON, DAN TOMBOL RAPI ===== */
+
+/* Menu navigasi */
+#main-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 12px;
+}
+
+#main-nav a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 14px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+#main-nav a span {
+  display: inline-block;
+  flex: 1;
+  min-width: 0;
+}
+
+#main-nav a.active {
+  background: rgba(20, 184, 166, 0.18);
+  border-color: rgba(45, 212, 191, 0.35);
+  color: #ffffff;
+}
+
+#main-nav a:active {
+  transform: scale(0.98);
+}
+
+/* Tombol di area konten */
+.main button,
+.main .button,
+.main [type="button"],
+.main [type="submit"] {
+  min-height: 44px;
+  padding: 11px 16px;
+  border-radius: 12px;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+/* Input dan pilihan */
+.main input,
+.main select,
+.main textarea {
+  min-height: 44px;
+  max-width: 100%;
+  border-radius: 10px;
+  font: inherit;
+}
+
+/* Hindari simbol dan tulisan berantakan */
+#main-nav,
+#main-nav * {
+  box-sizing: border-box;
+}
+
+.main button {
+  overflow-wrap: anywhere;
+}
+
+/* Tampilan HP */
+@media (max-width: 600px) {
+  #main-nav {
+    gap: 5px;
+    padding: 8px;
+  }
+
+  #main-nav a {
+    min-height: 44px;
+    padding: 10px;
+    gap: 9px;
+    font-size: 13px;
+  }
+
+  .main button,
+  .main .button,
+  .main [type="button"],
+  .main [type="submit"] {
+    min-height: 44px;
+    max-width: 100%;
+  }
+}
+
+

@@ -1132,3 +1132,40 @@ body {
   }
 }
 
+/* ABSENKU - Navigasi ringkas untuk HP */
+@media screen and (max-width: 700px) {
+  #main-nav {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 10px 5px !important;
+  }
+
+  #main-nav a {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 48px !important;
+    min-width: 48px !important;
+    height: 46px !important;
+    padding: 8px !important;
+    margin: 0 auto !important;
+    border-radius: 12px !important;
+    font-size: 24px !important;
+    box-sizing: border-box !important;
+  }
+
+  #main-nav a span {
+    display: none !important;
+  }
+
+  #main-nav a svg,
+  #main-nav a i {
+    width: 25px !important;
+    height: 25px !important;
+    font-size: 25px !important;
+    flex-shrink: 0 !important;
+  }
+}
+

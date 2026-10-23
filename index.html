@@ -319,5 +319,38 @@
   }
 })();
 </script>
+ <script>
+(function () {
+  const translations = {
+    id: { nav_home: "Beranda" },
+    en: { nav_home: "Home" },
+    ms: { nav_home: "Laman Utama" },
+    zh: { nav_home: "首页" }
+  };
+
+  function translateMenu() {
+    const lang = localStorage.getItem("absenku-language") || "id";
+    const dictionary = translations[lang] || translations.id;
+
+    document.querySelectorAll("[data-i18n]").forEach(function (element) {
+      const key = element.getAttribute("data-i18n");
+      if (dictionary[key]) {
+        element.textContent = dictionary[key];
+      }
+    });
+  }
+
+  window.addEventListener("DOMContentLoaded", translateMenu);
+  window.addEventListener("storage", translateMenu);
+
+  document.addEventListener("change", function (event) {
+    if (event.target && event.target.id === "absenku-language") {
+      translateMenu();
+    }
+  });
+
+  translateMenu();
+})();
+</script>
 </body>
 </html>

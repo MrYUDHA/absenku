@@ -83,7 +83,7 @@ function todayRecord() {
 // DASBOR DAN RIWAYAT
 // ===============================
 
-function absLang(id, en, ms) {
+ function absLang(id, en, ms, zh) {
   let lang = "id";
 
   try {
@@ -92,9 +92,10 @@ function absLang(id, en, ms) {
 
   if (lang === "en") return en;
   if (lang === "ms") return ms;
+  if (lang === "zh") return zh || en;
+
   return id;
 }
-
 function refresh() {
   if (!isLoggedIn) return;
 

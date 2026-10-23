@@ -7,29 +7,17 @@ const $ = (id) => document.getElementById(id);
 const dashboard = $("app-dashboard");
 let isLoggedIn = false;
 
-// Dasbor selalu tersembunyi saat aplikasi dimuat
-if (dashboard) {
-  dashboard.style.display = "none";
-}
+if (dashboard) dashboard.style.display = "none";
 
-// Panggil fungsi ini HANYA setelah autentikasi berhasil.
 function showDashboardAfterLogin() {
   isLoggedIn = true;
-
-  if (dashboard) {
-    dashboard.style.display = "";
-  }
-
+  if (dashboard) dashboard.style.display = "";
   refresh();
 }
 
-// Panggil fungsi ini ketika logout.
 function hideDashboardAfterLogout() {
   isLoggedIn = false;
-
-  if (dashboard) {
-    dashboard.style.display = "none";
-  }
+  if (dashboard) dashboard.style.display = "none";
 }
 
 // ===============================
@@ -62,7 +50,7 @@ const prettyDate = (date = new Date()) =>
 function getData() {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { days: {} };
-  } catch {
+  } catch (error) {
     return { days: {} };
   }
 }
@@ -80,42 +68,43 @@ function todayRecord() {
 }
 
 // ===============================
-// DASBOR DAN RIWAYAT
+// TERJEMAHAN 4 BAHASA
 // ===============================
-
- function absLang(id, en, ms, zh) {
-  let lang = "id";
-
+function getLanguage() {
   try {
-    lang = localStorage.getItem("absenku-language") || "id";
-  } catch (error) {}
+    return localStorage.getItem("absenku-language") || "id";
+  } catch (error) {
+    return "id";
+  }
+}
 
-  if (lang === "en") return en;
-  if (lang === "ms") return ms;
-  if (lang === "zh") return zh || en;
-
+function absLang(id, en, ms, zh) {
+  const lang = getLanguage();
+  if (lang === "en") return en || id;
+  if (lang === "ms") return ms || id;
+  if (lang === "zh") return zh || en || id;
   return id;
 }
+
+// ===============================
+// DASBOR DAN RIWAYAT
+// ===============================
 function refresh() {
   if (!isLoggedIn) return;
 
   const rec = todayRecord();
 
-   
-   $("statusValue").textContent =
-  rec.checkOut
+  $("statusValue").textContent = rec.checkOut
     ? absLang("Selesai", "Finished", "Selesai", "已完成")
     : rec.checkIn
     ? absLang("Sudah check-in", "Checked in", "Sudah daftar masuk", "已签到")
     : absLang("Belum absen", "Not checked in", "Belum daftar masuk", "尚未签到");
 
-   $("statusSub").textContent =
-  rec.checkOut
+  $("statusSub").textContent = rec.checkOut
     ? absLang("Absensi hari ini lengkap", "Today's attendance is complete", "Kehadiran hari ini lengkap", "今日考勤已完成")
     : rec.checkIn
     ? absLang("Jangan lupa check-out", "Don't forget to check out", "Jangan lupa daftar keluar", "别忘了签退")
     : absLang("Silakan check-in", "Please check in", "Sila daftar masuk", "请签到");
-
 
   $("checkInValue").textContent = rec.checkIn || "—";
   $("checkOutValue").textContent = rec.checkOut || "—";
@@ -123,48 +112,57 @@ function refresh() {
   $("checkInBtn").disabled = !!rec.checkIn;
   $("checkOutBtn").disabled = !rec.checkIn || !!rec.checkOut;
 
-  $("historyBody").innerHTML = "";
+  const historyBody = $("historyBody");
+  historyBody.innerHTML = "";
 
   const days = getData().days;
   const keys = Object.keys(days).sort((a, b) => b.localeCompare(a));
 
-   
-if (!keys.length) {
-  $("historyBody").innerHTML =
-    '<tr><td colspan="4" class="empty">' +
-    absLang(
-      "Belum ada data absensi.",
-      "No attendance records yet.",
-      "Belum ada rekod kehadiran."
-    ) +
-    '</td></tr>';
-  return;
-}
-
+  if (!keys.length) {
+    historyBody.innerHTML =
+      '<tr><td colspan="4" class="empty">' +
+      absLang(
+        "Belum ada data absensi.",
+        "No attendance records yet.",
+        "Belum ada rekod kehadiran.",
+        "暂无考勤记录。"
+      ) +
+      "</td></tr>";
+    return;
+  }
 
   keys.forEach((k) => {
     const r = days[k];
     const tr = document.createElement("tr");
-     
-const status = r.checkOut
-  ? absLang("Lengkap", "Complete", "Lengkap")
-  : r.checkIn
-  ? absLang("Belum pulang", "Not checked out", "Belum daftar keluar")
-  : absLang("Belum absen", "Not checked in", "Belum daftar masuk");
 
+    const status = r.checkOut
+      ? absLang("Lengkap", "Complete", "Lengkap", "已完成")
+      : r.checkIn
+      ? absLang("Belum pulang", "Not checked out", "Belum daftar keluar", "尚未签退")
+      : absLang("Belum absen", "Not checked in", "Belum daftar masuk", "尚未签到");
 
-    tr.innerHTML =
-      `<td>${k}</td>` +
-      `<td>${r.checkIn || "—"}</td>` +
-      `<td>${r.checkOut || "—"}</td>` +
-      `<td><span class="status-pill">${status}</span></td>`;
+    const dateCell = document.createElement("td");
+    dateCell.textContent = k;
 
-    $("historyBody").appendChild(tr);
+    const inCell = document.createElement("td");
+    inCell.textContent = r.checkIn || "—";
+
+    const outCell = document.createElement("td");
+    outCell.textContent = r.checkOut || "—";
+
+    const statusCell = document.createElement("td");
+    const pill = document.createElement("span");
+    pill.className = "status-pill";
+    pill.textContent = status;
+    statusCell.appendChild(pill);
+
+    tr.append(dateCell, inCell, outCell, statusCell);
+    historyBody.appendChild(tr);
   });
 }
 
 // ===============================
-// CHATBOT DEMO
+// CHATBOT
 // ===============================
 function say(text, who = "bot") {
   const row = document.createElement("div");
@@ -181,7 +179,9 @@ function say(text, who = "bot") {
   bubble.className = "bubble";
 
   const b = document.createElement("b");
-  b.textContent = who === "bot" ? "ABSENKU" : "Anda";
+  b.textContent = who === "bot"
+    ? "ABSENKU"
+    : absLang("Anda", "You", "Anda", "你");
 
   const p = document.createElement("p");
   p.textContent = text;
@@ -195,90 +195,183 @@ function say(text, who = "bot") {
 
 function reply(input) {
   const q = input.toLowerCase();
+  const r = todayRecord();
+  const lang = getLanguage();
 
-  if (q.includes("check-in") || q.includes("check in") || q.includes("absen masuk")) {
-    const r = todayRecord();
-    if (r.checkIn) return "Kamu sudah check-in hari ini pukul " + r.checkIn + ".";
-    return "Untuk mencatat kehadiran, tekan tombol Check-in.";
+  const messages = {
+    id: {
+      checkedIn: `Kamu sudah check-in hari ini pukul ${r.checkIn}.`,
+      pressIn: "Untuk mencatat kehadiran, tekan tombol Check-in.",
+      checkedOut: `Kamu sudah check-out pukul ${r.checkOut}.`,
+      noIn: "Kamu belum check-in. Lakukan check-in terlebih dahulu.",
+      pressOut: "Untuk mengakhiri absensi, tekan tombol Check-out.",
+      complete: `Absensi lengkap. Masuk ${r.checkIn}, pulang ${r.checkOut}.`,
+      notOut: `Sudah check-in pukul ${r.checkIn}, belum check-out.`,
+      noToday: "Belum melakukan absensi hari ini.",
+      noHistory: "Belum ada riwayat absensi.",
+      history: "Riwayat terbaru: ",
+      schedule: "Jadwal demo: masuk 08.00 WITA, toleransi 10 menit, pulang 17.00 WITA. Aturan ini belum diterapkan sebagai validasi absensi.",
+      help: "Saya dapat membantu mengecek status absensi, riwayat, dan jadwal kerja. Ketik: status, riwayat, atau jam kerja.",
+      unknown: "Maaf, saya belum memahami pertanyaan itu. Coba ketik bantuan, status, riwayat, atau jam kerja."
+    },
+    en: {
+      checkedIn: `You checked in today at ${r.checkIn}.`,
+      pressIn: "To record attendance, press Check-in.",
+      checkedOut: `You checked out at ${r.checkOut}.`,
+      noIn: "You have not checked in. Please check in first.",
+      pressOut: "To finish attendance, press Check-out.",
+      complete: `Attendance complete. In ${r.checkIn}, out ${r.checkOut}.`,
+      notOut: `Checked in at ${r.checkIn}, not checked out yet.`,
+      noToday: "You have not recorded attendance today.",
+      noHistory: "There is no attendance history yet.",
+      history: "Recent history: ",
+      schedule: "Demo schedule: check-in 08:00 WITA, 10-minute grace period, check-out 17:00 WITA. These rules are not yet enforced.",
+      help: "I can help check attendance status, history, and work schedule. Type: status, history, or work hours.",
+      unknown: "Sorry, I don't understand. Try help, status, history, or work hours."
+    },
+    ms: {
+      checkedIn: `Anda telah daftar masuk hari ini pada ${r.checkIn}.`,
+      pressIn: "Untuk merekod kehadiran, tekan butang Check-in.",
+      checkedOut: `Anda telah daftar keluar pada ${r.checkOut}.`,
+      noIn: "Anda belum daftar masuk. Sila daftar masuk dahulu.",
+      pressOut: "Untuk menamatkan kehadiran, tekan Check-out.",
+      complete: `Kehadiran lengkap. Masuk ${r.checkIn}, keluar ${r.checkOut}.`,
+      notOut: `Sudah daftar masuk pada ${r.checkIn}, belum daftar keluar.`,
+      noToday: "Anda belum merekod kehadiran hari ini.",
+      noHistory: "Belum ada sejarah kehadiran.",
+      history: "Sejarah terkini: ",
+      schedule: "Jadual demo: masuk 08.00 WITA, toleransi 10 minit, keluar 17.00 WITA. Peraturan ini belum dikuatkuasakan.",
+      help: "Saya boleh menyemak status kehadiran, sejarah dan jadual kerja. Taip: status, sejarah atau waktu kerja.",
+      unknown: "Maaf, saya belum memahami soalan itu. Cuba taip bantuan, status, sejarah atau waktu kerja."
+    },
+    zh: {
+      checkedIn: `你今天已于 ${r.checkIn} 签到。`,
+      pressIn: "如需记录考勤，请点击“签到”按钮。",
+      checkedOut: `你已于 ${r.checkOut} 签退。`,
+      noIn: "你还没有签到，请先签到。",
+      pressOut: "如需结束考勤，请点击“签退”按钮。",
+      complete: `考勤已完成。签到时间 ${r.checkIn}，签退时间 ${r.checkOut}。`,
+      notOut: `你已于 ${r.checkIn} 签到，尚未签退。`,
+      noToday: "你今天还没有进行考勤。",
+      noHistory: "暂无考勤记录。",
+      history: "最近的考勤记录：",
+      schedule: "演示排班：08:00 WITA签到，允许迟到10分钟，17:00 WITA签退。这些规则尚未启用为考勤验证。",
+      help: "我可以帮助查询考勤状态、考勤记录和工作时间。请输入：状态、记录或工作时间。",
+      unknown: "抱歉，我暂时无法理解这个问题。请尝试输入：帮助、状态、记录或工作时间。"
+    }
+  };
+
+  const a = messages[lang] || messages.id;
+
+  if (
+    q.includes("check-in") || q.includes("check in") ||
+    q.includes("absen masuk") || q.includes("签到")
+  ) {
+    return r.checkIn ? a.checkedIn : a.pressIn;
   }
 
-  if (q.includes("check-out") || q.includes("check out") || q.includes("absen pulang")) {
-    const r = todayRecord();
-    if (r.checkOut) return "Kamu sudah check-out pukul " + r.checkOut + ".";
-    if (!r.checkIn) return "Kamu belum check-in. Lakukan check-in terlebih dahulu.";
-    return "Untuk mengakhiri absensi, tekan tombol Check-out.";
+  if (
+    q.includes("check-out") || q.includes("check out") ||
+    q.includes("absen pulang") || q.includes("签退")
+  ) {
+    if (r.checkOut) return a.checkedOut;
+    if (!r.checkIn) return a.noIn;
+    return a.pressOut;
   }
 
-  if (q.includes("status")) {
-    const r = todayRecord();
-    return r.checkOut
-      ? `Absensi lengkap. Masuk ${r.checkIn}, pulang ${r.checkOut}.`
-      : r.checkIn
-      ? `Sudah check-in pukul ${r.checkIn}, belum check-out.`
-      : "Belum melakukan absensi hari ini.";
+  if (q.includes("status") || q.includes("状态")) {
+    return r.checkOut ? a.complete : r.checkIn ? a.notOut : a.noToday;
   }
 
-  if (q.includes("riwayat") || q.includes("rekap")) {
-    const d = getData().days;
-    const keys = Object.keys(d).sort((a, b) => b.localeCompare(a));
+  if (
+    q.includes("riwayat") || q.includes("rekap") ||
+    q.includes("history") || q.includes("sejarah") ||
+    q.includes("记录")
+  ) {
+    const days = getData().days;
+    const keys = Object.keys(days).sort((x, y) => y.localeCompare(x));
 
-    if (!keys.length) return "Belum ada riwayat absensi.";
+    if (!keys.length) return a.noHistory;
 
-    return "Riwayat terbaru: " +
-      keys.slice(0, 5).map((k) =>
-        `${k} (masuk ${d[k].checkIn || "—"}, pulang ${d[k].checkOut || "—"})`
-      ).join("; ");
+    return a.history + keys.slice(0, 5).map((k) => {
+      const inLabel = lang === "zh" ? "签到" : lang === "en" ? "in" : "masuk";
+      const outLabel = lang === "zh" ? "签退" : lang === "en" ? "out" : "pulang";
+      return `${k} (${inLabel} ${days[k].checkIn || "—"}, ${outLabel} ${days[k].checkOut || "—"})`;
+    }).join("; ");
   }
 
-  if (q.includes("jam kerja") || q.includes("jadwal")) {
-    return "Jadwal demo: masuk 08.00 WITA, toleransi 10 menit, pulang 17.00 WITA. Aturan ini belum diterapkan sebagai validasi absensi.";
-  }
+  if (
+    q.includes("jam kerja") || q.includes("jadwal") ||
+    q.includes("schedule") || q.includes("工作时间")
+  ) return a.schedule;
 
-  if (q.includes("bantuan") || q.includes("help") || q.includes("halo") || q.includes("hai")) {
-    return "Saya dapat membantu mengecek status absensi, riwayat, dan jadwal kerja. Ketik: status, riwayat, atau jam kerja.";
-  }
+  if (
+    q.includes("bantuan") || q.includes("help") ||
+    q.includes("halo") || q.includes("hai") || q.includes("帮助")
+  ) return a.help;
 
-  return "Maaf, saya belum memahami pertanyaan itu. Coba ketik bantuan, status, riwayat, atau jam kerja.";
+  return a.unknown;
 }
 
 // ===============================
-// CHECK-IN
+// UCAPAN SEMANGAT CHECK-IN
 // ===============================
-/* ===== UCAPAN SEMANGAT ABSENKU ===== */
 function showCheckInCelebration(jamMasuk) {
   const oldPopup = document.getElementById("absenku-celebration");
   if (oldPopup) oldPopup.remove();
 
-  const messages = [
-    "Awali hari dengan semangat, akhiri dengan prestasi! 💪",
-    "Langkah kecil hari ini membawa kesuksesan esok hari! 🚀",
-    "Kerja keras, kerja cerdas, dan tetap jaga semangat! ✨",
-    "Hari baru, peluang baru untuk menjadi lebih baik! 🌟",
-    "Berikan yang terbaik hari ini. Kamu pasti bisa! 🔥",
-    "kerja kerja kerja 🤣🤣🤣🤣🤣👻👻👻"
+  const quotes = [
+    absLang(
+      "Awali hari dengan semangat, akhiri dengan prestasi! 💪",
+      "Start your day with energy and end it with achievement! 💪",
+      "Mulakan hari dengan semangat, akhiri dengan kejayaan! 💪",
+      "以饱满的热情开始新的一天，以出色的成绩结束！💪"
+    ),
+    absLang(
+      "Langkah kecil hari ini membawa kesuksesan esok hari! 🚀",
+      "Small steps today lead to tomorrow's success! 🚀",
+      "Langkah kecil hari ini membawa kejayaan esok! 🚀",
+      "今天迈出一小步，明天成就大成功！🚀"
+    ),
+    absLang(
+      "Kerja keras, kerja cerdas, dan tetap jaga semangat! ✨",
+      "Work hard, work smart, and keep your spirits up! ✨",
+      "Bekerja keras, bekerja bijak dan kekal bersemangat! ✨",
+      "努力工作，聪明做事，保持热情！✨"
+    ),
+    absLang(
+      "YOSSH! Semangat, Nakama! Terus kejar impianmu! 🏴‍☠️",
+      "YOSSH! Stay strong, Nakama! Keep chasing your dreams! 🏴‍☠️",
+      "YOSSH! Terus bersemangat, Nakama! Kejar impian anda! 🏴‍☠️",
+      "哟西！伙伴们，加油！继续追逐梦想！🏴‍☠️"
+    )
   ];
 
-  const quote = messages[Math.floor(Math.random() * messages.length)];
+  const quote = quotes[Math.floor(Math.random() * quotes.length)];
+  const title = absLang("Absen Masuk Berhasil!", "Check-in Successful!", "Daftar Masuk Berjaya!", "签到成功！");
+  const timeLabel = absLang("Jam masuk:", "Check-in time:", "Waktu masuk:", "签到时间：");
+  const footer = absLang("Selamat bekerja dan semoga harimu luar biasa!", "Have a great day at work!", "Selamat bekerja, semoga hari anda hebat!", "祝你工作顺利，度过美好的一天！");
+  const closeLabel = absLang("Mulai Hari dengan Semangat ✨", "Start the Day with Energy ✨", "Mulakan Hari dengan Semangat ✨", "充满干劲地开启新一天 ✨");
+
   const popup = document.createElement("div");
   popup.id = "absenku-celebration";
-
   popup.innerHTML = `
-    <div class="celebration-card" role="dialog"
-         aria-modal="true" aria-labelledby="celebration-title">
+    <div class="celebration-card" role="dialog" aria-modal="true" aria-labelledby="celebration-title">
       <div class="celebration-icon">🎉</div>
-      <h2 id="celebration-title">Absen Masuk Berhasil!</h2>
-      <p class="celebration-time">Jam masuk: ${jamMasuk} WITA</p>
-      <p class="celebration-message">${quote}</p>
-      <p class="celebration-footer">
-        Selamat bekerja dan semoga harimu luar biasa!
-      </p>
-      <button type="button" id="celebration-close">
-        Mulai Hari dengan Semangat ✨
-      </button>
+      <h2 id="celebration-title"></h2>
+      <p class="celebration-time"></p>
+      <p class="celebration-message"></p>
+      <p class="celebration-footer"></p>
+      <button type="button" id="celebration-close"></button>
     </div>
     <div class="celebration-confetti" aria-hidden="true"></div>
   `;
 
+  popup.querySelector("#celebration-title").textContent = title;
+  popup.querySelector(".celebration-time").textContent = `${timeLabel} ${jamMasuk} WITA`;
+  popup.querySelector(".celebration-message").textContent = quote;
+  popup.querySelector(".celebration-footer").textContent = footer;
+  popup.querySelector("#celebration-close").textContent = closeLabel;
   document.body.appendChild(popup);
 
   const confetti = popup.querySelector(".celebration-confetti");
@@ -295,9 +388,7 @@ function showCheckInCelebration(jamMasuk) {
   }
 
   const closePopup = () => popup.remove();
-  document.getElementById("celebration-close")
-    .addEventListener("click", closePopup);
-
+  popup.querySelector("#celebration-close").addEventListener("click", closePopup);
   popup.addEventListener("click", (event) => {
     if (event.target === popup) closePopup();
   });
@@ -307,19 +398,18 @@ function showCheckInCelebration(jamMasuk) {
   }, 12000);
 }
 
+// ===============================
+// CHECK-IN
+// ===============================
 $("checkInBtn").addEventListener("click", () => {
   if (!isLoggedIn) {
-    alert("Silakan login terlebih dahulu.");
+    alert(absLang("Silakan login terlebih dahulu.", "Please log in first.", "Sila log masuk dahulu.", "请先登录。"));
     return;
   }
 
   const data = getData();
   const k = dateKey();
-
-  data.days[k] = data.days[k] || {
-    checkIn: null,
-    checkOut: null
-  };
+  data.days[k] = data.days[k] || { checkIn: null, checkOut: null };
 
   if (data.days[k].checkIn) return;
 
@@ -327,11 +417,12 @@ $("checkInBtn").addEventListener("click", () => {
   saveData(data);
 
   $("actionMessage").textContent =
-    "Check-in berhasil dicatat pukul " + data.days[k].checkIn + ".";
+    absLang("Check-in berhasil dicatat pukul ", "Check-in recorded at ", "Daftar masuk berjaya direkod pada ", "签到成功，时间：") +
+    data.days[k].checkIn + ".";
 
-   say("Check-in berhasil dicatat pukul " + data.days[k].checkIn + ".");
-showCheckInCelebration(data.days[k].checkIn);
-refresh();
+  say($("actionMessage").textContent);
+  showCheckInCelebration(data.days[k].checkIn);
+  refresh();
 });
 
 // ===============================
@@ -339,7 +430,7 @@ refresh();
 // ===============================
 $("checkOutBtn").addEventListener("click", () => {
   if (!isLoggedIn) {
-    alert("Silakan login terlebih dahulu.");
+    alert(absLang("Silakan login terlebih dahulu.", "Please log in first.", "Sila log masuk dahulu.", "请先登录。"));
     return;
   }
 
@@ -349,26 +440,36 @@ $("checkOutBtn").addEventListener("click", () => {
 
   if (!r || !r.checkIn || r.checkOut) return;
 
-  const now = new Date();
+  const currentTime = timeNow();
   const currentMinutes =
-    Number(timeNow().slice(0, 2)) * 60 +
-    Number(timeNow().slice(3, 5));
+    Number(currentTime.slice(0, 2)) * 60 +
+    Number(currentTime.slice(3, 5));
 
-  // Aturan demo: check-out tidak boleh sebelum 17.00 WITA.
   if (currentMinutes < 17 * 60) {
-    $("actionMessage").textContent =
-      "Check-out ditolak. Jam pulang adalah 17.00 WITA.";
-    alert("Check-out belum diizinkan. Tunggu hingga pukul 17.00 WITA.");
+    $("actionMessage").textContent = absLang(
+      "Check-out ditolak. Jam pulang adalah 17.00 WITA.",
+      "Check-out denied. Check-out time is 17:00 WITA.",
+      "Daftar keluar ditolak. Waktu pulang ialah 17.00 WITA.",
+      "签退失败。签退时间为 WITA 17:00。"
+    );
+
+    alert(absLang(
+      "Check-out belum diizinkan. Tunggu hingga pukul 17.00 WITA.",
+      "Check-out is not allowed yet. Please wait until 17:00 WITA.",
+      "Daftar keluar belum dibenarkan. Sila tunggu sehingga 17.00 WITA.",
+      "目前还不能签退，请等到 WITA 17:00。"
+    ));
     return;
   }
 
-  r.checkOut = timeNow();
+  r.checkOut = currentTime;
   saveData(data);
 
   $("actionMessage").textContent =
-    "Check-out berhasil dicatat pukul " + r.checkOut + ".";
+    absLang("Check-out berhasil dicatat pukul ", "Check-out recorded at ", "Daftar keluar berjaya direkod pada ", "签退成功，时间：") +
+    r.checkOut + ".";
 
-  say("Check-out berhasil dicatat pukul " + r.checkOut + ".");
+  say($("actionMessage").textContent);
   refresh();
 });
 
@@ -379,13 +480,12 @@ $("chatForm").addEventListener("submit", (e) => {
   e.preventDefault();
 
   if (!isLoggedIn) {
-    alert("Silakan login terlebih dahulu.");
+    alert(absLang("Silakan login terlebih dahulu.", "Please log in first.", "Sila log masuk dahulu.", "请先登录。"));
     return;
   }
 
   const input = $("chatInput");
   const value = input.value.trim();
-
   if (!value) return;
 
   say(value, "user");
@@ -396,7 +496,7 @@ $("chatForm").addEventListener("submit", (e) => {
 document.querySelectorAll("[data-message]").forEach((btn) => {
   btn.addEventListener("click", () => {
     if (!isLoggedIn) {
-      alert("Silakan login terlebih dahulu.");
+      alert(absLang("Silakan login terlebih dahulu.", "Please log in first.", "Sila log masuk dahulu.", "请先登录。"));
       return;
     }
 
@@ -411,15 +511,25 @@ document.querySelectorAll("[data-message]").forEach((btn) => {
 // ===============================
 $("clearBtn").addEventListener("click", () => {
   if (!isLoggedIn) {
-    alert("Silakan login terlebih dahulu.");
+    alert(absLang("Silakan login terlebih dahulu.", "Please log in first.", "Sila log masuk dahulu.", "请先登录。"));
     return;
   }
 
-  if (confirm("Hapus seluruh data demo dari browser ini?")) {
+  if (confirm(absLang(
+    "Hapus seluruh data demo dari browser ini?",
+    "Delete all demo data from this browser?",
+    "Padam semua data demo daripada pelayar ini?",
+    "确定删除此浏览器中的所有演示数据吗？"
+  ))) {
     localStorage.removeItem(STORAGE_KEY);
-    $("actionMessage").textContent = "Data demo telah direset.";
+    $("actionMessage").textContent = absLang(
+      "Data demo telah direset.",
+      "Demo data has been reset.",
+      "Data demo telah ditetapkan semula.",
+      "演示数据已重置。"
+    );
     refresh();
-    say("Data demo sudah direset.");
+    say($("actionMessage").textContent);
   }
 });
 
@@ -450,22 +560,5 @@ function tick() {
 tick();
 setInterval(tick, 1000);
 
-// Jangan tampilkan data dasbor sebelum login.
+// Sembunyikan dasbor sebelum autentikasi.
 if (dashboard) dashboard.style.display = "none";
-
-function showCheckInCelebration(jamMasuk) {
-  const quotes = [
-    "YOSSH! Semangat, Nakama! Terus kejar impianmu! 🏴‍☠️",
-    "Satu langkah disiplin hari ini, satu langkah menuju impian besar! 🌊",
-    "Pantang menyerah! Jadikan hari ini petualangan terbaikmu! ⚓",
-    "Semangat bekerja! Harta karun kesuksesan dimulai dari disiplin! ✨"
-  ];
-
-  const quote = quotes[Math.floor(Math.random() * quotes.length)];
-
-  alert(
-    "🏴‍☠️ YOSSH! SEMANGAT, NAKAMA!\n\n" +
-    quote +
-    "\n\nCheck-in berhasil pukul " + jamMasuk + "."
-  );
-}

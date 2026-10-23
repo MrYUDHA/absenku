@@ -1169,3 +1169,45 @@ body {
   }
 }
 
+/* ABSENKU - FIX IKON NAVIGASI */
+@media screen and (max-width: 700px) {
+  #main-nav {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 12px 6px !important;
+  }
+
+  #main-nav a {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 50px !important;
+    min-width: 50px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    padding: 8px !important;
+    margin: 0 auto !important;
+    overflow: visible !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Tampilkan ikon pertama */
+  #main-nav a span:first-child {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    visibility: visible !important;
+    font-size: 24px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+  }
+
+  /* Sembunyikan tulisan menu saja */
+  #main-nav a span:nth-child(2) {
+    display: none !important;
+  }
+}
+

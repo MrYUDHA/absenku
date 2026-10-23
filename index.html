@@ -322,12 +322,23 @@
  <script>
 (function () {
   const translations = {
-    id: { nav_home: "Beranda" },
-    en: { nav_home: "Home" },
-    ms: { nav_home: "Laman Utama" },
-    zh: { nav_home: "首页" }
-  };
-
+  id: {
+    nav_home: "Beranda",
+    nav_attendance: "Absensi"
+  },
+  en: {
+    nav_home: "Home",
+    nav_attendance: "Attendance"
+  },
+  ms: {
+    nav_home: "Laman Utama",
+    nav_attendance: "Kehadiran"
+  },
+  zh: {
+    nav_home: "首页",
+    nav_attendance: "考勤"
+  }
+};
   function translateMenu() {
     const lang = localStorage.getItem("absenku-language") || "id";
     const dictionary = translations[lang] || translations.id;

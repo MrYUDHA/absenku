@@ -102,15 +102,19 @@ function refresh() {
   const rec = todayRecord();
 
    
-  $("statusValue").textContent =
-    rec.checkOut ? absLang("Selesai", "Finished", "Selesai") :
-    rec.checkIn ? absLang("Sudah check-in", "Checked in", "Sudah daftar masuk") :
-    absLang("Belum absen", "Not checked in", "Belum daftar masuk");
+   $("statusValue").textContent =
+  rec.checkOut
+    ? absLang("Selesai", "Finished", "Selesai", "已完成")
+    : rec.checkIn
+    ? absLang("Sudah check-in", "Checked in", "Sudah daftar masuk", "已签到")
+    : absLang("Belum absen", "Not checked in", "Belum daftar masuk", "尚未签到");
 
-  $("statusSub").textContent =
-    rec.checkOut ? absLang("Absensi hari ini lengkap", "Today's attendance is complete", "Kehadiran hari ini lengkap") :
-    rec.checkIn ? absLang("Jangan lupa check-out", "Don't forget to check out", "Jangan lupa daftar keluar") :
-    absLang("Silakan check-in", "Please check in", "Sila daftar masuk");
+   $("statusSub").textContent =
+  rec.checkOut
+    ? absLang("Absensi hari ini lengkap", "Today's attendance is complete", "Kehadiran hari ini lengkap", "今日考勤已完成")
+    : rec.checkIn
+    ? absLang("Jangan lupa check-out", "Don't forget to check out", "Jangan lupa daftar keluar", "别忘了签退")
+    : absLang("Silakan check-in", "Please check in", "Sila daftar masuk", "请签到");
 
 
   $("checkInValue").textContent = rec.checkIn || "—";

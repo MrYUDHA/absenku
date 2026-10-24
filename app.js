@@ -562,3 +562,69 @@ setInterval(tick, 1000);
 
 // Sembunyikan dasbor sebelum autentikasi.
 if (dashboard) dashboard.style.display = "none";
+
+/* ===============================
+   ABSENKU — MUAT PROFIL KARYAWAN
+================================ */
+async function loadEmployeeProfile() {
+  const supabase = window.ABSENKU_SUPABASE;
+  const message = document.getElementById("profileChangeMessage");
+
+  if (!supabase) {
+    if (message) message.textContent = "Koneksi Supabase belum tersedia.";
+    return;
+  }
+
+  try {
+    const { data: authData, error: authError } =
+      await supabase.auth.getUser();
+
+    if (authError) throw authError;
+
+    const user = authData.user;
+    if (!user) {
+      if (message) message.textContent = "Silakan login terlebih dahulu.";
+      return;
+    }
+
+    const { data: employee, error } = await supabase
+      .from("employees")
+      .select("full_name, employee_code, department, position, branch_name, address, birth_date, phone, email")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (!employee) {
+      if (message) message.textContent =
+        "Data karyawan untuk akun ini belum ditemukan.";
+      return;
+    }
+
+    const fields = {
+      profileFullName: employee.full_name,
+      profileEmployeeId: employee.employee_code,
+      profileAddress: employee.address,
+      profileBirthDate: employee.birth_date,
+      profilePhone: employee.phone,
+      profileEmail: employee.email
+    };
+
+    Object.entries(fields).forEach(([id, value]) => {
+      const element = document.getElementById(id);
+      if (element) element.value = value || "";
+    });
+
+    if (message) message.textContent = "Data profil berhasil dimuat.";
+  } catch (error) {
+    console.error("Gagal memuat profil:", error);
+    if (message) message.textContent =
+      "Profil gagal dimuat. Periksa izin akses database.";
+  }
+}
+
+document.querySelectorAll('[data-page="profile"]').forEach(link => {
+  link.addEventListener("click", () => {
+    loadEmployeeProfile();
+  });
+});

@@ -772,5 +772,31 @@ if (
 })();
 </script>
 
+<div id="laporan-cetak-absenku" style="display:none">
+  <h1 style="text-align:center">ABSENKU</h1>
+  <h2 style="text-align:center">LAPORAN ABSENSI KARYAWAN</h2>
+  <p id="judul-bulan-cetak" style="text-align:center"></p>
+
+  <div style="display:flex;justify-content:space-around;margin:20px 0">
+    <p>Hari tercatat: <strong id="cetak-total">0</strong></p>
+    <p>Absensi lengkap: <strong id="cetak-lengkap">0</strong></p>
+    <p>Belum check-out: <strong id="cetak-belum-pulang">0</strong></p>
+  </div>
+
+  <table style="width:100%;border-collapse:collapse">
+    <thead>
+      <tr>
+        <th style="border:1px solid #333;padding:8px">Tanggal</th>
+        <th style="border:1px solid #333;padding:8px">Check-in</th>
+        <th style="border:1px solid #333;padding:8px">Check-out</th>
+        <th style="border:1px solid #333;padding:8px">Status</th>
+      </tr>
+    </thead>
+    <tbody id="tabel-cetak-absenku"></tbody>
+  </table>
+
+  <p style="margin-top:30px">Tanggal laporan dicetak: <span id="tanggal-cetak-absenku"></span></p>
+</div>
+
 </body>
 </html>

@@ -133,6 +133,26 @@
       </section>
     </div>
 
+   
+    
+<section class="panel" id="kalender-absenku" style="margin-bottom:18px;padding:18px;border-radius:16px">
+  <div class="panel-heading">
+    <div>
+      <h2>📅 Kalender Absensi</h2>
+      <p class="muted">Periksa tanggal dan hari dalam sebulan.</p>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px">
+    <button type="button" id="kalender-sebelum" class="text-button">◀ Sebelumnya</button>
+    <strong id="kalender-bulan" style="text-align:center"></strong>
+    <button type="button" id="kalender-sesudah" class="text-button">Berikutnya ▶</button>
+  </div>
+
+  <div id="kalender-grid" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;text-align:center"></div>
+  <p class="small-note" style="margin-top:12px">Kalender ini menampilkan tanggal. Penanda kehadiran akan kita hubungkan ke data absensi pada langkah berikutnya.</p>
+</section>
+
     <section class="panel history-panel" id="history">
       <div class="panel-heading"><div><h2>Riwayat Absensi</h2><p class="muted">Daftar catatan kehadiran.</p></div><button id="clearBtn" class="text-button" type="button">Reset data demo</button></div>
       <div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Check-in</th><th>Check-out</th><th>Status</th></tr></thead><tbody id="historyBody"><tr><td colspan="4" class="empty">Belum ada data absensi.</td></tr></tbody></table></div>
@@ -451,5 +471,84 @@ function translateMenu() {
   translateMenu();
 })();
 </script>
+ 
+<script>
+(function () {
+  var grid = document.getElementById("kalender-grid");
+  var judul = document.getElementById("kalender-bulan");
+  var sebelum = document.getElementById("kalender-sebelum");
+  var sesudah = document.getElementById("kalender-sesudah");
+
+  if (!grid || !judul || !sebelum || !sesudah) return;
+
+  var bulanAktif = new Date();
+  var namaBulan = [
+    "Januari", "Februari", "Maret", "April",
+    "Mei", "Juni", "Juli", "Agustus",
+    "September", "Oktober", "November", "Desember"
+  ];
+  var namaHari = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+
+  function gambarKalender() {
+    var tahun = bulanAktif.getFullYear();
+    var bulan = bulanAktif.getMonth();
+
+    judul.textContent = namaBulan[bulan] + " " + tahun;
+    grid.replaceChildren();
+
+    namaHari.forEach(function (hari) {
+      var kepala = document.createElement("div");
+      kepala.textContent = hari;
+      kepala.style.fontWeight = "bold";
+      kepala.style.padding = "8px 0";
+      kepala.style.fontSize = "12px";
+      grid.appendChild(kepala);
+    });
+
+    var hariPertama = new Date(tahun, bulan, 1).getDay();
+    var jumlahHari = new Date(tahun, bulan + 1, 0).getDate();
+    var hariIni = new Date();
+
+    for (var kosong = 0; kosong < hariPertama; kosong++) {
+      grid.appendChild(document.createElement("div"));
+    }
+
+    for (var tanggal = 1; tanggal <= jumlahHari; tanggal++) {
+      var sel = document.createElement("div");
+      sel.textContent = tanggal;
+      sel.style.padding = "9px 0";
+      sel.style.borderRadius = "9px";
+      sel.style.fontSize = "13px";
+      sel.style.background = "#eef6ff";
+      sel.style.color = "#174477";
+
+      if (
+        tanggal === hariIni.getDate() &&
+        bulan === hariIni.getMonth() &&
+        tahun === hariIni.getFullYear()
+      ) {
+        sel.style.background = "#087fbd";
+        sel.style.color = "white";
+        sel.style.fontWeight = "bold";
+      }
+
+      grid.appendChild(sel);
+    }
+  }
+
+  sebelum.addEventListener("click", function () {
+    bulanAktif.setMonth(bulanAktif.getMonth() - 1);
+    gambarKalender();
+  });
+
+  sesudah.addEventListener("click", function () {
+    bulanAktif.setMonth(bulanAktif.getMonth() + 1);
+    gambarKalender();
+  });
+
+  gambarKalender();
+})();
+</script>
+
 </body>
 </html>

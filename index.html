@@ -508,6 +508,20 @@ function translateMenu() {
     var hariPertama = new Date(tahun, bulan, 1).getDay();
     var jumlahHari = new Date(tahun, bulan + 1, 0).getDate();
     var hariIni = new Date();
+   
+var catatanHarian = {};
+
+try {
+  if (
+    window.ABSENKU_FITUR_RINGAN &&
+    typeof getData === "function"
+  ) {
+    catatanHarian = getData().days || {};
+  }
+} catch (e) {
+  catatanHarian = {};
+}
+
 
     for (var kosong = 0; kosong < hariPertama; kosong++) {
       grid.appendChild(document.createElement("div"));

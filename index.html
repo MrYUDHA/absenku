@@ -291,27 +291,48 @@
 <script src="app.js"></script>
 <script src="fitur-ringan.js"></script>
 
+ 
 <script>
-(function(){
-  const selector=document.getElementById("absenku-language");
-  const message=document.getElementById("absenku-language-message");
-  if(selector&&message){
-    const texts={id:"Pilihan bahasa tersimpan di perangkat ini.",en:"Your language preference is saved on this device.",ms:"Pilihan bahasa anda disimpan pada peranti ini."};
-    try{const saved=localStorage.getItem("absenku-language");if(saved&&texts[saved])selector.value=saved;}catch(e){}
-    message.textContent=texts[selector.value];
-     selector.addEventListener("change", function () {
+(function () {
+  const selector = document.getElementById("absenku-language");
+  const message = document.getElementById("absenku-language-message");
+
+  if (!selector || !message) return;
+
+  const texts = {
+    id: "Pilihan bahasa tersimpan di perangkat ini.",
+    en: "Your language preference is saved on this device.",
+    ms: "Pilihan bahasa anda disimpan pada peranti ini.",
+    zh: "语言偏好已保存在此设备上。"
+  };
+
   try {
-    localStorage.setItem("absenku-language", selector.value);
+    const saved = localStorage.getItem("absenku-language");
+    if (saved && texts[saved]) {
+      selector.value = saved;
+    }
   } catch (e) {}
 
-  message.textContent = texts[selector.value];
+  message.textContent =
+    texts[selector.value] || texts.id;
 
-  if (typeof translateMenu === "function") {
-    translateMenu();
-  }
+  selector.addEventListener("change", function () {
+    try {
+      localStorage.setItem("absenku-language", selector.value);
+    } catch (e) {}
 
-  window.dispatchEvent(new Event("absenku-language-changed"));
-});
+    message.textContent =
+      texts[selector.value] || texts.id;
+
+    if (typeof translateMenu === "function") {
+      translateMenu();
+    }
+
+    window.dispatchEvent(
+      new Event("absenku-language-changed")
+    );
+  });
+})();
 </script>
 
 <script>

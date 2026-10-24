@@ -815,7 +815,12 @@ if (
   if (!tombol) return;
 
   tombol.onclick = function () {
-   alert("Tombol cetak ABSENKU berhasil ditekan");
+    alert(
+  "Laporan: " +
+  (document.getElementById("laporan-cetak-absenku") ? "ADA" : "TIDAK ADA") +
+  "\nTabel laporan: " +
+  (document.getElementById("tabel-cetak-absenku") ? "ADA" : "TIDAK ADA")
+);
    
     var laporan = document.getElementById("laporan-cetak-absenku");
     var tabel = document.getElementById("tabel-cetak-absenku");

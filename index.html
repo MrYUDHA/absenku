@@ -808,17 +808,8 @@ if (
 </div>
 
 <script>
- 
-tombol.onclick = function () {
-    var tabLaporan = window.open("", "_blank");
-
-    if (!tabLaporan) {
-      alert("Chrome memblokir tab baru. Izinkan pop-up untuk situs ABSENKU.");
-      return;
-    }
-
-    var laporan = document.getElementById("laporan-cetak-absenku");
-
+(function () {
+  var tombol = document.getElementById("cetak-laporan-absenku");
   var filter = document.getElementById("filter-bulan-absenku");
 
   if (!tombol) return;
@@ -826,12 +817,23 @@ tombol.onclick = function () {
   tombol.onclick = function () {
     var laporan = document.getElementById("laporan-cetak-absenku");
     var tabel = document.getElementById("tabel-cetak-absenku");
+
+    if (!laporan || !tabel) {
+      alert("Bagian laporan ABSENKU tidak ditemukan.");
+      return;
+    }
+
+    var tabLaporan = window.open("", "_blank");
+
+    if (!tabLaporan) {
+      alert("Chrome memblokir tab baru. Izinkan pop-up untuk ABSENKU.");
+      return;
+    }
+
     var data = {};
 
     try {
-      data = JSON.parse(
-        localStorage.getItem("absenku-demo-v1") || "{}"
-      );
+      data = JSON.parse(localStorage.getItem("absenku-demo-v1") || "{}");
     } catch (e) {
       data = {};
     }
@@ -846,14 +848,17 @@ tombol.onclick = function () {
 
     Object.keys(hari).sort().forEach(function (tanggal) {
       var catatan = hari[tanggal];
+
       if (bulan && tanggal.indexOf(bulan) !== 0) return;
       if (!catatan || !catatan.checkIn) return;
 
       jumlah++;
+
       if (catatan.checkOut) lengkap++;
       else belum++;
 
       var baris = document.createElement("tr");
+
       [
         tanggal,
         catatan.checkIn || "—",
@@ -866,31 +871,37 @@ tombol.onclick = function () {
         sel.style.padding = "8px";
         baris.appendChild(sel);
       });
+
       tabel.appendChild(baris);
     });
-    
-    // Mengisi identitas karyawan pada laporan cetak
-    document.getElementById("cetak-nama-karyawan").textContent =
-      document.getElementById("profileFullName")?.value || "—";
 
-    document.getElementById("cetak-nik-karyawan").textContent =
-      document.getElementById("profileEmployeeId")?.value || "—";
+    function isiTeks(id, nilai) {
+      var elemen = document.getElementById(id);
+      if (elemen) elemen.textContent = nilai;
+    }
 
-    document.getElementById("cetak-jabatan-karyawan").textContent =
-      document.getElementById("profilePosition")?.value || "—";
+    function nilaiProfil(id) {
+      var elemen = document.getElementById(id);
+      return elemen && elemen.value ? elemen.value : "—";
+    }
 
-    document.getElementById("cetak-email-karyawan").textContent =
-      document.getElementById("profileEmail")?.value || "—";
+    isiTeks("cetak-nama-karyawan", nilaiProfil("profileFullName"));
+    isiTeks("cetak-nik-karyawan", nilaiProfil("profileEmployeeId"));
+    isiTeks("cetak-jabatan-karyawan", nilaiProfil("profilePosition"));
+    isiTeks("cetak-email-karyawan", nilaiProfil("profileEmail"));
 
-    document.getElementById("cetak-total").textContent = jumlah;
-    document.getElementById("cetak-lengkap").textContent = lengkap;
-    document.getElementById("cetak-belum-pulang").textContent = belum;
-    document.getElementById("judul-bulan-cetak").textContent =
-      "Periode: " + (bulan || "Semua bulan");
-    document.getElementById("tanggal-cetak-absenku").textContent =
-      new Date().toLocaleDateString("id-ID");
-     
-    
+    isiTeks("cetak-total", jumlah);
+    isiTeks("cetak-lengkap", lengkap);
+    isiTeks("cetak-belum-pulang", belum);
+    isiTeks("judul-bulan-cetak", "Periode: " + (bulan || "Semua bulan"));
+
+    isiTeks(
+      "tanggal-cetak-absenku",
+      new Date().toLocaleDateString("id-ID", {
+        timeZone: "Asia/Makassar"
+      })
+    );
+
     var isiLaporan = laporan.innerHTML;
 
     tabLaporan.document.open();
@@ -904,18 +915,19 @@ tombol.onclick = function () {
       'h1,h2{text-align:center}' +
       'table{width:100%;border-collapse:collapse;margin-bottom:20px}' +
       'th,td{border:1px solid #333;padding:8px;text-align:left}' +
-      '@media print{body{padding:0}table{page-break-inside:auto}tr{page-break-inside:avoid}}' +
+      '.tombol-cetak{display:block;width:100%;padding:12px;margin-bottom:16px;background:#155eef;color:white;border:0;border-radius:8px;font-size:16px}' +
+      '@media print{body{padding:0}.tombol-cetak{display:none}tr{page-break-inside:avoid}}' +
       '</style></head><body>' +
-      '<div id="laporan-cetak-absenku" style="display:block">' +
-      isiLaporan +
-      '</div></body></html>'
+      '<button class="tombol-cetak" onclick="window.print()">Cetak / Simpan PDF</button>' +
+      '<div style="display:block">' + isiLaporan + '</div>' +
+      '</body></html>'
     );
+
     tabLaporan.document.close();
     tabLaporan.focus();
-
   };
 })();
 </script>
-
+ 
 </body>
 </html>

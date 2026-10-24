@@ -902,8 +902,13 @@ if (
       "}";
 
      setTimeout(function () {
-  window.print();
-}, 500);
+  try {
+    window.focus();
+    window.print();
+  } catch (error) {
+    alert("Cetak gagal dibuka. Coba buka situs ABSENKU langsung di Google Chrome.");
+  }
+}, 1000);
   };
 })();
 </script>

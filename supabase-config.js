@@ -3,6 +3,12 @@ window.ABSENKU_SUPABASE_CONFIG = {
   url: "https://rnwkaonfucunrnicuawy.supabase.co",
   anonKey: "sb_publishable_aiz33tIFXpyhwZW4ZuJBWA_YI4aYDzK"
 };
+if (window.supabase && window.ABSENKU_SUPABASE_CONFIG) {
+  window.ABSENKU_SUPABASE = window.supabase.createClient(
+    window.ABSENKU_SUPABASE_CONFIG.url,
+    window.ABSENKU_SUPABASE_CONFIG.anonKey
+  );
+}
 
 const loginForm = document.getElementById("login-form");
 

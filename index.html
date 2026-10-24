@@ -811,6 +811,55 @@ if (
     <p>Hari tercatat: <strong id="cetak-total">0</strong></p>
     <p>Absensi lengkap: <strong id="cetak-lengkap">0</strong></p>
     <p>Belum check-out: <strong id="cetak-belum-pulang">0</strong></p>
+   
+<div class="rekap-invoice-absenku">
+  <h3>REKAPITULASI ABSENSI</h3>
+
+  <div class="rekap-item">
+    <span>Total Jam Kerja</span>
+    <strong id="cetak-total-jam-kerja">0 jam 0 menit</strong>
+  </div>
+
+  <div class="rekap-item">
+    <span>Total Hari Hadir</span>
+    <strong id="cetak-total-hadir">0 hari</strong>
+  </div>
+
+  <div class="rekap-item">
+    <span>Total Tidak Hadir</span>
+    <strong id="cetak-total-tidak-hadir">0 hari</strong>
+  </div>
+
+  <div class="rekap-item">
+    <span>Belum Check-out</span>
+    <strong id="cetak-total-belum-checkout">0 hari</strong>
+  </div>
+</div>
+
+<style>
+.rekap-invoice-absenku {
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-family: Arial, sans-serif;
+}
+.rekap-invoice-absenku h3 {
+  margin-top: 0;
+  text-align: center;
+}
+.rekap-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+.rekap-item:last-child {
+  border-bottom: none;
+}
+</style>
+
   </div>
 
   <table style="width:100%;border-collapse:collapse">

@@ -156,16 +156,23 @@
     <section class="panel history-panel" id="history">
      <div class="panel-heading"><div><h2>Riwayat Absensi</h2><p class="muted">Daftar catatan kehadiran.</p></div><button id="clearBtn" class="text-button" type="button">Reset data demo</button></div>
      
+ 
 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0">
   <label for="filter-bulan-absenku">Filter bulan:</label>
   <input id="filter-bulan-absenku" type="month"
     style="padding:9px;border:1px solid #cbd5e1;border-radius:9px;max-width:100%">
-  <button id="reset-filter-absenku" type="button" class="text-button">
-    Tampilkan semua 
-<button id="ekspor-csv-absenku" type="button" class="text-button">
-  📥 Ekspor CSV
-</button>
 
+  <button id="reset-filter-absenku" type="button" class="text-button">
+    Tampilkan semua
+  </button>
+
+  <button id="ekspor-csv-absenku" type="button" class="text-button">
+    📥 Ekspor CSV
+  </button>
+
+  <button id="cetak-laporan-absenku" type="button" class="text-button"
+    onclick="window.print()">
+    🖨️ Cetak / Simpan PDF
   </button>
 </div>
 
@@ -698,6 +705,67 @@ if (
     link.remove();
     URL.revokeObjectURL(url);
   });
+})();
+</script>
+
+<script>
+(function () {
+  var filter = document.getElementById("filter-bulan-absenku");
+  var total = document.getElementById("stat-total-absenku");
+  var lengkap = document.getElementById("stat-lengkap-absenku");
+  var belumPulang = document.getElementById("stat-belum-pulang-absenku");
+
+  if (!total || !lengkap || !belumPulang) return;
+
+  function perbaruiStatistik() {
+    var data = {};
+
+    try {
+      data = JSON.parse(
+        localStorage.getItem("absenku-demo-v1") || "{}"
+      );
+    } catch (e) {
+      data = {};
+    }
+
+    var hari = data.days || {};
+    var bulan = filter ? filter.value : "";
+    var jumlah = 0;
+    var jumlahLengkap = 0;
+    var jumlahBelumPulang = 0;
+
+    Object.keys(hari).forEach(function (tanggal) {
+      var catatan = hari[tanggal];
+
+      if (bulan && tanggal.indexOf(bulan) !== 0) return;
+      if (!catatan || !catatan.checkIn) return;
+
+      jumlah++;
+
+      if (catatan.checkOut) {
+        jumlahLengkap++;
+      } else {
+        jumlahBelumPulang++;
+      }
+    });
+
+    total.textContent = jumlah;
+    lengkap.textContent = jumlahLengkap;
+    belumPulang.textContent = jumlahBelumPulang;
+  }
+
+  if (filter) {
+    filter.addEventListener("change", perbaruiStatistik);
+  }
+
+  var reset = document.getElementById("reset-filter-absenku");
+  if (reset) {
+    reset.addEventListener("click", function () {
+      setTimeout(perbaruiStatistik, 0);
+    });
+  }
+
+  perbaruiStatistik();
 })();
 </script>
 

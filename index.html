@@ -776,6 +776,15 @@ if (
   <h1 style="text-align:center">ABSENKU</h1>
   <h2 style="text-align:center">LAPORAN ABSENSI KARYAWAN</h2>
   <p id="judul-bulan-cetak" style="text-align:center"></p>
+ 
+<div style="margin:20px 0;padding:12px;border:1px solid #999;border-radius:8px">
+  <h3 style="margin-top:0">IDENTITAS KARYAWAN</h3>
+  <p>Nama Karyawan: <strong id="cetak-nama-karyawan">—</strong></p>
+  <p>Nomor Induk Karyawan: <strong id="cetak-nik-karyawan">—</strong></p>
+  <p>Jabatan: <strong id="cetak-jabatan-karyawan">—</strong></p>
+  <p>Email: <strong id="cetak-email-karyawan">—</strong></p>
+</div>
+
 
   <div style="display:flex;justify-content:space-around;margin:20px 0">
     <p>Hari tercatat: <strong id="cetak-total">0</strong></p>
@@ -797,6 +806,92 @@ if (
 
   <p style="margin-top:30px">Tanggal laporan dicetak: <span id="tanggal-cetak-absenku"></span></p>
 </div>
+
+<script>
+(function () {
+  var tombol = document.getElementById("cetak-laporan-absenku");
+  var filter = document.getElementById("filter-bulan-absenku");
+
+  if (!tombol) return;
+
+  tombol.onclick = function () {
+    var laporan = document.getElementById("laporan-cetak-absenku");
+    var tabel = document.getElementById("tabel-cetak-absenku");
+    var data = {};
+
+    try {
+      data = JSON.parse(
+        localStorage.getItem("absenku-demo-v1") || "{}"
+      );
+    } catch (e) {
+      data = {};
+    }
+
+    var hari = data.days || {};
+    var bulan = filter ? filter.value : "";
+    var jumlah = 0;
+    var lengkap = 0;
+    var belum = 0;
+
+    tabel.replaceChildren();
+
+    Object.keys(hari).sort().forEach(function (tanggal) {
+      var catatan = hari[tanggal];
+      if (bulan && tanggal.indexOf(bulan) !== 0) return;
+      if (!catatan || !catatan.checkIn) return;
+
+      jumlah++;
+      if (catatan.checkOut) lengkap++;
+      else belum++;
+
+      var baris = document.createElement("tr");
+      [
+        tanggal,
+        catatan.checkIn || "—",
+        catatan.checkOut || "—",
+        catatan.checkOut ? "Lengkap" : "Belum check-out"
+      ].forEach(function (nilai) {
+        var sel = document.createElement("td");
+        sel.textContent = nilai;
+        sel.style.border = "1px solid #333";
+        sel.style.padding = "8px";
+        baris.appendChild(sel);
+      });
+      tabel.appendChild(baris);
+    });
+
+    document.getElementById("cetak-total").textContent = jumlah;
+    document.getElementById("cetak-lengkap").textContent = lengkap;
+    document.getElementById("cetak-belum-pulang").textContent = belum;
+    document.getElementById("judul-bulan-cetak").textContent =
+      "Periode: " + (bulan || "Semua bulan");
+    document.getElementById("tanggal-cetak-absenku").textContent =
+      new Date().toLocaleDateString("id-ID");
+
+    var gaya = document.getElementById("gaya-cetak-absenku");
+    if (!gaya) {
+      gaya = document.createElement("style");
+      gaya.id = "gaya-cetak-absenku";
+      document.head.appendChild(gaya);
+    }
+
+    gaya.textContent =
+      "@media print {" +
+      "body * { visibility:hidden !important; }" +
+      "#laporan-cetak-absenku, #laporan-cetak-absenku * {" +
+      "visibility:visible !important; }" +
+      "#laporan-cetak-absenku {" +
+      "display:block !important; position:absolute; left:0; top:0;" +
+      "width:100%; background:white; color:black; padding:12px;" +
+      "box-sizing:border-box; font-family:Arial,sans-serif; }" +
+      "#laporan-cetak-absenku table { border-collapse:collapse; }" +
+      "th,td { color:black !important; }" +
+      "}";
+
+    window.print();
+  };
+})();
+</script>
 
 </body>
 </html>

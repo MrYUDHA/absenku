@@ -170,11 +170,14 @@
     📥 Ekspor CSV
   </button>
 
-  <button id="cetak-laporan-absenku" type="button" class="text-button"
-    onclick="cetakLaporanAbsenku()"
-    🖨️ Cetak / Simpan PDF
-  </button>
-</div>
+   
+<button id="cetak-laporan-absenku" type="button"
+  class="text-button"
+  onclick="window.print()"
+  style="color:#123d70;background:#ffffff;border:1px solid #cbd5e1;padding:10px 14px;border-radius:10px">
+  🖨️ Cetak / Simpan PDF
+</button>
+
 
 <div id="statistik-bulanan-absenku"
   style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:16px 0">

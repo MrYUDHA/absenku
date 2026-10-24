@@ -222,9 +222,19 @@
     const texts={id:"Pilihan bahasa tersimpan di perangkat ini.",en:"Your language preference is saved on this device.",ms:"Pilihan bahasa anda disimpan pada peranti ini."};
     try{const saved=localStorage.getItem("absenku-language");if(saved&&texts[saved])selector.value=saved;}catch(e){}
     message.textContent=texts[selector.value];
-    selector.addEventListener("change",function(){try{localStorage.setItem("absenku-language",selector.value);}catch(e){}message.textContent=texts[selector.value];});
+     selector.addEventListener("change", function () {
+  try {
+    localStorage.setItem("absenku-language", selector.value);
+  } catch (e) {}
+
+  message.textContent = texts[selector.value];
+
+  if (typeof translateMenu === "function") {
+    translateMenu();
   }
-})();
+
+  window.dispatchEvent(new Event("absenku-language-changed"));
+});
 </script>
 
 <script>

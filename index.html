@@ -887,7 +887,10 @@ if (
       "Periode: " + (bulan || "Semua bulan");
     document.getElementById("tanggal-cetak-absenku").textContent =
       new Date().toLocaleDateString("id-ID");
-
+    alert(
+  "Baris laporan: " +
+  document.getElementById("tabel-cetak-absenku").rows.length
+);
     var gaya = document.getElementById("gaya-cetak-absenku");
     if (!gaya) {
       gaya = document.createElement("style");

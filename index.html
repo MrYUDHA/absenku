@@ -509,15 +509,14 @@ function translateMenu() {
     var jumlahHari = new Date(tahun, bulan + 1, 0).getDate();
     var hariIni = new Date();
    
+ 
 var catatanHarian = {};
 
 try {
-  if (
-    window.ABSENKU_FITUR_RINGAN &&
-    typeof getData === "function"
-  ) {
-    catatanHarian = getData().days || {};
-  }
+  var dataTersimpan = JSON.parse(
+    localStorage.getItem("absenku-demo-v1") || "{}"
+  );
+  catatanHarian = dataTersimpan.days || {};
 } catch (e) {
   catatanHarian = {};
 }
@@ -535,16 +534,34 @@ try {
       sel.style.fontSize = "13px";
       sel.style.background = "#eef6ff";
       sel.style.color = "#174477";
+     
+var kunciTanggal =
+  tahun + "-" +
+  String(bulan + 1).padStart(2, "0") + "-" +
+  String(tanggal).padStart(2, "0");
 
-      if (
-        tanggal === hariIni.getDate() &&
-        bulan === hariIni.getMonth() &&
-        tahun === hariIni.getFullYear()
-      ) {
-        sel.style.background = "#087fbd";
-        sel.style.color = "white";
-        sel.style.fontWeight = "bold";
-      }
+var catatan = catatanHarian[kunciTanggal];
+
+if (catatan && catatan.checkIn) {
+  sel.style.background = catatan.checkOut ? "#15803d" : "#f59e0b";
+  sel.style.color = "white";
+  sel.title = catatan.checkOut
+    ? "Absensi lengkap"
+    : "Sudah check-in, belum check-out";
+}
+
+
+       
+if (
+  tanggal === hariIni.getDate() &&
+  bulan === hariIni.getMonth() &&
+  tahun === hariIni.getFullYear()
+) {
+  sel.style.outline = "2px solid #087fbd";
+  sel.style.outlineOffset = "-2px";
+  sel.style.fontWeight = "bold";
+}
+
 
       grid.appendChild(sel);
     }

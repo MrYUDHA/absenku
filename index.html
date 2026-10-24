@@ -629,5 +629,58 @@ if (
 })();
 </script>
 
+<script>
+(function () {
+  var tombol = document.getElementById("ekspor-csv-absenku");
+  var filter = document.getElementById("filter-bulan-absenku");
+  var tbody = document.getElementById("historyBody");
+
+  if (!tombol || !tbody) return;
+
+  tombol.addEventListener("click", function () {
+    var bulan = filter ? filter.value : "";
+    var baris = Array.from(tbody.rows).filter(function (row) {
+      var tanggal = row.cells[0]
+        ? row.cells[0].textContent.trim()
+        : "";
+      return row.cells.length &&
+        (!bulan || tanggal.indexOf(bulan) === 0);
+    });
+
+    if (!baris.length) {
+      alert("Tidak ada riwayat absensi untuk diekspor.");
+      return;
+    }
+
+    var csv = [["Tanggal", "Check-in", "Check-out", "Status"]];
+
+    baris.forEach(function (row) {
+      csv.push(Array.from(row.cells).slice(0, 4).map(function (cell) {
+        return cell.textContent.trim();
+      }));
+    });
+
+    var isi = "\uFEFF" + csv.map(function (row) {
+      return row.map(function (nilai) {
+        return '"' + String(nilai).replace(/"/g, '""') + '"';
+      }).join(",");
+    }).join("\r\n");
+
+    var file = new Blob([isi], {
+      type: "text/csv;charset=utf-8;"
+    });
+    var url = URL.createObjectURL(file);
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = "laporan-absenku" +
+      (bulan ? "-" + bulan : "") + ".csv";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  });
+})();
+</script>
+
 </body>
 </html>

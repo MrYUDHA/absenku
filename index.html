@@ -808,8 +808,17 @@ if (
 </div>
 
 <script>
-(function () {
-  var tombol = document.getElementById("cetak-laporan-absenku");
+ 
+tombol.onclick = function () {
+    var tabLaporan = window.open("", "_blank");
+
+    if (!tabLaporan) {
+      alert("Chrome memblokir tab baru. Izinkan pop-up untuk situs ABSENKU.");
+      return;
+    }
+
+    var laporan = document.getElementById("laporan-cetak-absenku");
+
   var filter = document.getElementById("filter-bulan-absenku");
 
   if (!tombol) return;
@@ -881,34 +890,29 @@ if (
     document.getElementById("tanggal-cetak-absenku").textContent =
       new Date().toLocaleDateString("id-ID");
      
-    var gaya = document.getElementById("gaya-cetak-absenku");
-    if (!gaya) {
-      gaya = document.createElement("style");
-      gaya.id = "gaya-cetak-absenku";
-      document.head.appendChild(gaya);
-    }
+    
+    var isiLaporan = laporan.innerHTML;
 
-    gaya.textContent =
-      "@media print {" +
-      "body * { visibility:hidden !important; }" +
-      "#laporan-cetak-absenku, #laporan-cetak-absenku * {" +
-      "visibility:visible !important; }" +
-      "#laporan-cetak-absenku {" +
-      "display:block !important; position:absolute; left:0; top:0;" +
-      "width:100%; background:white; color:black; padding:12px;" +
-      "box-sizing:border-box; font-family:Arial,sans-serif; }" +
-      "#laporan-cetak-absenku table { border-collapse:collapse; }" +
-      "th,td { color:black !important; }" +
-      "}";
+    tabLaporan.document.open();
+    tabLaporan.document.write(
+      '<!DOCTYPE html>' +
+      '<html lang="id"><head><meta charset="UTF-8">' +
+      '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+      '<title>Laporan Absensi ABSENKU</title>' +
+      '<style>' +
+      'body{font-family:Arial,sans-serif;color:#111;background:white;padding:16px}' +
+      'h1,h2{text-align:center}' +
+      'table{width:100%;border-collapse:collapse;margin-bottom:20px}' +
+      'th,td{border:1px solid #333;padding:8px;text-align:left}' +
+      '@media print{body{padding:0}table{page-break-inside:auto}tr{page-break-inside:avoid}}' +
+      '</style></head><body>' +
+      '<div id="laporan-cetak-absenku" style="display:block">' +
+      isiLaporan +
+      '</div></body></html>'
+    );
+    tabLaporan.document.close();
+    tabLaporan.focus();
 
-     setTimeout(function () {
-  try {
-    window.focus();
-    window.print();
-  } catch (error) {
-    alert("Cetak gagal dibuka. Coba buka situs ABSENKU langsung di Google Chrome.");
-  }
-}, 1000);
   };
 })();
 </script>

@@ -322,24 +322,86 @@
 </script>
  <script>
 (function () {
-  const translations = {
+   
+const translations = {
   id: {
     nav_home: "Beranda",
-    nav_attendance: "Absensi"
+    nav_attendance: "Absensi",
+    nav_profile: "Profil",
+    nav_leave: "Izin / Sakit / Cuti",
+    nav_chat: "Asisten",
+    nav_history: "Riwayat",
+    nav_about: "Tentang Aplikasi",
+    check_in_time: "Jam Masuk",
+    check_out_time: "Jam Pulang",
+    check_in_value: "Waktu Check-in",
+    check_out_value: "Waktu Check-out",
+    chatbot_title: "Chatbot Absensi",
+    chatbot_desc: "Tanyakan informasi seputar absensi.",
+    leave_title: "Izin / Sakit / Cuti",
+    history_title: "Riwayat Absensi",
+    profile_title: "Profil Karyawan",
+    about_title: "Tentang Aplikasi"
   },
   en: {
     nav_home: "Home",
-    nav_attendance: "Attendance"
+    nav_attendance: "Attendance",
+    nav_profile: "Profile",
+    nav_leave: "Leave / Sick Leave",
+    nav_chat: "Assistant",
+    nav_history: "History",
+    nav_about: "About the App",
+    check_in_time: "Check-in Time",
+    check_out_time: "Check-out Time",
+    check_in_value: "Check-in Record",
+    check_out_value: "Check-out Record",
+    chatbot_title: "Attendance Chatbot",
+    chatbot_desc: "Ask questions about attendance.",
+    leave_title: "Leave / Sick Leave",
+    history_title: "Attendance History",
+    profile_title: "Employee Profile",
+    about_title: "About the App"
   },
   ms: {
     nav_home: "Laman Utama",
-    nav_attendance: "Kehadiran"
+    nav_attendance: "Kehadiran",
+    nav_profile: "Profil",
+    nav_leave: "Cuti / Sakit",
+    nav_chat: "Pembantu",
+    nav_history: "Sejarah",
+    nav_about: "Tentang Aplikasi",
+    check_in_time: "Waktu Masuk",
+    check_out_time: "Waktu Pulang",
+    check_in_value: "Rekod Daftar Masuk",
+    check_out_value: "Rekod Daftar Keluar",
+    chatbot_title: "Chatbot Kehadiran",
+    chatbot_desc: "Tanya tentang kehadiran.",
+    leave_title: "Cuti / Sakit",
+    history_title: "Sejarah Kehadiran",
+    profile_title: "Profil Pekerja",
+    about_title: "Tentang Aplikasi"
   },
   zh: {
     nav_home: "首页",
-    nav_attendance: "考勤"
+    nav_attendance: "考勤",
+    nav_profile: "个人资料",
+    nav_leave: "请假 / 病假",
+    nav_chat: "助手",
+    nav_history: "考勤记录",
+    nav_about: "关于应用",
+    check_in_time: "上班时间",
+    check_out_time: "下班时间",
+    check_in_value: "签到时间",
+    check_out_value: "签退时间",
+    chatbot_title: "考勤聊天助手",
+    chatbot_desc: "咨询考勤相关信息。",
+    leave_title: "请假 / 病假",
+    history_title: "考勤历史",
+    profile_title: "员工资料",
+    about_title: "关于应用"
   }
 };
+
    
 function translateMenu() {
   const lang = localStorage.getItem("absenku-language") || "id";

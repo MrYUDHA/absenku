@@ -859,6 +859,19 @@ if (
       });
       tabel.appendChild(baris);
     });
+    
+    // Mengisi identitas karyawan pada laporan cetak
+    document.getElementById("cetak-nama-karyawan").textContent =
+      document.getElementById("profileFullName")?.value || "—";
+
+    document.getElementById("cetak-nik-karyawan").textContent =
+      document.getElementById("profileEmployeeId")?.value || "—";
+
+    document.getElementById("cetak-jabatan-karyawan").textContent =
+      document.getElementById("profilePosition")?.value || "—";
+
+    document.getElementById("cetak-email-karyawan").textContent =
+      document.getElementById("profileEmail")?.value || "—";
 
     document.getElementById("cetak-total").textContent = jumlah;
     document.getElementById("cetak-lengkap").textContent = lengkap;

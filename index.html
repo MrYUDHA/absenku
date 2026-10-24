@@ -154,8 +154,18 @@
 </section>
 
     <section class="panel history-panel" id="history">
-      <div class="panel-heading"><div><h2>Riwayat Absensi</h2><p class="muted">Daftar catatan kehadiran.</p></div><button id="clearBtn" class="text-button" type="button">Reset data demo</button></div>
-      <div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Check-in</th><th>Check-out</th><th>Status</th></tr></thead><tbody id="historyBody"><tr><td colspan="4" class="empty">Belum ada data absensi.</td></tr></tbody></table></div>
+     <div class="panel-heading"><div><h2>Riwayat Absensi</h2><p class="muted">Daftar catatan kehadiran.</p></div><button id="clearBtn" class="text-button" type="button">Reset data demo</button></div>
+     
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0">
+  <label for="filter-bulan-absenku">Filter bulan:</label>
+  <input id="filter-bulan-absenku" type="month"
+    style="padding:9px;border:1px solid #cbd5e1;border-radius:9px;max-width:100%">
+  <button id="reset-filter-absenku" type="button" class="text-button">
+    Tampilkan semua
+  </button>
+</div>
+
+     <div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Check-in</th><th>Check-out</th><th>Status</th></tr></thead><tbody id="historyBody"><tr><td colspan="4" class="empty">Belum ada data absensi.</td></tr></tbody></table></div>
     </section>
 
     <!-- Halaman profil: formulir ini belum menyimpan perubahan ke database -->
@@ -578,6 +588,40 @@ if (
   });
 
   gambarKalender();
+})();
+</script>
+
+<script>
+(function () {
+  var filter = document.getElementById("filter-bulan-absenku");
+  var reset = document.getElementById("reset-filter-absenku");
+  var tbody = document.getElementById("historyBody");
+
+  if (!filter || !reset || !tbody) return;
+
+  function terapkanFilter() {
+    var bulan = filter.value;
+
+    Array.from(tbody.rows).forEach(function (baris) {
+      var tanggal = baris.cells[0]
+        ? baris.cells[0].textContent.trim()
+        : "";
+
+      baris.style.display =
+        !bulan || tanggal.indexOf(bulan) === 0 ? "" : "none";
+    });
+  }
+
+  filter.addEventListener("change", terapkanFilter);
+
+  reset.addEventListener("click", function () {
+    filter.value = "";
+    terapkanFilter();
+  });
+
+  new MutationObserver(terapkanFilter).observe(tbody, {
+    childList: true
+  });
 })();
 </script>
 

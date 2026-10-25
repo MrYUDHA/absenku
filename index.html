@@ -496,6 +496,7 @@
   const profile=document.getElementById("profile");
   const leave=document.getElementById("leave");
   const about=document.getElementById("about");
+ const approvals=document.getElementById("profile-approvals");
 
   function showPage(page){
     const isHome=page==="dashboard";
@@ -507,6 +508,7 @@
     profile.style.display=page==="profile"?"block":"";
     leave.style.display=page==="leave"?"":"none";
     about.style.display=page==="about"?"block":"";
+   approvals.style.display=page==="profile-approvals"?"block":"none";
     grid.style.display=(page==="attendance"||page==="chat")?"grid":"none";
     grid.style.gridTemplateColumns=(page==="attendance"||page==="chat")?"minmax(0, 1fr)":"";
     nav.querySelectorAll("[data-page]").forEach(function(link){

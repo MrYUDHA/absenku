@@ -1087,3 +1087,65 @@ document.getElementById("leaveRequestForm")?.addEventListener(
     });
   }
 })();
+
+/* ABSENKU - Penghubung akun login karyawan */
+document
+  .getElementById("createEmployeeAccountForm")
+  ?.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const supabase = window.ABSENKU_SUPABASE;
+    const message = document.getElementById(
+      "createEmployeeAccountMessage"
+    );
+    const say = (text) => {
+      if (message) message.textContent = text;
+    };
+
+    if (!supabase) {
+      say("Koneksi Supabase belum tersedia.");
+      return;
+    }
+
+    const employeeId = document
+      .getElementById("accountEmployeeId").value.trim();
+    const email = document
+      .getElementById("accountEmployeeEmail").value.trim();
+    const password = document
+      .getElementById("accountEmployeePassword").value;
+
+    try {
+      say("Memeriksa sesi admin...");
+
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+
+      if (sessionError) throw sessionError;
+
+      if (!sessionData.session) {
+        throw new Error("Silakan login sebagai Admin terlebih dahulu.");
+      }
+
+      say("Memproses pembuatan akun...");
+
+      const { data, error } = await supabase.functions.invoke(
+        "smooth-service",
+        {
+          body: {
+            employee_id: employeeId,
+            email: email,
+            password: password
+          }
+        }
+      );
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      say(data?.message || "Permintaan pembuatan akun selesai.");
+      document.getElementById("accountEmployeePassword").value = "";
+    } catch (error) {
+      console.error("Gagal membuat akun karyawan:", error);
+      say("Gagal: " + (error.message || "Periksa konfigurasi Supabase."));
+    }
+  });

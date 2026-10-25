@@ -737,3 +737,161 @@ const fields = {
   }
 })();
 
+
+/* ABSENKU — PENGHUBUNG PERSETUJUAN PROFIL */
+(function () {
+  const menu = document.querySelector(
+    '[data-page="profile-approvals"]'
+  );
+  const message = () =>
+    document.getElementById("profileApprovalsMessage");
+  const list = () =>
+    document.getElementById("profileApprovalsList");
+
+  async function loadProfileApprovals() {
+    const supabase = window.ABSENKU_SUPABASE;
+    const msg = message();
+    const container = list();
+
+    if (!supabase || !msg || !container) return;
+
+    msg.textContent = "Memeriksa akses Admin/HRD...";
+    container.replaceChildren();
+
+    try {
+      const { data: authData, error: authError } =
+        await supabase.auth.getUser();
+
+      if (authError) throw authError;
+      if (!authData.user) {
+        msg.textContent = "Silakan login terlebih dahulu.";
+        return;
+      }
+
+      const { data: admin, error: adminError } = await supabase
+        .from("profiles")
+        .select("role, is_active, company_id")
+        .eq("id", authData.user.id)
+        .maybeSingle();
+
+      if (adminError) throw adminError;
+
+      if (
+        !admin ||
+        !admin.is_active ||
+        !["admin", "hrd"].includes(admin.role)
+      ) {
+        msg.textContent =
+          "Akses ditolak. Halaman ini khusus Admin/HRD aktif.";
+        return;
+      }
+
+      msg.textContent = "Memuat pengajuan...";
+      const { data: requests, error } = await supabase
+        .from("profile_change_requests")
+        .select("id, employee_id, requested_data, status, created_at")
+        .eq("company_id", admin.company_id)
+        .eq("status", "pending")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      if (!requests || requests.length === 0) {
+        msg.textContent = "Tidak ada pengajuan yang menunggu persetujuan.";
+        return;
+      }
+
+      msg.textContent = "Pengajuan menunggu: " + requests.length;
+
+      requests.forEach((request) => {
+        const card = document.createElement("div");
+        card.className = "about-box";
+
+        const title = document.createElement("h3");
+        title.textContent = "Pengajuan perubahan profil";
+
+        const detail = document.createElement("p");
+        detail.textContent =
+          "ID karyawan: " + request.employee_id;
+
+        const date = document.createElement("p");
+        date.textContent =
+          "Dikirim: " +
+          new Date(request.created_at).toLocaleString("id-ID");
+
+        const data = document.createElement("pre");
+        data.style.whiteSpace = "pre-wrap";
+        data.style.overflowWrap = "anywhere";
+        data.textContent = JSON.stringify(
+          request.requested_data || {},
+          null,
+          2
+        );
+
+        const note = document.createElement("input");
+        note.type = "text";
+        note.placeholder = "Catatan Admin (opsional)";
+        note.maxLength = 500;
+
+        const approve = document.createElement("button");
+        approve.type = "button";
+        approve.textContent = "Setujui";
+
+        const reject = document.createElement("button");
+        reject.type = "button";
+        reject.textContent = "Tolak";
+
+        async function review(decision) {
+          const confirmText = decision === "approved"
+            ? "Setujui perubahan profil ini?"
+            : "Tolak pengajuan profil ini?";
+
+          if (!confirm(confirmText)) return;
+
+          approve.disabled = true;
+          reject.disabled = true;
+          msg.textContent = "Memproses keputusan...";
+
+          try {
+            const { error: reviewError } = await supabase.rpc(
+              "review_profile_change_request",
+              {
+                p_request_id: request.id,
+                p_decision: decision,
+                p_admin_note: note.value.trim() || null
+              }
+            );
+
+            if (reviewError) throw reviewError;
+
+            msg.textContent = decision === "approved"
+              ? "Pengajuan berhasil disetujui."
+              : "Pengajuan berhasil ditolak.";
+
+            await loadProfileApprovals();
+          } catch (err) {
+            console.error("Gagal memproses pengajuan:", err);
+            msg.textContent =
+              "Gagal memproses. Periksa fungsi Supabase dan izin akses.";
+            approve.disabled = false;
+            reject.disabled = false;
+          }
+        }
+
+        approve.addEventListener("click", () => review("approved"));
+        reject.addEventListener("click", () => review("rejected"));
+
+        card.append(title, detail, date, data, note, approve, reject);
+        container.appendChild(card);
+      });
+    } catch (err) {
+      console.error("Gagal memuat persetujuan profil:", err);
+      msg.textContent =
+        "Pengajuan gagal dimuat. Periksa koneksi, login, dan izin database.";
+    }
+  }
+
+  if (menu) {
+    menu.addEventListener("click", loadProfileApprovals);
+  }
+})();

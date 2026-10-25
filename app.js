@@ -601,14 +601,17 @@ async function loadEmployeeProfile() {
       return;
     }
 
-    const fields = {
-      profileFullName: employee.full_name,
-      profileEmployeeId: employee.employee_code,
-      profileAddress: employee.address,
-      profileBirthDate: employee.birth_date,
-      profilePhone: employee.phone,
-      profileEmail: employee.email
-    };
+     
+const fields = {
+  profileFullName: employee.full_name,
+  profileEmployeeId: employee.employee_code,
+  profileAddress: employee.address,
+  profileBirthDate: employee.birth_date,
+  profilePhone: employee.phone,
+  profileEmail: employee.email,
+  profileDepartment: employee.department,
+  profilePosition: employee.position
+};
 
     Object.entries(fields).forEach(([id, value]) => {
       const element = document.getElementById(id);

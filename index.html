@@ -202,31 +202,152 @@
     </section>
 
     <!-- Halaman profil: formulir ini belum menyimpan perubahan ke database -->
-    <section class="panel new-page" id="profile">
-      <div class="panel-heading"><div><h2>👤 Profil Karyawan</h2><p class="muted">Periksa data diri dan ajukan perubahan kepada Admin/HRD.</p></div><span class="status-pill">Data karyawan</span></div>
-      <div class="profile-layout">
-        <div class="profile-photo-box">
-          <img id="profilePhotoPreview" class="profile-photo-preview" alt="Foto profil" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='60' fill='%23dbeafe'/%3E%3Ccircle cx='60' cy='43' r='22' fill='%2393c5fd'/%3E%3Cpath d='M18 112c4-25 20-38 42-38s38 13 42 38' fill='%2393c5fd'/%3E%3C/svg%3E">
-          <label class="form-field"><span>Foto profil baru</span><input id="profilePhotoInput" type="file" accept="image/*"></label>
-          <p class="small-note">Foto yang dipilih hanya pratinjau di perangkat ini sampai fitur unggah Supabase diaktifkan.</p>
+     
+<section class="panel new-page" id="profile">
+  <div class="panel-heading">
+    <div>
+      <h2>👤 Profil Karyawan</h2>
+      <p class="muted">Informasi pribadi dan data pekerjaan karyawan.</p>
+    </div>
+    <span class="status-pill">Data karyawan</span>
+  </div>
+
+  <div class="profile-layout">
+    <div class="profile-photo-box">
+      <img
+        id="profilePhotoPreview"
+        class="profile-photo-preview"
+        alt="Foto profil"
+        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='60' fill='%23dbeafe'/%3E%3Ccircle cx='60' cy='43' r='22' fill='%2393c5fd'/%3E%3Cpath d='M18 112c4-25 20-38 42-38s38 13 42 38' fill='%2393c5fd'/%3E%3C/svg%3E"
+      >
+
+      <label class="form-field">
+        <span>Foto profil</span>
+        <input id="profilePhotoInput" type="file" accept="image/*">
+      </label>
+
+      <p class="small-note">
+        Foto saat ini hanya pratinjau di perangkat ini.
+        Penyimpanan foto memerlukan fitur unggah.
+      </p>
+    </div>
+
+    <div class="profile-form-box">
+      <form id="profileChangeForm">
+        <h3>Data Identitas</h3>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="profileFullName">Nama lengkap</label>
+            <input id="profileFullName" name="full_name"
+              autocomplete="name"
+              placeholder="Nama sesuai data perusahaan" required>
+          </div>
+
+          <div class="form-field">
+            <label for="profileEmployeeId">ID / NIP karyawan</label>
+            <input id="profileEmployeeId" name="employee_code"
+              placeholder="ID karyawan" readonly>
+          </div>
+
+          <div class="form-field">
+            <label for="profileGender">Jenis kelamin</label>
+            <select id="profileGender" name="gender">
+              <option value="">Pilih jenis kelamin</option>
+              <option value="Laki-laki">Laki-laki</option>
+              <option value="Perempuan">Perempuan</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="profileBirthPlace">Tempat lahir</label>
+            <input id="profileBirthPlace" name="birth_place"
+              placeholder="Kota tempat lahir">
+          </div>
+
+          <div class="form-field">
+            <label for="profileBirthDate">Tanggal lahir</label>
+            <input id="profileBirthDate" name="birth_date" type="date">
+          </div>
+
+          <div class="form-field full">
+            <label for="profileAddress">Alamat lengkap</label>
+            <textarea id="profileAddress" name="address"
+              autocomplete="street-address"
+              placeholder="Jalan, kelurahan, kecamatan, kota"></textarea>
+          </div>
         </div>
-        <div class="profile-form-box">
-          <form id="profileChangeForm">
-            <div class="form-grid">
-              <div class="form-field"><label for="profileFullName">Nama lengkap</label><input id="profileFullName" name="full_name" autocomplete="name" placeholder="Nama sesuai data perusahaan" required></div>
-              <div class="form-field"><label for="profileEmployeeId">ID / NIP karyawan</label><input id="profileEmployeeId" name="employee_code" placeholder="ID karyawan" readonly></div>
-              <div class="form-field full"><label for="profileAddress">Alamat</label><textarea id="profileAddress" name="address" autocomplete="street-address" placeholder="Alamat tempat tinggal"></textarea></div>
-              <div class="form-field"><label for="profileBirthDate">Tanggal lahir</label><input id="profileBirthDate" name="birth_date" type="date"></div>
-              <div class="form-field"><label for="profilePhone">Nomor HP</label><input id="profilePhone" name="phone" type="tel" autocomplete="tel" placeholder="08xxxxxxxxxx"></div>
-              <div class="form-field full"><label for="profileEmail">Email</label><input id="profileEmail" name="email" type="email" autocomplete="email" placeholder="email@contoh.com"></div>
-            </div>
-            <p class="small-note">ID/NIP tidak dapat diubah oleh karyawan. Perubahan profil diajukan untuk diperiksa dan disetujui Admin/HRD.</p>
-            <button class="primary-button" type="submit">Ajukan Perubahan Profil</button>
-            <p class="page-message" id="profileChangeMessage" role="status"></p>
-          </form>
+
+        <h3>Informasi Kontak</h3>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="profilePhone">Nomor HP / WhatsApp</label>
+            <input id="profilePhone" name="phone" type="tel"
+              autocomplete="tel" placeholder="08xxxxxxxxxx">
+          </div>
+
+          <div class="form-field">
+            <label for="profileEmail">Email</label>
+            <input id="profileEmail" name="email" type="email"
+              autocomplete="email" placeholder="email@contoh.com">
+          </div>
         </div>
-      </div>
-    </section>
+
+        <h3>Informasi Pekerjaan</h3>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="profileDepartment">Departemen / Bagian</label>
+            <input id="profileDepartment" name="department"
+              placeholder="Contoh: Administrasi">
+          </div>
+
+          <div class="form-field">
+            <label for="profilePosition">Jabatan</label>
+            <input id="profilePosition" name="position"
+              placeholder="Contoh: Staf Administrasi">
+          </div>
+
+          <div class="form-field">
+            <label for="profileStartDate">Tanggal mulai bekerja</label>
+            <input id="profileStartDate" name="start_date" type="date">
+          </div>
+
+          <div class="form-field">
+            <label for="profileEmploymentStatus">Status kepegawaian</label>
+            <select id="profileEmploymentStatus" name="employment_status">
+              <option value="">Pilih status</option>
+              <option value="Tetap">Karyawan Tetap</option>
+              <option value="Kontrak">Karyawan Kontrak</option>
+              <option value="Percobaan">Masa Percobaan</option>
+              <option value="Magang">Magang</option>
+              <option value="Paruh Waktu">Paruh Waktu</option>
+            </select>
+          </div>
+
+          <div class="form-field full">
+            <label for="profileSupervisor">Nama atasan langsung</label>
+            <input id="profileSupervisor" name="supervisor"
+              placeholder="Nama atasan atau supervisor">
+          </div>
+        </div>
+
+        <p class="small-note">
+          ID/NIP tidak dapat diubah melalui formulir ini.
+          Perubahan data perlu diperiksa oleh Admin/HRD.
+        </p>
+
+        <button class="primary-button" type="submit">
+          Ajukan Perubahan Profil
+        </button>
+
+        <p class="page-message" id="profileChangeMessage" role="status"></p>
+      </form>
+    </div>
+  </div>
+</section>
+
 
     <!-- Pengajuan belum dikirim ke server sampai app.js dan Supabase disambungkan -->
     <section class="panel new-page" id="leave">

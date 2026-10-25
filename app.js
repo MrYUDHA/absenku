@@ -713,7 +713,11 @@ async function submitLeaveRequest(event) {
       .insert({
         employee_id: employee.id,
         company_id: employee.company_id,
-        request_type: type,
+         request_type: ({
+  cuti: "leave",
+  sakit: "sick",
+  izin: "permission"
+})[type] || type,
         start_date: start,
         end_date: end,
         reason: reason,

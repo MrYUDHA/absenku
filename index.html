@@ -137,6 +137,28 @@
     <button type="submit" class="btn btn-primary">Simpan Karyawan</button>
     <p id="addEmployeeMessage" role="status"></p>
   </form>
+<form id="createEmployeeAccountForm">
+  <h3>Buat Akun Login Karyawan</h3>
+
+  <label>ID Karyawan *</label>
+  <input id="accountEmployeeId" required
+    placeholder="Masukkan ID karyawan dari database"
+    style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+
+  <label>Email Karyawan *</label>
+  <input id="accountEmployeeEmail" type="email" required
+    style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+
+  <label>Kata Sandi Sementara *</label>
+  <input id="accountEmployeePassword" type="password" required minlength="8"
+    autocomplete="new-password"
+    placeholder="Minimal 8 karakter"
+    style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+
+  <button type="submit" class="btn btn-primary">Buat Akun Login</button>
+  <p id="createEmployeeAccountMessage" role="status"></p>
+</form>
+
 </section>
 <main class="main" id="dashboard">
     <header class="topbar" id="home-header">

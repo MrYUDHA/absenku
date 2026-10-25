@@ -628,10 +628,23 @@ const fields = {
 }
 
  
-document.addEventListener("DOMContentLoaded", function () {
-  document.querySelectorAll('[data-page="profile"]').forEach(link => {
-    link.addEventListener("click", function () {
-      loadEmployeeProfile();
+ 
+(function () {
+  function connectProfileMenu() {
+    document.querySelectorAll('[data-page="profile"]').forEach(link => {
+      if (link.dataset.profileConnected === "true") return;
+
+      link.dataset.profileConnected = "true";
+
+      link.addEventListener("click", function () {
+        loadEmployeeProfile();
+      });
     });
-  });
-});
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", connectProfileMenu);
+  } else {
+    connectProfileMenu();
+  }
+})();

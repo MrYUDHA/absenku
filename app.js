@@ -689,12 +689,12 @@ async function submitLeaveRequest(event) {
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("company_id, is_active")
+      .select("company_id,active")
       .eq("id", user.id)
       .maybeSingle();
 
     if (profileError) throw profileError;
-    if (!profile || profile.is_active !== true ||
+    if (!profile || profile.active !== true ||
         profile.company_id !== employee.company_id) {
       throw new Error("Profil aktif atau data perusahaan tidak cocok.");
     }

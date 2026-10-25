@@ -500,6 +500,8 @@
 
   function showPage(page){
     const isHome=page==="dashboard";
+   const kalender=document.getElementById("kalender-absenku");
+if(kalender) kalender.style.display=isHome?"":"none";
     header.style.display=isHome?"":"none";
     stats.style.display=isHome?"":"none";
     attendance.style.display=page==="attendance"?"":"none";

@@ -648,3 +648,92 @@ const fields = {
     connectProfileMenu();
   }
 })();
+(function () {
+  async function connectProfileChangeForm() {
+    const form = document.getElementById("profileChangeForm");
+    const message = document.getElementById("profileChangeMessage");
+
+    if (!form || form.dataset.submitConnected === "true") return;
+    form.dataset.submitConnected = "true";
+
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const supabase = window.ABSENKU_SUPABASE;
+      if (!supabase) {
+        if (message) message.textContent = "Koneksi Supabase belum tersedia.";
+        return;
+      }
+
+      if (message) message.textContent = "Mengirim pengajuan...";
+
+      try {
+        const { data: authData, error: authError } =
+          await supabase.auth.getUser();
+
+        if (authError) throw authError;
+
+        const user = authData.user;
+        if (!user) throw new Error("Silakan login terlebih dahulu.");
+
+        const { data: employee, error: employeeError } = await supabase
+          .from("employees")
+          .select("id, company_id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (employeeError) throw employeeError;
+        if (!employee) throw new Error("Data karyawan tidak ditemukan.");
+
+        const value = id => {
+          const el = document.getElementById(id);
+          return el ? el.value.trim() : "";
+        };
+
+        const requestedData = {
+          full_name: value("profileFullName"),
+          gender: value("profileGender"),
+          birth_place: value("profileBirthPlace"),
+          birth_date: value("profileBirthDate"),
+          address: value("profileAddress"),
+          phone: value("profilePhone"),
+          email: value("profileEmail"),
+          department: value("profileDepartment"),
+          position: value("profilePosition"),
+          start_date: value("profileStartDate"),
+          employment_status: value("profileEmploymentStatus"),
+          supervisor: value("profileSupervisor")
+        };
+
+        const { error: insertError } = await supabase
+          .from("profile_change_requests")
+          .insert({
+            company_id: employee.company_id,
+            employee_id: employee.id,
+            requested_by: user.id,
+            requested_data: requestedData
+          });
+
+        if (insertError) throw insertError;
+
+        if (message) {
+          message.textContent =
+            "Pengajuan berhasil dikirim. Menunggu persetujuan Admin/HRD.";
+        }
+      } catch (error) {
+        console.error("Gagal mengirim pengajuan profil:", error);
+        if (message) {
+          message.textContent =
+            "Pengajuan gagal dikirim. Pastikan izin akses Supabase sudah diatur.";
+        }
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", connectProfileChangeForm);
+  } else {
+    connectProfileChangeForm();
+  }
+})();
+

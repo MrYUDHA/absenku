@@ -563,21 +563,7 @@ if(kalender) kalender.style.display=isHome?"":"none";
       profileMessage.textContent="Formulir sudah diperiksa di halaman ini, tetapi belum dikirim ke Admin/HRD. Fitur penyimpanan dan persetujuan perlu dihubungkan ke app.js dan Supabase.";
     });
   }
-  if(leaveForm&&leaveMessage){
-    leaveForm.addEventListener("submit",function(event){
-      event.preventDefault();
-      const start=document.getElementById("leaveStart").value;
-      const end=document.getElementById("leaveEnd").value;
-      if(end<start){leaveMessage.textContent="Tanggal selesai tidak boleh lebih awal dari tanggal mulai.";return;}
-      const file=document.getElementById("leaveEvidence").files[0];
-      if(!file){leaveMessage.textContent="Lampirkan bukti sebelum mengirim pengajuan.";return;}
-      const allowed=["application/pdf","image/jpeg","image/png"];
-      if(!allowed.includes(file.type)){leaveMessage.textContent="Format bukti harus PDF, JPG, atau PNG.";return;}
-      if(file.size>10*1024*1024){leaveMessage.textContent="Ukuran bukti maksimal 10 MB.";return;}
-      leaveMessage.textContent="Data formulir valid, tetapi pengajuan belum disimpan atau dikirim. Sambungkan ke app.js dan Supabase agar Admin/HRD dapat memprosesnya.";
-    });
-  }
-})();
+  if(leaveForm&&leaveMessage){})();
 </script>
  <script>
 (function () {

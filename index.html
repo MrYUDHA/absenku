@@ -392,7 +392,7 @@
     <section class="panel new-page" id="profile-approvals">
       <div class="panel-heading">
         <div>
-          <h2>🛡️ Persetujuan Profil</h2>
+          <h2>🛡️ PPAK </h2>
           <p class="muted">Periksa pengajuan perubahan data karyawan.</p>
         </div>
       </div>
@@ -557,11 +557,7 @@ if(kalender) kalender.style.display=isHome?"":"none";
       else evidenceHint.textContent="Pilih jenis pengajuan untuk melihat bukti yang diperlukan.";
     });
   }
-  if(profileForm&&profileMessage){
-    profileForm.addEventListener("submit",function(event){
-      event.preventDefault();
-      profileMessage.textContent="Formulir sudah diperiksa di halaman ini, tetapi belum dikirim ke Admin/HRD. Fitur penyimpanan dan persetujuan perlu dihubungkan ke app.js dan Supabase.";
-    });
+  if(profileForm&&profileMessage){});
   }
   if(leaveForm&&leaveMessage){})();
 </script>

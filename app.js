@@ -891,7 +891,9 @@ const fields = {
     }
   }
 
-  if (menu) {
-    menu.addEventListener("click", loadProfileApprovals);
+     if (menu) {
+    menu.addEventListener("click", () => {
+      setTimeout(loadProfileApprovals, 100);
+    });
   }
 })();

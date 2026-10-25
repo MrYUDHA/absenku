@@ -627,8 +627,11 @@ const fields = {
   }
 }
 
-document.querySelectorAll('[data-page="profile"]').forEach(link => {
-  link.addEventListener("click", () => {
-    loadEmployeeProfile();
+ 
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll('[data-page="profile"]').forEach(link => {
+    link.addEventListener("click", function () {
+      loadEmployeeProfile();
+    });
   });
 });

@@ -626,101 +626,6 @@ const fields = {
       "Profil gagal dimuat. Periksa izin akses database.";
   }
 }
-
- 
- 
-
-async function submitLeaveRequest(event) {
-  event.preventDefault();
-
-  const supabase = window.ABSENKU_SUPABASE;
-  const message = document.getElementById("leaveRequestMessage");
-  const button = event.submitter;
-
-  const say = (text) => {
-    if (message) message.textContent = text;
-  };
-
-  if (!supabase) {
-    say("Koneksi Supabase belum tersedia.");
-    return;
-  }
-async function submitNewEmployee(event) {
-  event.preventDefault();
-
-  const supabase = window.ABSENKU_SUPABASE;
-  const message = document.getElementById("addEmployeeMessage");
-  const form = document.getElementById("addEmployeeForm");
-
-  const say = (text) => {
-    if (message) message.textContent = text;
-  };
-
-  if (!supabase) {
-    say("Koneksi Supabase belum tersedia.");
-    return;
-  }
-
-  const employeeCode = document.getElementById("newEmployeeCode").value.trim();
-  const fullName = document.getElementById("newEmployeeName").value.trim();
-
-  if (!employeeCode || !fullName) {
-    say("Nomor dan nama karyawan wajib diisi.");
-    return;
-  }
-
-  try {
-    say("Menyimpan data karyawan...");
-
-    const { data: authData, error: authError } =
-      await supabase.auth.getUser();
-    if (authError) throw authError;
-    if (!authData.user) throw new Error("Silakan login terlebih dahulu.");
-
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("company_id, role, is_active")
-      .eq("id", authData.user.id)
-      .maybeSingle();
-
-    if (profileError) throw profileError;
-
-    if (!profile || profile.role !== "admin" || profile.is_active !== true ||
-        !profile.company_id) {
-      throw new Error("Hanya Admin aktif yang dapat menambahkan karyawan.");
-    }
-
-    const { error: insertError } = await supabase
-      .from("employees")
-      .insert({
-        company_id: profile.company_id,
-        employee_code: employeeCode,
-        full_name: fullName,
-        email: document.getElementById("newEmployeeEmail").value.trim() || null,
-        phone: document.getElementById("newEmployeePhone").value.trim() || null,
-        department: document.getElementById("newEmployeeDepartment").value.trim() || null,
-        position: document.getElementById("newEmployeePosition").value.trim() || null,
-        branch_name: document.getElementById("newEmployeeBranch").value.trim() || null,
-        address: document.getElementById("newEmployeeAddress").value.trim() || null,
-        is_active: true
-      });
-
-    if (insertError) throw insertError;
-
-    form.reset();
-    say("Data karyawan berhasil disimpan.");
-  } catch (error) {
-    console.error("Gagal menyimpan karyawan:", error);
-    say("Gagal menyimpan: " + (error.message || "Periksa izin database."));
-  }
-}
-
-document.getElementById("addEmployeeForm")?.addEventListener(
-  "submit",
-  submitNewEmployee
-);
-
-
   const start = document.getElementById("leaveStart")?.value;
   const end = document.getElementById("leaveEnd")?.value;
   const type = document.getElementById("leaveType")?.value;
@@ -818,6 +723,95 @@ document.getElementById("addEmployeeForm")?.addEventListener(
 document.getElementById("leaveRequestForm")?.addEventListener(
   "submit",
   submitLeaveRequest
+);
+async function submitLeaveRequest(event) {
+  event.preventDefault();
+
+  const supabase = window.ABSENKU_SUPABASE;
+  const message = document.getElementById("leaveRequestMessage");
+  const button = event.submitter;
+
+  const say = (text) => {
+    if (message) message.textContent = text;
+  };
+
+  if (!supabase) {
+    say("Koneksi Supabase belum tersedia.");
+    return;
+  }
+async function submitNewEmployee(event) {
+  event.preventDefault();
+
+  const supabase = window.ABSENKU_SUPABASE;
+  const message = document.getElementById("addEmployeeMessage");
+  const form = document.getElementById("addEmployeeForm");
+
+  const say = (text) => {
+    if (message) message.textContent = text;
+  };
+
+  if (!supabase) {
+    say("Koneksi Supabase belum tersedia.");
+    return;
+  }
+
+  const employeeCode = document.getElementById("newEmployeeCode").value.trim();
+  const fullName = document.getElementById("newEmployeeName").value.trim();
+
+  if (!employeeCode || !fullName) {
+    say("Nomor dan nama karyawan wajib diisi.");
+    return;
+  }
+
+  try {
+    say("Menyimpan data karyawan...");
+
+    const { data: authData, error: authError } =
+      await supabase.auth.getUser();
+    if (authError) throw authError;
+    if (!authData.user) throw new Error("Silakan login terlebih dahulu.");
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("company_id, role, is_active")
+      .eq("id", authData.user.id)
+      .maybeSingle();
+
+    if (profileError) throw profileError;
+
+    if (!profile || profile.role !== "admin" || profile.is_active !== true ||
+        !profile.company_id) {
+      throw new Error("Hanya Admin aktif yang dapat menambahkan karyawan.");
+    }
+
+    const { error: insertError } = await supabase
+      .from("employees")
+      .insert({
+        company_id: profile.company_id,
+        employee_code: employeeCode,
+        full_name: fullName,
+        email: document.getElementById("newEmployeeEmail").value.trim() || null,
+        phone: document.getElementById("newEmployeePhone").value.trim() || null,
+        department: document.getElementById("newEmployeeDepartment").value.trim() || null,
+        position: document.getElementById("newEmployeePosition").value.trim() || null,
+        branch_name: document.getElementById("newEmployeeBranch").value.trim() || null,
+        address: document.getElementById("newEmployeeAddress").value.trim() || null,
+        is_active: true
+      });
+
+    if (insertError) throw insertError;
+
+    form.reset();
+    say("Data karyawan berhasil disimpan.");
+  } catch (error) {
+    console.error("Gagal menyimpan karyawan:", error);
+    say("Gagal menyimpan: " + (error.message || "Periksa izin database."));
+  }
+}
+
+document.getElementById("addEmployeeForm")?.addEventListener(
+  "submit",
+  submitNewEmployee
 );
 (function () {
   function connectProfileMenu() {

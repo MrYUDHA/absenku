@@ -689,7 +689,7 @@ async function submitLeaveRequest(event) {
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("company_id,active")
+      .select("company_id, is_active")
       .eq("id", user.id)
       .maybeSingle();
 

@@ -569,6 +569,7 @@ if (dashboard) dashboard.style.display = "none";
 async function loadEmployeeProfile() {
   const supabase = window.ABSENKU_SUPABASE;
   const message = document.getElementById("profileChangeMessage");
+  if (message) message.textContent = "Fungsi pemuatan profil berjalan...";
 
   if (!supabase) {
     if (message) message.textContent = "Koneksi Supabase belum tersedia.";

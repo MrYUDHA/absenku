@@ -104,7 +104,41 @@
     <div class="profile"><div class="avatar">AK</div><div><b>Karyawan</b><small>Profil karyawan</small></div></div>
   </aside>
 
-  <main class="main" id="dashboard">
+  
+<section class="panel" id="employees" data-page="employees" style="display:none;padding:20px">
+  <h2>👥 Data Karyawan</h2>
+  <p>Tambah data karyawan perusahaan Anda.</p>
+
+  <form id="addEmployeeForm">
+    <label>Nomor Karyawan *</label>
+    <input id="newEmployeeCode" required maxlength="50" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+
+    <label>Nama Lengkap *</label>
+    <input id="newEmployeeName" required maxlength="150" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+
+    <label>Email</label>
+    <input id="newEmployeeEmail" type="email" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+
+    <label>Nomor HP</label>
+    <input id="newEmployeePhone" type="tel" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+
+    <label>Departemen</label>
+    <input id="newEmployeeDepartment" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+
+    <label>Jabatan</label>
+    <input id="newEmployeePosition" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+
+    <label>Cabang</label>
+    <input id="newEmployeeBranch" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+
+    <label>Alamat</label>
+    <textarea id="newEmployeeAddress" rows="3" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box"></textarea>
+
+    <button type="submit" class="btn btn-primary">Simpan Karyawan</button>
+    <p id="addEmployeeMessage" role="status"></p>
+  </form>
+</section>
+<main class="main" id="dashboard">
     <header class="topbar" id="home-header">
       <div><p class="eyebrow">PORTAL KARYAWAN</p><h1>Beranda ABSENKU</h1><p class="muted">Pantau kehadiran dan riwayat absensi kamu.</p></div>
       <div class="date-chip" id="todayLabel">Hari ini</div>

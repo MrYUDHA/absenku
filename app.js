@@ -7,7 +7,7 @@ const $ = (id) => document.getElementById(id);
 const dashboard = $("app-dashboard");
 let isLoggedIn = false;
 
-if (dashboard) dashboard.style.display = "";
+if (dashboard) dashboard.style.display = "none";
 
 function showDashboardAfterLogin() {
   isLoggedIn = true;
@@ -17,7 +17,7 @@ function showDashboardAfterLogin() {
 
 function hideDashboardAfterLogout() {
   isLoggedIn = false;
-  if (dashboard) dashboard.style.display = "";
+  if (dashboard) dashboard.style.display = "none";
 }
 
 // ===============================

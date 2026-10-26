@@ -641,6 +641,24 @@ const fields = {
       "Profil gagal dimuat. Periksa izin akses database.";
   }
 }
+   
+async function submitLeaveRequest(event) {
+  event.preventDefault();
+
+  const supabase = window.ABSENKU_SUPABASE;
+  const message = document.getElementById("leaveRequestMessage");
+  const form = document.getElementById("leaveRequestForm");
+  const button = event.submitter;
+
+  const say = (text) => {
+    if (message) message.textContent = text;
+  };
+
+  if (!supabase) {
+    say("Koneksi Supabase belum tersedia.");
+    return;
+  }
+
   const start = document.getElementById("leaveStart")?.value;
   const end = document.getElementById("leaveEnd")?.value;
   const type = document.getElementById("leaveType")?.value;
@@ -662,12 +680,15 @@ const fields = {
     return;
   }
 
+  let uploadedPath = null;
+
   try {
     if (button) button.disabled = true;
     say("Mengirim pengajuan...");
 
     const { data: authData, error: authError } =
       await supabase.auth.getUser();
+
     if (authError) throw authError;
 
     const user = authData.user;
@@ -684,22 +705,30 @@ const fields = {
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("company_id,is_active")
+      .select("company_id, is_active")
       .eq("id", user.id)
       .maybeSingle();
 
     if (profileError) throw profileError;
-    if (!profile || profile.is_active !== true ||
-        profile.company_id !== employee.company_id) {
+
+    if (
+      !profile ||
+      profile.is_active !== true ||
+      profile.company_id !== employee.company_id
+    ) {
       throw new Error("Profil aktif atau data perusahaan tidak cocok.");
     }
 
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const path = `${employee.company_id}/${employee.id}/${crypto.randomUUID()}-${safeName}`;
+    uploadedPath =
+      `${employee.company_id}/${employee.id}/${crypto.randomUUID()}-${safeName}`;
 
     const { error: uploadError } = await supabase.storage
       .from("leave-evidence")
-      .upload(path, file, { upsert: false, contentType: file.type });
+      .upload(uploadedPath, file, {
+        upsert: false,
+        contentType: file.type
+      });
 
     if (uploadError) throw uploadError;
 
@@ -708,28 +737,37 @@ const fields = {
       .insert({
         employee_id: employee.id,
         company_id: employee.company_id,
-         request_type: ({
-  cuti: "leave",
-  sakit: "sick",
-  izin: "permission"
-})[type] || type,
+        request_type: ({
+          cuti: "leave",
+          sakit: "sick",
+          izin: "permission"
+        })[type] || type,
         start_date: start,
         end_date: end,
         reason: reason,
-        evidence_path: path,
+        evidence_path: uploadedPath,
         status: "pending"
       });
 
-    if (insertError) {
-      await supabase.storage.from("leave-evidence").remove([path]);
-      throw insertError;
-    }
+    if (insertError) throw insertError;
 
-    document.getElementById("leaveRequestForm")?.reset();
+    form?.reset();
     say("Pengajuan berhasil dikirim dan menunggu persetujuan Admin/HRD.");
   } catch (error) {
     console.error("Pengajuan cuti/izin gagal:", error);
-    say("Gagal mengirim pengajuan: " + (error.message || "Periksa koneksi dan izin Supabase."));
+
+    if (uploadedPath) {
+      const { error: cleanupError } = await supabase.storage
+        .from("leave-evidence")
+        .remove([uploadedPath]);
+
+      if (cleanupError) {
+        console.error("Pembersihan bukti gagal:", cleanupError);
+      }
+    }
+
+    say("Gagal mengirim pengajuan: " +
+      (error.message || "Periksa koneksi dan izin Supabase."));
   } finally {
     if (button) button.disabled = false;
   }
@@ -739,6 +777,7 @@ document.getElementById("leaveRequestForm")?.addEventListener(
   "submit",
   submitLeaveRequest
 );
+
 async function submitLeaveRequest(event) {
   event.preventDefault();
 

@@ -1,1199 +1,1151 @@
-  <!doctype html>
-<html lang="id">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#087fbd">
-  <meta name="description" content="ABSENKU - Sistem absensi karyawan berbasis web">
-  <title>ABSENKU — Absensi Karyawan</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    /* ABSENKU: halaman tambahan dan perapian navigasi */
-    #login-screen {
-      position:relative; overflow:hidden; max-width:440px!important;
-      margin:35px auto!important; padding:28px 24px!important; box-sizing:border-box;
-      border:1px solid rgba(255,255,255,.8)!important; border-radius:26px!important;
-      background:radial-gradient(circle at 10% 5%,#b9f0ff 0,transparent 35%),linear-gradient(145deg,#fff,#e3f7ff 60%,#d5eaff)!important;
-      box-shadow:0 24px 65px rgba(4,75,130,.23)!important; animation:loginAppear .8s ease both;
-    }
-    #login-screen h2 {text-align:center;color:#123d70;font-size:30px;font-weight:900;letter-spacing:2px;margin:8px 0 10px}
-    #login-screen > p:not(.login-tagline) {text-align:center;color:#486782;line-height:1.6}
-    #login-screen label {display:block;color:#163e62;font-size:14px;font-weight:700}
-    #login-screen input {border:1px solid #c3ddeb!important;border-radius:12px!important;background:rgba(255,255,255,.94);font:inherit;outline:none;transition:border-color .2s,box-shadow .2s}
-    #login-screen input:focus {border-color:#0891b2!important;box-shadow:0 0 0 4px rgba(8,145,178,.13)}
-    #login-screen button {border:0;border-radius:13px!important;color:#fff;font-size:16px;font-weight:800;cursor:pointer;background:linear-gradient(110deg,#06b6d4,#087fbd,#244ec7)!important;box-shadow:0 10px 25px rgba(8,127,189,.28)}
-    .pirate-mascot {min-height:128px;display:flex;align-items:center;justify-content:center;gap:12px;position:relative;margin-bottom:8px}
-    .pirate-emoji {font-size:76px;line-height:1.2;filter:drop-shadow(0 10px 8px rgba(10,70,130,.2));animation:pirateFloat 2.5s ease-in-out infinite}
-    .pirate-speech {max-width:145px;padding:12px 14px;border-radius:18px 18px 18px 4px;color:#fff;background:linear-gradient(135deg,#06b6d4,#153b80);font-size:14px;font-weight:800;line-height:1.5;box-shadow:0 8px 22px rgba(10,70,130,.22)}
-    .login-tagline {margin:0 0 23px;text-align:center;color:#087fbd;font-size:13px;font-weight:800;line-height:1.6}
-    @keyframes pirateFloat {0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-12px) rotate(4deg)}}
-    @keyframes loginAppear {from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-    #main-nav a {display:flex;align-items:center;gap:12px;text-decoration:none}
-    #main-nav a span:first-child {display:inline-flex;align-items:center;justify-content:center;min-width:28px;font-size:20px}
-    .new-page {display:none}
-    .profile-layout {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:18px}
-    .profile-photo-box,.profile-form-box,.leave-form-box,.about-box {background:var(--panel-bg,#fff);border:1px solid var(--border-color,#e1eaf0);border-radius:18px;padding:20px;box-sizing:border-box}
-    .profile-photo-box {text-align:center}
-    .profile-photo-preview {width:112px;height:112px;border-radius:50%;object-fit:cover;background:#e0f2fe;border:4px solid #dbeafe;display:block;margin:0 auto 12px}
-    .form-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-    .form-field {display:flex;flex-direction:column;gap:6px;min-width:0}
-    .form-field label {font-size:13px;font-weight:700;color:var(--text-color,#234)}
-    .form-field input,.form-field select,.form-field textarea {width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd5e1;border-radius:10px;font:inherit;background:#fff;color:#172554}
-    .form-field textarea {min-height:90px;resize:vertical}
-    .form-field.full {grid-column:1/-1}
-    .small-note {font-size:13px;line-height:1.5;color:#64748b}
-    .status-pill {display:inline-block;border-radius:999px;padding:5px 10px;background:#fef3c7;color:#92400e;font-size:12px;font-weight:800}
-    .secondary-button {border:1px solid #cbd5e1;border-radius:10px;padding:10px 14px;background:#fff;color:#123d70;font-weight:700;cursor:pointer}
-    .primary-button {border:0;border-radius:10px;padding:11px 15px;background:linear-gradient(110deg,#0891b2,#087fbd,#244ec7);color:#fff;font-weight:800;cursor:pointer}
-    .page-message {font-size:14px;margin-top:12px;line-height:1.5}
-    @media(max-width:700px) {
-      .profile-layout,.form-grid {grid-template-columns:1fr}
-      .form-field.full {grid-column:auto}
-      .profile-photo-box,.profile-form-box,.leave-form-box,.about-box {padding:15px}
-    }
-    @media(prefers-reduced-motion:reduce){.pirate-emoji,#login-screen{animation:none!important}}
-  </style>
-</head>
-<body>
-<div id="login-screen" style="max-width:400px;margin:40px auto;padding:24px;border:1px solid #ddd;border-radius:16px;">
-  <div style="text-align:center;padding:15px 0 20px;background:linear-gradient(180deg,#dff7ff,#fff);border-radius:20px;margin-bottom:16px;">
-    <div style="font-size:76px;line-height:1.4;animation:pirateFloat 2s ease-in-out infinite;">🏴‍☠️</div>
-    <div style="display:inline-block;background:linear-gradient(135deg,#087fbd,#153b80);color:white;padding:12px 18px;border-radius:18px;font-weight:900;box-shadow:0 8px 20px #087fbd44;">SEMANGAT, SODARA! 🌊</div>
-    <p style="color:#1555a0;font-weight:800;margin:14px 0 0;">⚓ Disiplin hari ini, raih impianmu!</p>
-  </div>
-  <p class="login-tagline">Disiplin hari ini, raih impian esok hari!</p>
-  <h2>ABSENKU</h2>
-  <p>Silakan masuk ke akun karyawan atau admin.</p>
-  <form id="login-form">
-    <label for="login-email">Email</label>
-    <input id="login-email" type="email" required placeholder="Masukkan email" autocomplete="username" style="display:block;width:100%;padding:12px;margin:8px 0 16px;box-sizing:border-box;">
-    <label for="login-password">Kata sandi</label>
-    <input id="login-password" type="password" required placeholder="Masukkan kata sandi" autocomplete="current-password" style="display:block;width:100%;padding:12px;margin:8px 0 16px;box-sizing:border-box;">
-    <button type="submit" style="width:100%;padding:12px;">Masuk</button>
-    <p id="login-message" role="status"></p>
-  </form>
-</div>
-
-<div class="app-shell" id="app-dashboard" style="display:none;">
-  <aside class="sidebar">
-    <div class="brand"><div class="brand-icon">✓</div><div><strong>ABSENKU</strong><small>Employee Attendance</small></div></div>
-    <nav id="main-nav" aria-label="Navigasi utama">
-       <a class="active" href="#dashboard" data-page="dashboard"><span>▦</span><span data-i18n="nav_home">Beranda</span></a>
-       <a href="#attendance" data-page="attendance"><span>✓</span><span data-i18n="nav_attendance">Absensi</span></a>
-        
-<a href="#profile" data-page="profile">
-  <span>👤</span>
-  <span data-i18n="nav_profile">Profil</span>
-</a>
-
-       <a href="#leave" data-page="leave"><span>📄</span><span data-i18n="nav_leave">Izin / Sakit / Cuti</span></a>
-       <a href="#chat" data-page="chat"><span>◉</span><span data-i18n="nav_chat">Asisten</span></a>
-       <a href="#history" data-page="history"><span>◷</span><span data-i18n="nav_history">Riwayat</span></a>
-       <a href="#about" data-page="about"><span>ⓘ</span><span data-i18n="nav_about">Tentang Aplikasi</span></a>
-       <a href="#profile-approvals" data-page="profile-approvals">
-  <span>🛡️</span>
-  <span>Persetujuan Administrasi</span>
-</a><a href="#employees" data-page="employees">
-  <span>👥</span>
-  <span>Data Karyawan</span>
-</a>
-
-     </nav>
-
-    <div class="sidebar-note"><span class="online-dot"></span> ABSENKU<small>Portal absensi karyawan</small></div>
-    <div class="profile"><div class="avatar">AK</div><div><b>Karyawan</b><small>Profil karyawan</small></div></div>
-  </aside>
-
-  
-<section class="panel" id="employees" data-page="employees" style="display:none;padding:20px">
-  <h2>👥 Data Karyawan</h2>
-  <p>Tambah data karyawan perusahaan Anda.</p>
-
-  <form id="addEmployeeForm">
-    <label>Nomor Karyawan *</label>
-    <input id="newEmployeeCode" required maxlength="50" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
-
-    <label>Nama Lengkap *</label>
-    <input id="newEmployeeName" required maxlength="150" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
-
-    <label>Email</label>
-    <input id="newEmployeeEmail" type="email" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
-
-    <label>Nomor HP</label>
-    <input id="newEmployeePhone" type="tel" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
-
-    <label>Departemen</label>
-    <input id="newEmployeeDepartment" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
-
-    <label>Jabatan</label>
-    <input id="newEmployeePosition" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
-
-    <label>Cabang</label>
-    <input id="newEmployeeBranch" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
-
-    <label>Alamat</label>
-    <textarea id="newEmployeeAddress" rows="3" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box"></textarea>
-
-    <button type="submit" class="btn btn-primary">Simpan Karyawan</button>
-    <p id="addEmployeeMessage" role="status"></p>
-  </form>
-<form id="createEmployeeAccountForm">
-  <h3>Buat Akun Login Karyawan</h3>
-
-  <label>ID Karyawan *</label>
-  <input id="accountEmployeeId" required
-    placeholder="Masukkan ID karyawan dari database"
-    style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
-
-  <label>Email Karyawan *</label>
-  <input id="accountEmployeeEmail" type="email" required
-    style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
-
-  <label>Kata Sandi Sementara *</label>
-  <input id="accountEmployeePassword" type="password" required minlength="8"
-    autocomplete="new-password"
-    placeholder="Minimal 8 karakter"
-    style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
-
-  <button type="submit" class="btn btn-primary">Buat Akun Login</button>
-  <p id="createEmployeeAccountMessage" role="status"></p>
-</form>
-
-</section>
-<main class="main" id="dashboard">
-    <header class="topbar" id="home-header">
-      <div><p class="eyebrow">PORTAL KARYAWAN</p><h1>Beranda ABSENKU</h1><p class="muted">Pantau kehadiran dan riwayat absensi kamu.</p></div>
-      <div class="date-chip" id="todayLabel">Hari ini</div>
-    </header>
-
-    <section class="stats" id="home-stats">
-      <article class="stat-card"><div class="stat-symbol green">✓</div><div><span>Status hari ini</span><strong id="statusValue">Belum absen</strong><small id="statusSub">Silakan check-in</small></div></article>
-      <article class="stat-card"><div class="stat-symbol blue">↗</div><div><span>Jam masuk</span><strong id="checkInValue">—</strong><small>Waktu check-in</small></div></article>
-      <article class="stat-card"><div class="stat-symbol purple">↙</div><div><span>Jam pulang</span><strong id="checkOutValue">—</strong><small>Waktu check-out</small></div></article>
-    </section>
-
-    <div class="content-grid" id="main-content-grid">
-     
-<section class="panel" id="motivasi-absenku" style="margin-bottom:18px;padding:20px;border-radius:18px;background:linear-gradient(135deg,#087fbd,#123d70);color:white;box-shadow:0 8px 24px rgba(8,127,189,.25)">
-  <div style="font-size:28px">⚓ 🌊</div>
-  <h2 style="margin:8px 0;color:white">Semangat,ki sodara!</h2>
-  <p id="teks-motivasi-absenku" style="margin:0 0 14px;line-height:1.6">Disiplin hari ini, sukses di masa depan!</p>
-  <button type="button" onclick="if(window.ABSENKU_FITUR_RINGAN){document.getElementById('teks-motivasi-absenku').textContent=window.ABSENKU_FITUR_RINGAN.ambilMotivasi()}" style="padding:10px 15px;border:0;border-radius:10px;background:white;color:#123d70;font-weight:bold;cursor:pointer">✨ Motivasi Lain</button>
-</section>
-
-      <section class="panel attendance-panel" id="attendance">
-        <div class="panel-heading"><div><h2>Absensi Hari Ini</h2><p class="muted">Catat kehadiran melalui sistem absensi.</p></div><span class="pill">ABSENKU</span></div>
-        <div class="clock" id="clock">00:00:00</div><div class="clock-date" id="clockDate"></div>
-        <div class="action-row"><button id="checkInBtn" class="btn btn-primary" type="button">✓ Check-in</button><button id="checkOutBtn" class="btn btn-dark" type="button">↗ Check-out</button></div>
-        <p class="helper" id="actionMessage" role="status">Silakan check-in untuk memulai absensi.</p>
-        <div class="notice">ⓘ <span>Pastikan akun dan lokasi kerja telah dikonfigurasi oleh admin. Status koneksi server ditangani oleh aplikasi.</span></div>
-      </section>
-
-       <section class="panel chat-panel" id="chat">
-        <div class="panel-heading"><div><h2>Asisten ABSENKU</h2><p class="muted">Tanyakan informasi seputar absensi.</p></div><span class="bot-badge">AI</span></div>
-        <div class="chat-window" id="chatWindow" aria-live="polite"><div class="message bot-message"><div class="mini-avatar">✓</div><div class="bubble"><b>Asisten ABSENKU</b><p>Halo! Ketik <em>bantuan</em>, <em>status</em>, <em>riwayat</em>, atau <em>jam kerja</em>.</p></div></div></div>
-        <form id="chatForm" class="chat-input"><input id="chatInput" autocomplete="off" placeholder="Tulis pesan..." aria-label="Pesan untuk chatbot" required><button aria-label="Kirim pesan" type="submit">➤</button></form>
-        <div class="quick-actions"><button type="button" data-message="status">Status</button><button type="button" data-message="riwayat">Riwayat</button><button type="button" data-message="bantuan">Bantuan</button></div>
-      </section>
-    </div>
-
    
-    
-<section class="panel" id="kalender-absenku" style="margin-bottom:18px;padding:18px;border-radius:16px">
-  <div class="panel-heading">
-    <div>
-      <h2>📅 Kalender Absensi</h2>
-      <p class="muted">Periksa tanggal dan hari dalam sebulan.</p>
-    </div>
-  </div>
+const $ = (id) => document.getElementById(id);
 
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px">
-    <button type="button" id="kalender-sebelum" class="text-button">◀ Sebelumnya</button>
-    <strong id="kalender-bulan" style="text-align:center"></strong>
-    <button type="button" id="kalender-sesudah" class="text-button">Berikutnya ▶</button>
-  </div>
+// ===============================
+// ABSENKU — STATUS LOGIN
+// ===============================
+const dashboard = $("app-dashboard");
+let isLoggedIn = false;
 
-  <div id="kalender-grid" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;text-align:center"></div>
-  <p class="small-note" style="margin-top:12px">Kalender ini menampilkan tanggal. Penanda kehadiran akan kita hubungkan ke data absensi pada langkah berikutnya.</p>
-</section>
+if (dashboard) dashboard.style.display = "none";
 
-    <section class="panel history-panel" id="history">
-     <div class="panel-heading"><div><h2>Riwayat Absensi</h2><p class="muted">Daftar catatan kehadiran.</p></div><button id="clearBtn" class="text-button" type="button">Reset data demo</button></div>
-     
- 
-<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0">
-  <label for="filter-bulan-absenku">Filter bulan:</label>
-  <input id="filter-bulan-absenku" type="month"
-    style="padding:9px;border:1px solid #cbd5e1;border-radius:9px;max-width:100%">
-
-  <button id="reset-filter-absenku" type="button" class="text-button">
-    Tampilkan semua
-  </button>
-
-  <button id="ekspor-csv-absenku" type="button" class="text-button">
-    📥 Ekspor CSV
-  </button>
-
-   
-<button id="cetak-laporan-absenku" type="button"
-  class="text-button"
-   onclick="window.top.print()"
-  style="color:#123d70;background:#ffffff;border:1px solid #cbd5e1;padding:10px 14px;border-radius:10px">
-  🖨️ Cetak / Simpan PDF
-</button>
-
-
-<div id="statistik-bulanan-absenku"
-  style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:16px 0">
-
-  <div style="padding:16px;border-radius:14px;background:#e0f2fe;color:#075985">
-    <div style="font-size:13px">Hari tercatat</div>
-    <strong id="stat-total-absenku" style="font-size:26px">0</strong>
-  </div>
-
-  <div style="padding:16px;border-radius:14px;background:#dcfce7;color:#166534">
-    <div style="font-size:13px">Absensi lengkap</div>
-    <strong id="stat-lengkap-absenku" style="font-size:26px">0</strong>
-  </div>
-
-  <div style="padding:16px;border-radius:14px;background:#fef3c7;color:#92400e">
-    <div style="font-size:13px">Belum check-out</div>
-    <strong id="stat-belum-pulang-absenku" style="font-size:26px">0</strong>
-  </div>
-</div>
-
-     <div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Check-in</th><th>Check-out</th><th>Status</th></tr></thead><tbody id="historyBody"><tr><td colspan="4" class="empty">Belum ada data absensi.</td></tr></tbody></table></div>
-    </section>
-
-    <!-- Halaman profil: formulir ini belum menyimpan perubahan ke database -->
-     
-<section class="panel new-page" id="profile">
-  <div class="panel-heading">
-    <div>
-      <h2>👤 Profil Karyawan</h2>
-      <p class="muted">Informasi pribadi dan data pekerjaan karyawan.</p>
-    </div>
-    <span class="status-pill">Data karyawan</span>
-  </div>
-
-  <div class="profile-layout">
-    <div class="profile-photo-box">
-      <img
-        id="profilePhotoPreview"
-        class="profile-photo-preview"
-        alt="Foto profil"
-        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='60' fill='%23dbeafe'/%3E%3Ccircle cx='60' cy='43' r='22' fill='%2393c5fd'/%3E%3Cpath d='M18 112c4-25 20-38 42-38s38 13 42 38' fill='%2393c5fd'/%3E%3C/svg%3E"
-      >
-
-      <label class="form-field">
-        <span>Foto profil</span>
-        <input id="profilePhotoInput" type="file" accept="image/*">
-      </label>
-
-      <p class="small-note">
-        Foto saat ini hanya pratinjau di perangkat ini.
-        Penyimpanan foto memerlukan fitur unggah.
-      </p>
-    </div>
-
-    <div class="profile-form-box">
-      <form id="profileChangeForm">
-        <h3>Data Identitas</h3>
-
-        <div class="form-grid">
-          <div class="form-field">
-            <label for="profileFullName">Nama lengkap</label>
-            <input id="profileFullName" name="full_name"
-              autocomplete="name"
-              placeholder="Nama sesuai data perusahaan" required>
-          </div>
-
-          <div class="form-field">
-            <label for="profileEmployeeId">ID / NIP karyawan</label>
-            <input id="profileEmployeeId" name="employee_code"
-              placeholder="ID karyawan" readonly>
-          </div>
-
-          <div class="form-field">
-            <label for="profileGender">Jenis kelamin</label>
-            <select id="profileGender" name="gender">
-              <option value="">Pilih jenis kelamin</option>
-              <option value="Laki-laki">Laki-laki</option>
-              <option value="Perempuan">Perempuan</option>
-            </select>
-          </div>
-
-          <div class="form-field">
-            <label for="profileBirthPlace">Tempat lahir</label>
-            <input id="profileBirthPlace" name="birth_place"
-              placeholder="Kota tempat lahir">
-          </div>
-
-          <div class="form-field">
-            <label for="profileBirthDate">Tanggal lahir</label>
-            <input id="profileBirthDate" name="birth_date" type="date">
-          </div>
-
-          <div class="form-field full">
-            <label for="profileAddress">Alamat lengkap</label>
-            <textarea id="profileAddress" name="address"
-              autocomplete="street-address"
-              placeholder="Jalan, kelurahan, kecamatan, kota"></textarea>
-          </div>
-        </div>
-
-        <h3>Informasi Kontak</h3>
-
-        <div class="form-grid">
-          <div class="form-field">
-            <label for="profilePhone">Nomor HP / WhatsApp</label>
-            <input id="profilePhone" name="phone" type="tel"
-              autocomplete="tel" placeholder="08xxxxxxxxxx">
-          </div>
-
-          <div class="form-field">
-            <label for="profileEmail">Email</label>
-            <input id="profileEmail" name="email" type="email"
-              autocomplete="email" placeholder="email@contoh.com">
-          </div>
-        </div>
-
-        <h3>Informasi Pekerjaan</h3>
-
-        <div class="form-grid">
-          <div class="form-field">
-            <label for="profileDepartment">Departemen / Bagian</label>
-            <input id="profileDepartment" name="department"
-              placeholder="Contoh: Administrasi">
-          </div>
-
-          <div class="form-field">
-            <label for="profilePosition">Jabatan</label>
-            <input id="profilePosition" name="position"
-              placeholder="Contoh: Staf Administrasi">
-          </div>
-
-          <div class="form-field">
-            <label for="profileStartDate">Tanggal mulai bekerja</label>
-            <input id="profileStartDate" name="start_date" type="date">
-          </div>
-
-          <div class="form-field">
-            <label for="profileEmploymentStatus">Status kepegawaian</label>
-            <select id="profileEmploymentStatus" name="employment_status">
-              <option value="">Pilih status</option>
-              <option value="Tetap">Karyawan Tetap</option>
-              <option value="Kontrak">Karyawan Kontrak</option>
-              <option value="Percobaan">Masa Percobaan</option>
-              <option value="Magang">Magang</option>
-              <option value="Paruh Waktu">Paruh Waktu</option>
-            </select>
-          </div>
-
-          <div class="form-field full">
-            <label for="profileSupervisor">Nama atasan langsung</label>
-            <input id="profileSupervisor" name="supervisor"
-              placeholder="Nama atasan atau supervisor">
-          </div>
-        </div>
-
-        <p class="small-note">
-          ID/NIP tidak dapat diubah melalui formulir ini.
-          Perubahan data perlu diperiksa oleh Admin/HRD.
-        </p>
-
-        <button class="primary-button" type="submit">
-          Ajukan Perubahan Profil
-        </button>
-
-        <p class="page-message" id="profileChangeMessage" role="status"></p>
-      </form>
-    </div>
-  </div>
-</section>
-
-
-    <!-- Pengajuan belum dikirim ke server sampai app.js dan Supabase disambungkan -->
-    <section class="panel new-page" id="leave">
-      <div class="panel-heading"><div><h2>📄 Pengajuan Izin, Sakit, dan Cuti</h2><p class="muted">Isi data dengan benar dan sertakan bukti pendukung.</p></div></div>
-      <div class="leave-form-box">
-        <form id="leaveRequestForm">
-          <div class="form-grid">
-            <div class="form-field"><label for="leaveType">Jenis pengajuan</label><select id="leaveType" name="leave_type" required><option value="">Pilih jenis</option><option value="sakit">Sakit</option><option value="izin">Izin</option><option value="cuti">Cuti</option></select></div>
-            <div class="form-field"><label for="leaveContact">Nomor HP yang bisa dihubungi</label><input id="leaveContact" type="tel" placeholder="Nomor kontak"></div>
-            <div class="form-field"><label for="leaveStart">Tanggal mulai</label><input id="leaveStart" name="start_date" type="date" required></div>
-            <div class="form-field"><label for="leaveEnd">Tanggal selesai</label><input id="leaveEnd" name="end_date" type="date" required></div>
-            <div class="form-field full"><label for="leaveReason">Alasan / keterangan</label><textarea id="leaveReason" name="reason" required placeholder="Jelaskan alasan pengajuan"></textarea></div>
-            <div class="form-field full"><label for="leaveEvidence">Lampiran bukti</label><input id="leaveEvidence" name="evidence" type="file" accept=".pdf,.jpg,.jpeg,.png" required><span class="small-note" id="leaveEvidenceHint">Sakit: surat keterangan sakit. Izin/cuti: dokumen atau bukti pendukung yang dapat diverifikasi.</span></div>
-          </div>
-          <p class="small-note">Pengajuan berstatus menunggu sampai diperiksa Admin/HRD. Memilih file di sini belum mengunggahnya ke server.</p>
-          <button class="primary-button" type="submit">Kirim Pengajuan</button>
-          <p class="page-message" id="leaveRequestMessage" role="status"></p>
-        </form>
-      </div>
-      <div class="table-wrap" style="margin-top:20px">
-        <h3>Riwayat Pengajuan</h3>
-        <table><thead><tr><th>Jenis</th><th>Tanggal</th><th>Status</th></tr></thead><tbody id="leaveHistoryBody"><tr><td colspan="3" class="empty">Belum ada pengajuan yang tersimpan.</td></tr></tbody></table>
-      </div>
-    </section>
-
-    <section class="panel new-page" id="about">
-      <div class="panel-heading"><div><h2>ⓘ Tentang ABSENKU</h2><p class="muted">Informasi aplikasi</p></div></div>
-      <div class="about-box">
-        <h3>ABSENKU — Sistem Absensi Karyawan</h3>
-        <p>ABSENKU membantu karyawan mencatat kehadiran dan melihat riwayat absensi serta menyiapkan pengajuan izin, sakit, dan cuti.</p>
-        <p><strong>Developer:</strong> MR.Y OFFICIAL</p>
-        <p><strong>Versi:</strong> 1.0</p>
-        <p class="small-note">Persetujuan, penyimpanan lampiran, pembaruan profil, dan penentuan Alpa harus diproses melalui server dengan pemeriksaan hak akses Admin/HRD.</p>
-      </div>
-    </section>
-   
-    <section class="panel new-page" id="profile-approvals">
-      <div class="panel-heading">
-        <div>
-          <h2>🛡️ P3DAK </h2>
-          <p class="muted">Periksa pengajuan perubahan data administrasi karyawan.</p>
-        </div>
-      </div>
-
-      <div class="about-box">
-        <p id="profileApprovalsMessage">
-          Halaman persetujuan profil siap dibuka.
-        </p>
-        <div id="profileApprovalsList">
-          <p class="muted">
-            Pengajuan akan ditampilkan setelah halaman dihubungkan ke Supabase.
-          </p>
-        </div>
-      </div>
-    </section>
-
-
-    <footer>ABSENKU · Sistem Absensi Karyawan<br>Developer: MR.Y OFFICIAL</footer>
-  </main>
-</div>
-
-<!-- Bahasa -->
-<div id="absenku-language-box" style="margin:20px auto;padding:16px;max-width:500px;background:linear-gradient(135deg,#e0f7ff,#fff);border:1px solid #bae6fd;border-radius:18px;box-shadow:0 8px 25px rgba(8,127,189,.15);font-family:Arial,sans-serif;color:#123d70;">
-  <div style="font-size:22px;font-weight:800;margin-bottom:8px;">🌐 Bahasa / Language</div>
-  <label for="absenku-language" style="display:block;margin-bottom:8px;">Pilih bahasa aplikasi:</label>
-  <select id="absenku-language" style="width:100%;padding:12px;border:1px solid #7dd3fc;border-radius:10px;background:white;font-size:16px;">
-    <option value="id">🇮🇩 Bahasa Indonesia</option><option value="en">🇬🇧 English</option><option value="ms">🇲🇾 Bahasa Melayu</option><option value="zh">🇨🇳 中文（简体）— Mandarin</option>
-  </select>
-  <p id="absenku-language-message" style="margin:12px 0 0;font-size:14px;">Pilihan bahasa tersimpan di perangkat ini.</p>
-</div>
-
-<!-- Supabase dan logika aplikasi asli tetap dipertahankan -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js"></script>
-<script>
-  window.ABSENKU_SUPABASE = null;
-  try {
-    if (window.supabase && window.ABSENKU_SUPABASE_CONFIG && window.ABSENKU_SUPABASE_CONFIG.url && window.ABSENKU_SUPABASE_CONFIG.anonKey) {
-      window.ABSENKU_SUPABASE = window.supabase.createClient(window.ABSENKU_SUPABASE_CONFIG.url, window.ABSENKU_SUPABASE_CONFIG.anonKey);
-    } else { console.warn("Konfigurasi Supabase belum tersedia."); }
-  } catch (error) { console.error("Gagal memulai Supabase:", error); }
-</script>
-<script src="app.js"></script>
-<script src="fitur-ringan.js"></script>
-
- 
-<script>
-(function () {
-  const selector = document.getElementById("absenku-language");
-  const message = document.getElementById("absenku-language-message");
-
-  if (!selector || !message) return;
-
-  const texts = {
-    id: "Pilihan bahasa tersimpan di perangkat ini.",
-    en: "Your language preference is saved on this device.",
-    ms: "Pilihan bahasa anda disimpan pada peranti ini.",
-    zh: "语言偏好已保存在此设备上。"
-  };
-
-  try {
-    const saved = localStorage.getItem("absenku-language");
-    if (saved && texts[saved]) {
-      selector.value = saved;
-    }
-  } catch (e) {}
-
-  message.textContent =
-    texts[selector.value] || texts.id;
-
-  selector.addEventListener("change", function () {
-    try {
-      localStorage.setItem("absenku-language", selector.value);
-    } catch (e) {}
-
-    message.textContent =
-      texts[selector.value] || texts.id;
-
-    if (typeof translateMenu === "function") {
-      translateMenu();
-    }
-
-    window.dispatchEvent(
-      new Event("absenku-language-changed")
-    );
-  });
-})();
-</script>
-
-<script>
-(function(){
-  const nav=document.getElementById("main-nav");
-  const main=document.querySelector(".main");
-  if(!nav||!main)return;
-  const header=main.querySelector(".topbar");
-  const stats=main.querySelector(".stats");
-  const grid=main.querySelector(".content-grid");
-  const attendance=main.querySelector(".attendance-panel");
-  const chat=main.querySelector(".chat-panel");
-  const history=main.querySelector(".history-panel");
-  const profile=document.getElementById("profile");
-  const leave=document.getElementById("leave");
-  const about=document.getElementById("about");
- const approvals=document.getElementById("profile-approvals");
-
-  function showPage(page){
-    const isHome=page==="dashboard";
-   const kalender=document.getElementById("kalender-absenku");
-if(kalender) kalender.style.display=isHome?"":"none";
-    header.style.display=isHome?"":"none";
-    stats.style.display=isHome?"":"none";
-    attendance.style.display=page==="attendance"?"":"none";
-    chat.style.display=page==="chat"?"":"none";
-    history.style.display=page==="history"?"":"none";
-    profile.style.display=page==="profile"?"block":"";
-    leave.style.display=page==="leave"?"block":"";
-    about.style.display=page==="about"?"block":"";
-   approvals.style.display=page==="profile-approvals"?"block":"";
-   const employees = document.getElementById("employees");
-if (employees) {
-  employees.style.display = page === "employees" ? "block" : "none";
+function showDashboardAfterLogin() {
+  isLoggedIn = true;
+  if (dashboard) dashboard.style.display = "";
+  refresh();
 }
-    grid.style.display=(page==="attendance"||page==="chat")?"grid":"none";
-    grid.style.gridTemplateColumns=(page==="attendance"||page==="chat")?"minmax(0, 1fr)":"";
-    nav.querySelectorAll("[data-page]").forEach(function(link){
-      const active=link.dataset.page===page;
-      link.classList.toggle("active",active);
-      if(active)link.setAttribute("aria-current","page");else link.removeAttribute("aria-current");
-    });
-    if(page==="history"&&typeof refresh==="function")refresh();
-  }
-  nav.querySelectorAll("[data-page]").forEach(function(link){
-    link.addEventListener("click",function(event){event.preventDefault();showPage(link.dataset.page);});
-  });
-  showPage("dashboard");
-})();
-</script>
 
-<script>
-(function(){
-  const photoInput=document.getElementById("profilePhotoInput");
-  const photoPreview=document.getElementById("profilePhotoPreview");
-  const profileForm=document.getElementById("profileChangeForm");
-  const profileMessage=document.getElementById("profileChangeMessage");
-  const leaveForm=document.getElementById("leaveRequestForm");
-  const leaveType=document.getElementById("leaveType");
-  const evidenceHint=document.getElementById("leaveEvidenceHint");
-  const leaveMessage=document.getElementById("leaveRequestMessage");
+function hideDashboardAfterLogout() {
+  isLoggedIn = false;
+  if (dashboard) dashboard.style.display = "none";
+}
 
-  if(photoInput&&photoPreview){
-    photoInput.addEventListener("change",function(){
-      const file=photoInput.files&&photoInput.files[0];
-      if(!file)return;
-      if(!file.type.startsWith("image/")){alert("Pilih file gambar yang valid.");photoInput.value="";return;}
-      if(file.size>5*1024*1024){alert("Ukuran foto maksimal 5 MB.");photoInput.value="";return;}
-      const reader=new FileReader();
-      reader.onload=function(){photoPreview.src=reader.result;};
-      reader.readAsDataURL(file);
-    });
-  }
-  if(leaveType&&evidenceHint){
-    leaveType.addEventListener("change",function(){
-      if(leaveType.value==="sakit")evidenceHint.textContent="Wajib lampirkan surat keterangan sakit dari fasilitas kesehatan.";
-      else if(leaveType.value==="izin")evidenceHint.textContent="Wajib lampirkan bukti yang relevan dan dapat diverifikasi untuk kepentingan izin.";
-      else if(leaveType.value==="cuti")evidenceHint.textContent="Lampirkan dokumen pendukung sesuai kebijakan perusahaan.";
-      else evidenceHint.textContent="Pilih jenis pengajuan untuk melihat bukti yang diperlukan.";
-    });
-  }
-  if(profileForm&&profileMessage){});
-  }
-  if(leaveForm&&leaveMessage){})();
-</script>
- <script>
-(function () {
-   
-const translations = {
-  id: {
-    nav_home: "Beranda",
-    nav_attendance: "Absensi",
-    nav_profile: "Profil",
-    nav_leave: "Izin / Sakit / Cuti",
-    nav_chat: "Asisten",
-    nav_history: "Riwayat",
-    nav_about: "Tentang Aplikasi",
-    check_in_time: "Jam Masuk",
-    check_out_time: "Jam Pulang",
-    check_in_value: "Waktu Check-in",
-    check_out_value: "Waktu Check-out",
-    chatbot_title: "Chatbot Absensi",
-    chatbot_desc: "Tanyakan informasi seputar absensi.",
-    leave_title: "Izin / Sakit / Cuti",
-    history_title: "Riwayat Absensi",
-    profile_title: "Profil Karyawan",
-    about_title: "Tentang Aplikasi"
-  },
-  en: {
-    nav_home: "Home",
-    nav_attendance: "Attendance",
-    nav_profile: "Profile",
-    nav_leave: "Leave / Sick Leave",
-    nav_chat: "Assistant",
-    nav_history: "History",
-    nav_about: "About the App",
-    check_in_time: "Check-in Time",
-    check_out_time: "Check-out Time",
-    check_in_value: "Check-in Record",
-    check_out_value: "Check-out Record",
-    chatbot_title: "Attendance Chatbot",
-    chatbot_desc: "Ask questions about attendance.",
-    leave_title: "Leave / Sick Leave",
-    history_title: "Attendance History",
-    profile_title: "Employee Profile",
-    about_title: "About the App"
-  },
-  ms: {
-    nav_home: "Laman Utama",
-    nav_attendance: "Kehadiran",
-    nav_profile: "Profil",
-    nav_leave: "Cuti / Sakit",
-    nav_chat: "Pembantu",
-    nav_history: "Sejarah",
-    nav_about: "Tentang Aplikasi",
-    check_in_time: "Waktu Masuk",
-    check_out_time: "Waktu Pulang",
-    check_in_value: "Rekod Daftar Masuk",
-    check_out_value: "Rekod Daftar Keluar",
-    chatbot_title: "Chatbot Kehadiran",
-    chatbot_desc: "Tanya tentang kehadiran.",
-    leave_title: "Cuti / Sakit",
-    history_title: "Sejarah Kehadiran",
-    profile_title: "Profil Pekerja",
-    about_title: "Tentang Aplikasi"
-  },
-  zh: {
-    nav_home: "首页",
-    nav_attendance: "考勤",
-    nav_profile: "个人资料",
-    nav_leave: "请假 / 病假",
-    nav_chat: "助手",
-    nav_history: "考勤记录",
-    nav_about: "关于应用",
-    check_in_time: "上班时间",
-    check_out_time: "下班时间",
-    check_in_value: "签到时间",
-    check_out_value: "签退时间",
-    chatbot_title: "考勤聊天助手",
-    chatbot_desc: "咨询考勤相关信息。",
-    leave_title: "请假 / 病假",
-    history_title: "考勤历史",
-    profile_title: "员工资料",
-    about_title: "关于应用"
-  }
+// ===============================
+// PENYIMPANAN DEMO
+// ===============================
+const STORAGE_KEY = "absenku-demo-v1";
+
+const dateKey = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
-   
-function translateMenu() {
-  const lang = localStorage.getItem("absenku-language") || "id";
-  const dictionary = translations[lang] || translations.id;
+const timeNow = () =>
+  new Date().toLocaleTimeString("id-ID", {
+    timeZone: "Asia/Makassar",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  });
 
-  document.querySelectorAll("[data-i18n]").forEach(function (element) {
-    const key = element.getAttribute("data-i18n");
-    if (Object.prototype.hasOwnProperty.call(dictionary, key)) {
-      element.textContent = dictionary[key];
-    }
+const prettyDate = (date = new Date()) =>
+  date.toLocaleDateString("id-ID", {
+    timeZone: "Asia/Makassar",
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
+function getData() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { days: {} };
+  } catch (error) {
+    return { days: {} };
+  }
+}
+
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function todayRecord() {
+  const data = getData();
+  return data.days[dateKey()] || {
+    checkIn: null,
+    checkOut: null
+  };
+}
+
+// ===============================
+// TERJEMAHAN 4 BAHASA
+// ===============================
+function getLanguage() {
+  try {
+    return localStorage.getItem("absenku-language") || "id";
+  } catch (error) {
+    return "id";
+  }
+}
+
+function absLang(id, en, ms, zh) {
+  const lang = getLanguage();
+  if (lang === "en") return en || id;
+  if (lang === "ms") return ms || id;
+  if (lang === "zh") return zh || en || id;
+  return id;
+}
+
+// ===============================
+// DASBOR DAN RIWAYAT
+// ===============================
+function refresh() {
+  if (!isLoggedIn) return;
+
+  const rec = todayRecord();
+
+  $("statusValue").textContent = rec.checkOut
+    ? absLang("Selesai", "Finished", "Selesai", "已完成")
+    : rec.checkIn
+    ? absLang("Sudah check-in", "Checked in", "Sudah daftar masuk", "已签到")
+    : absLang("Belum absen", "Not checked in", "Belum daftar masuk", "尚未签到");
+
+  $("statusSub").textContent = rec.checkOut
+    ? absLang("Absensi hari ini lengkap", "Today's attendance is complete", "Kehadiran hari ini lengkap", "今日考勤已完成")
+    : rec.checkIn
+    ? absLang("Jangan lupa check-out", "Don't forget to check out", "Jangan lupa daftar keluar", "别忘了签退")
+    : absLang("Silakan check-in", "Please check in", "Sila daftar masuk", "请签到");
+
+  $("checkInValue").textContent = rec.checkIn || "—";
+  $("checkOutValue").textContent = rec.checkOut || "—";
+
+  $("checkInBtn").disabled = !!rec.checkIn;
+  $("checkOutBtn").disabled = !rec.checkIn || !!rec.checkOut;
+
+  const historyBody = $("historyBody");
+  historyBody.innerHTML = "";
+
+  const days = getData().days;
+  const keys = Object.keys(days).sort((a, b) => b.localeCompare(a));
+
+  if (!keys.length) {
+    historyBody.innerHTML =
+      '<tr><td colspan="4" class="empty">' +
+      absLang(
+        "Belum ada data absensi.",
+        "No attendance records yet.",
+        "Belum ada rekod kehadiran.",
+        "暂无考勤记录。"
+      ) +
+      "</td></tr>";
+    return;
+  }
+
+  keys.forEach((k) => {
+    const r = days[k];
+    const tr = document.createElement("tr");
+
+    const status = r.checkOut
+      ? absLang("Lengkap", "Complete", "Lengkap", "已完成")
+      : r.checkIn
+      ? absLang("Belum pulang", "Not checked out", "Belum daftar keluar", "尚未签退")
+      : absLang("Belum absen", "Not checked in", "Belum daftar masuk", "尚未签到");
+
+    const dateCell = document.createElement("td");
+    dateCell.textContent = k;
+
+    const inCell = document.createElement("td");
+    inCell.textContent = r.checkIn || "—";
+
+    const outCell = document.createElement("td");
+    outCell.textContent = r.checkOut || "—";
+
+    const statusCell = document.createElement("td");
+    const pill = document.createElement("span");
+    pill.className = "status-pill";
+    pill.textContent = status;
+    statusCell.appendChild(pill);
+
+    tr.append(dateCell, inCell, outCell, statusCell);
+    historyBody.appendChild(tr);
   });
 }
 
-  window.addEventListener("DOMContentLoaded", translateMenu);
-  window.addEventListener("storage", translateMenu);
+// ===============================
+// CHATBOT
+// ===============================
+function say(text, who = "bot") {
+  const row = document.createElement("div");
+  row.className = `message ${who === "user" ? "user-message" : ""}`;
 
-   document.addEventListener("change", function (event) {
-    if (event.target && event.target.id === "absenku-language") {
-      translateMenu();
+  if (who === "bot") {
+    const av = document.createElement("div");
+    av.className = "mini-avatar";
+    av.textContent = "✓";
+    row.appendChild(av);
+  }
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+
+  const b = document.createElement("b");
+  b.textContent = who === "bot"
+    ? "ABSENKU"
+    : absLang("Anda", "You", "Anda", "你");
+
+  const p = document.createElement("p");
+  p.textContent = text;
+
+  bubble.append(b, p);
+  row.appendChild(bubble);
+
+  $("chatWindow").appendChild(row);
+  $("chatWindow").scrollTop = $("chatWindow").scrollHeight;
+}
+
+function reply(input) {
+  const q = input.toLowerCase();
+  const r = todayRecord();
+  const lang = getLanguage();
+
+  const messages = {
+    id: {
+      checkedIn: `Kamu sudah check-in hari ini pukul ${r.checkIn}.`,
+      pressIn: "Untuk mencatat kehadiran, tekan tombol Check-in.",
+      checkedOut: `Kamu sudah check-out pukul ${r.checkOut}.`,
+      noIn: "Kamu belum check-in. Lakukan check-in terlebih dahulu.",
+      pressOut: "Untuk mengakhiri absensi, tekan tombol Check-out.",
+      complete: `Absensi lengkap. Masuk ${r.checkIn}, pulang ${r.checkOut}.`,
+      notOut: `Sudah check-in pukul ${r.checkIn}, belum check-out.`,
+      noToday: "Belum melakukan absensi hari ini.",
+      noHistory: "Belum ada riwayat absensi.",
+      history: "Riwayat terbaru: ",
+      schedule: "Jadwal demo: masuk 08.00 WITA, toleransi 10 menit, pulang 17.00 WITA. Aturan ini belum diterapkan sebagai validasi absensi.",
+      help: "Saya dapat membantu mengecek status absensi, riwayat, dan jadwal kerja. Ketik: status, riwayat, atau jam kerja.",
+      unknown: "Maaf, saya belum memahami pertanyaan itu. Coba ketik bantuan, status, riwayat, atau jam kerja."
+    },
+    en: {
+      checkedIn: `You checked in today at ${r.checkIn}.`,
+      pressIn: "To record attendance, press Check-in.",
+      checkedOut: `You checked out at ${r.checkOut}.`,
+      noIn: "You have not checked in. Please check in first.",
+      pressOut: "To finish attendance, press Check-out.",
+      complete: `Attendance complete. In ${r.checkIn}, out ${r.checkOut}.`,
+      notOut: `Checked in at ${r.checkIn}, not checked out yet.`,
+      noToday: "You have not recorded attendance today.",
+      noHistory: "There is no attendance history yet.",
+      history: "Recent history: ",
+      schedule: "Demo schedule: check-in 08:00 WITA, 10-minute grace period, check-out 17:00 WITA. These rules are not yet enforced.",
+      help: "I can help check attendance status, history, and work schedule. Type: status, history, or work hours.",
+      unknown: "Sorry, I don't understand. Try help, status, history, or work hours."
+    },
+    ms: {
+      checkedIn: `Anda telah daftar masuk hari ini pada ${r.checkIn}.`,
+      pressIn: "Untuk merekod kehadiran, tekan butang Check-in.",
+      checkedOut: `Anda telah daftar keluar pada ${r.checkOut}.`,
+      noIn: "Anda belum daftar masuk. Sila daftar masuk dahulu.",
+      pressOut: "Untuk menamatkan kehadiran, tekan Check-out.",
+      complete: `Kehadiran lengkap. Masuk ${r.checkIn}, keluar ${r.checkOut}.`,
+      notOut: `Sudah daftar masuk pada ${r.checkIn}, belum daftar keluar.`,
+      noToday: "Anda belum merekod kehadiran hari ini.",
+      noHistory: "Belum ada sejarah kehadiran.",
+      history: "Sejarah terkini: ",
+      schedule: "Jadual demo: masuk 08.00 WITA, toleransi 10 minit, keluar 17.00 WITA. Peraturan ini belum dikuatkuasakan.",
+      help: "Saya boleh menyemak status kehadiran, sejarah dan jadual kerja. Taip: status, sejarah atau waktu kerja.",
+      unknown: "Maaf, saya belum memahami soalan itu. Cuba taip bantuan, status, sejarah atau waktu kerja."
+    },
+    zh: {
+      checkedIn: `你今天已于 ${r.checkIn} 签到。`,
+      pressIn: "如需记录考勤，请点击“签到”按钮。",
+      checkedOut: `你已于 ${r.checkOut} 签退。`,
+      noIn: "你还没有签到，请先签到。",
+      pressOut: "如需结束考勤，请点击“签退”按钮。",
+      complete: `考勤已完成。签到时间 ${r.checkIn}，签退时间 ${r.checkOut}。`,
+      notOut: `你已于 ${r.checkIn} 签到，尚未签退。`,
+      noToday: "你今天还没有进行考勤。",
+      noHistory: "暂无考勤记录。",
+      history: "最近的考勤记录：",
+      schedule: "演示排班：08:00 WITA签到，允许迟到10分钟，17:00 WITA签退。这些规则尚未启用为考勤验证。",
+      help: "我可以帮助查询考勤状态、考勤记录和工作时间。请输入：状态、记录或工作时间。",
+      unknown: "抱歉，我暂时无法理解这个问题。请尝试输入：帮助、状态、记录或工作时间。"
     }
-  });
+  };
 
-  translateMenu();
-})();
-</script>
- 
-<script>
-(function () {
-  var grid = document.getElementById("kalender-grid");
-  var judul = document.getElementById("kalender-bulan");
-  var sebelum = document.getElementById("kalender-sebelum");
-  var sesudah = document.getElementById("kalender-sesudah");
+  const a = messages[lang] || messages.id;
 
-  if (!grid || !judul || !sebelum || !sesudah) return;
+  if (
+    q.includes("check-in") || q.includes("check in") ||
+    q.includes("absen masuk") || q.includes("签到")
+  ) {
+    return r.checkIn ? a.checkedIn : a.pressIn;
+  }
 
-  var bulanAktif = new Date();
-  var namaBulan = [
-    "Januari", "Februari", "Maret", "April",
-    "Mei", "Juni", "Juli", "Agustus",
-    "September", "Oktober", "November", "Desember"
+  if (
+    q.includes("check-out") || q.includes("check out") ||
+    q.includes("absen pulang") || q.includes("签退")
+  ) {
+    if (r.checkOut) return a.checkedOut;
+    if (!r.checkIn) return a.noIn;
+    return a.pressOut;
+  }
+
+  if (q.includes("status") || q.includes("状态")) {
+    return r.checkOut ? a.complete : r.checkIn ? a.notOut : a.noToday;
+  }
+
+  if (
+    q.includes("riwayat") || q.includes("rekap") ||
+    q.includes("history") || q.includes("sejarah") ||
+    q.includes("记录")
+  ) {
+    const days = getData().days;
+    const keys = Object.keys(days).sort((x, y) => y.localeCompare(x));
+
+    if (!keys.length) return a.noHistory;
+
+    return a.history + keys.slice(0, 5).map((k) => {
+      const inLabel = lang === "zh" ? "签到" : lang === "en" ? "in" : "masuk";
+      const outLabel = lang === "zh" ? "签退" : lang === "en" ? "out" : "pulang";
+      return `${k} (${inLabel} ${days[k].checkIn || "—"}, ${outLabel} ${days[k].checkOut || "—"})`;
+    }).join("; ");
+  }
+
+  if (
+    q.includes("jam kerja") || q.includes("jadwal") ||
+    q.includes("schedule") || q.includes("工作时间")
+  ) return a.schedule;
+
+  if (
+    q.includes("bantuan") || q.includes("help") ||
+    q.includes("halo") || q.includes("hai") || q.includes("帮助")
+  ) return a.help;
+
+  return a.unknown;
+}
+
+// ===============================
+// UCAPAN SEMANGAT CHECK-IN
+// ===============================
+function showCheckInCelebration(jamMasuk) {
+  const oldPopup = document.getElementById("absenku-celebration");
+  if (oldPopup) oldPopup.remove();
+
+  const quotes = [
+    absLang(
+      "Awali hari dengan semangat, akhiri dengan prestasi! 💪",
+      "Start your day with energy and end it with achievement! 💪",
+      "Mulakan hari dengan semangat, akhiri dengan kejayaan! 💪",
+      "以饱满的热情开始新的一天，以出色的成绩结束！💪"
+    ),
+    absLang(
+      "Langkah kecil hari ini membawa kesuksesan esok hari! 🚀",
+      "Small steps today lead to tomorrow's success! 🚀",
+      "Langkah kecil hari ini membawa kejayaan esok! 🚀",
+      "今天迈出一小步，明天成就大成功！🚀"
+    ),
+    absLang(
+      "Kerja keras, kerja cerdas, dan tetap jaga semangat! ✨",
+      "Work hard, work smart, and keep your spirits up! ✨",
+      "Bekerja keras, bekerja bijak dan kekal bersemangat! ✨",
+      "努力工作，聪明做事，保持热情！✨"
+    ),
+    absLang(
+      "YOSSH! Semangat, Nakama! Terus kejar impianmu! 🏴‍☠️",
+      "YOSSH! Stay strong, Nakama! Keep chasing your dreams! 🏴‍☠️",
+      "YOSSH! Terus bersemangat, Nakama! Kejar impian anda! 🏴‍☠️",
+      "哟西！伙伴们，加油！继续追逐梦想！🏴‍☠️"
+    )
   ];
-  var namaHari = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
 
-  function gambarKalender() {
-    var tahun = bulanAktif.getFullYear();
-    var bulan = bulanAktif.getMonth();
+  const quote = quotes[Math.floor(Math.random() * quotes.length)];
+  const title = absLang("Absen Masuk Berhasil!", "Check-in Successful!", "Daftar Masuk Berjaya!", "签到成功！");
+  const timeLabel = absLang("Jam masuk:", "Check-in time:", "Waktu masuk:", "签到时间：");
+  const footer = absLang("Selamat bekerja dan semoga harimu luar biasa!", "Have a great day at work!", "Selamat bekerja, semoga hari anda hebat!", "祝你工作顺利，度过美好的一天！");
+  const closeLabel = absLang("Mulai Hari dengan Semangat ✨", "Start the Day with Energy ✨", "Mulakan Hari dengan Semangat ✨", "充满干劲地开启新一天 ✨");
 
-    judul.textContent = namaBulan[bulan] + " " + tahun;
-    grid.replaceChildren();
+  const popup = document.createElement("div");
+  popup.id = "absenku-celebration";
+  popup.innerHTML = `
+    <div class="celebration-card" role="dialog" aria-modal="true" aria-labelledby="celebration-title">
+      <div class="celebration-icon">🎉</div>
+      <h2 id="celebration-title"></h2>
+      <p class="celebration-time"></p>
+      <p class="celebration-message"></p>
+      <p class="celebration-footer"></p>
+      <button type="button" id="celebration-close"></button>
+    </div>
+    <div class="celebration-confetti" aria-hidden="true"></div>
+  `;
 
-    namaHari.forEach(function (hari) {
-      var kepala = document.createElement("div");
-      kepala.textContent = hari;
-      kepala.style.fontWeight = "bold";
-      kepala.style.padding = "8px 0";
-      kepala.style.fontSize = "12px";
-      grid.appendChild(kepala);
-    });
+  popup.querySelector("#celebration-title").textContent = title;
+  popup.querySelector(".celebration-time").textContent = `${timeLabel} ${jamMasuk} WITA`;
+  popup.querySelector(".celebration-message").textContent = quote;
+  popup.querySelector(".celebration-footer").textContent = footer;
+  popup.querySelector("#celebration-close").textContent = closeLabel;
+  document.body.appendChild(popup);
 
-    var hariPertama = new Date(tahun, bulan, 1).getDay();
-    var jumlahHari = new Date(tahun, bulan + 1, 0).getDate();
-    var hariIni = new Date();
-   
- 
-var catatanHarian = {};
+  const confetti = popup.querySelector(".celebration-confetti");
+  const colors = ["#10b981", "#fbbf24", "#60a5fa", "#c084fc", "#fb7185"];
 
-try {
-  var dataTersimpan = JSON.parse(
-    localStorage.getItem("absenku-demo-v1") || "{}"
-  );
-  catatanHarian = dataTersimpan.days || {};
-} catch (e) {
-  catatanHarian = {};
+  for (let i = 0; i < 36; i++) {
+    const piece = document.createElement("i");
+    piece.style.left = Math.random() * 100 + "%";
+    piece.style.background = colors[i % colors.length];
+    piece.style.animationDelay = Math.random() * 1.5 + "s";
+    piece.style.animationDuration = 2 + Math.random() * 2 + "s";
+    piece.style.setProperty("--drift", (Math.random() * 160 - 80) + "px");
+    confetti.appendChild(piece);
+  }
+
+  const closePopup = () => popup.remove();
+  popup.querySelector("#celebration-close").addEventListener("click", closePopup);
+  popup.addEventListener("click", (event) => {
+    if (event.target === popup) closePopup();
+  });
+
+  setTimeout(() => {
+    if (popup.isConnected) closePopup();
+  }, 12000);
 }
 
+// ===============================
+// CHECK-IN
+// ===============================
+$("checkInBtn").addEventListener("click", () => {
+  if (!isLoggedIn) {
+    alert(absLang("Silakan login terlebih dahulu.", "Please log in first.", "Sila log masuk dahulu.", "请先登录。"));
+    return;
+  }
 
-    for (var kosong = 0; kosong < hariPertama; kosong++) {
-      grid.appendChild(document.createElement("div"));
+  const data = getData();
+  const k = dateKey();
+  data.days[k] = data.days[k] || { checkIn: null, checkOut: null };
+
+  if (data.days[k].checkIn) return;
+
+  data.days[k].checkIn = timeNow();
+  saveData(data);
+
+  $("actionMessage").textContent =
+    absLang("Check-in berhasil dicatat pukul ", "Check-in recorded at ", "Daftar masuk berjaya direkod pada ", "签到成功，时间：") +
+    data.days[k].checkIn + ".";
+
+  say($("actionMessage").textContent);
+  showCheckInCelebration(data.days[k].checkIn);
+  refresh();
+});
+
+// ===============================
+// CHECK-OUT
+// ===============================
+$("checkOutBtn").addEventListener("click", () => {
+  if (!isLoggedIn) {
+    alert(absLang("Silakan login terlebih dahulu.", "Please log in first.", "Sila log masuk dahulu.", "请先登录。"));
+    return;
+  }
+
+  const data = getData();
+  const k = dateKey();
+  const r = data.days[k];
+
+  if (!r || !r.checkIn || r.checkOut) return;
+
+  const currentTime = timeNow();
+  const currentMinutes =
+    Number(currentTime.slice(0, 2)) * 60 +
+    Number(currentTime.slice(3, 5));
+
+  if (currentMinutes < 17 * 60) {
+    $("actionMessage").textContent = absLang(
+      "Check-out ditolak. Jam pulang adalah 17.00 WITA.",
+      "Check-out denied. Check-out time is 17:00 WITA.",
+      "Daftar keluar ditolak. Waktu pulang ialah 17.00 WITA.",
+      "签退失败。签退时间为 WITA 17:00。"
+    );
+
+    alert(absLang(
+      "Check-out belum diizinkan. Tunggu hingga pukul 17.00 WITA.",
+      "Check-out is not allowed yet. Please wait until 17:00 WITA.",
+      "Daftar keluar belum dibenarkan. Sila tunggu sehingga 17.00 WITA.",
+      "目前还不能签退，请等到 WITA 17:00。"
+    ));
+    return;
+  }
+
+  r.checkOut = currentTime;
+  saveData(data);
+
+  $("actionMessage").textContent =
+    absLang("Check-out berhasil dicatat pukul ", "Check-out recorded at ", "Daftar keluar berjaya direkod pada ", "签退成功，时间：") +
+    r.checkOut + ".";
+
+  say($("actionMessage").textContent);
+  refresh();
+});
+
+// ===============================
+// CHAT DAN TOMBOL BANTUAN
+// ===============================
+$("chatForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  if (!isLoggedIn) {
+    alert(absLang("Silakan login terlebih dahulu.", "Please log in first.", "Sila log masuk dahulu.", "请先登录。"));
+    return;
+  }
+
+  const input = $("chatInput");
+  const value = input.value.trim();
+  if (!value) return;
+
+  say(value, "user");
+  say(reply(value));
+  input.value = "";
+});
+
+document.querySelectorAll("[data-message]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    if (!isLoggedIn) {
+      alert(absLang("Silakan login terlebih dahulu.", "Please log in first.", "Sila log masuk dahulu.", "请先登录。"));
+      return;
     }
 
-    for (var tanggal = 1; tanggal <= jumlahHari; tanggal++) {
-      var sel = document.createElement("div");
-      sel.textContent = tanggal;
-      sel.style.padding = "9px 0";
-      sel.style.borderRadius = "9px";
-      sel.style.fontSize = "13px";
-      sel.style.background = "#eef6ff";
-      sel.style.color = "#174477";
+    const value = btn.dataset.message;
+    say(value, "user");
+    say(reply(value));
+  });
+});
+
+// ===============================
+// RESET DATA DEMO
+// ===============================
+$("clearBtn").addEventListener("click", () => {
+  if (!isLoggedIn) {
+    alert(absLang("Silakan login terlebih dahulu.", "Please log in first.", "Sila log masuk dahulu.", "请先登录。"));
+    return;
+  }
+
+  if (confirm(absLang(
+    "Hapus seluruh data demo dari browser ini?",
+    "Delete all demo data from this browser?",
+    "Padam semua data demo daripada pelayar ini?",
+    "确定删除此浏览器中的所有演示数据吗？"
+  ))) {
+    localStorage.removeItem(STORAGE_KEY);
+    $("actionMessage").textContent = absLang(
+      "Data demo telah direset.",
+      "Demo data has been reset.",
+      "Data demo telah ditetapkan semula.",
+      "演示数据已重置。"
+    );
+    refresh();
+    say($("actionMessage").textContent);
+  }
+});
+
+// ===============================
+// JAM DIGITAL
+// ===============================
+function tick() {
+  const now = new Date();
+
+  $("clock").textContent = now.toLocaleTimeString("id-ID", {
+    timeZone: "Asia/Makassar",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  });
+
+  $("clockDate").textContent = prettyDate(now);
+
+  $("todayLabel").textContent = now.toLocaleDateString("id-ID", {
+    timeZone: "Asia/Makassar",
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+  });
+}
+
+tick();
+setInterval(tick, 1000);
+
+// Sembunyikan dasbor sebelum autentikasi.
+if (dashboard) dashboard.style.display = "none";
+
+/* ===============================
+   ABSENKU — MUAT PROFIL KARYAWAN
+================================ */
+async function loadEmployeeProfile() {
+  const supabase = window.ABSENKU_SUPABASE;
+  const message = document.getElementById("profileChangeMessage");
+  if (message) message.textContent = "Fungsi pemuatan profil berjalan...";
+
+  if (!supabase) {
+    if (message) message.textContent = "Koneksi Supabase belum tersedia.";
+    return;
+  }
+
+  try {
+    const { data: authData, error: authError } =
+      await supabase.auth.getUser();
+
+    if (authError) throw authError;
+
+    const user = authData.user;
+    if (!user) {
+      if (message) message.textContent = "Silakan login terlebih dahulu.";
+      return;
+    }
+
+    const { data: employee, error } = await supabase
+      .from("employees")
+      .select("full_name, employee_code, department, position, branch_name, address, birth_date, phone, email")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (!employee) {
+      if (message) message.textContent =
+        "Data karyawan untuk akun ini belum ditemukan.";
+      return;
+    }
+
      
-var kunciTanggal =
-  tahun + "-" +
-  String(bulan + 1).padStart(2, "0") + "-" +
-  String(tanggal).padStart(2, "0");
+const fields = {
+  profileFullName: employee.full_name,
+  profileEmployeeId: employee.employee_code,
+  profileAddress: employee.address,
+  profileBirthDate: employee.birth_date,
+  profilePhone: employee.phone,
+  profileEmail: employee.email,
+  profileDepartment: employee.department,
+  profilePosition: employee.position
+};
 
-var catatan = catatanHarian[kunciTanggal];
+    Object.entries(fields).forEach(([id, value]) => {
+      const element = document.getElementById(id);
+      if (element) element.value = value || "";
+    });
 
-if (catatan && catatan.checkIn) {
-  sel.style.background = catatan.checkOut ? "#15803d" : "#f59e0b";
-  sel.style.color = "white";
-  sel.title = catatan.checkOut
-    ? "Absensi lengkap"
-    : "Sudah check-in, belum check-out";
+    if (message) message.textContent = "Data profil berhasil dimuat.";
+  } catch (error) {
+    console.error("Gagal memuat profil:", error);
+    if (message) message.textContent =
+      "Profil gagal dimuat. Periksa izin akses database.";
+  }
 }
 
-
-       
-if (
-  tanggal === hariIni.getDate() &&
-  bulan === hariIni.getMonth() &&
-  tahun === hariIni.getFullYear()
-) {
-  sel.style.outline = "2px solid #087fbd";
-  sel.style.outlineOffset = "-2px";
-  sel.style.fontWeight = "bold";
-}
-
-
-      grid.appendChild(sel);
-    }
-  }
-
-  sebelum.addEventListener("click", function () {
-    bulanAktif.setMonth(bulanAktif.getMonth() - 1);
-    gambarKalender();
-  });
-
-  sesudah.addEventListener("click", function () {
-    bulanAktif.setMonth(bulanAktif.getMonth() + 1);
-    gambarKalender();
-  });
-
-  gambarKalender();
-})();
-</script>
-
-<script>
-(function () {
-  var filter = document.getElementById("filter-bulan-absenku");
-  var reset = document.getElementById("reset-filter-absenku");
-  var tbody = document.getElementById("historyBody");
-
-  if (!filter || !reset || !tbody) return;
-
-  function terapkanFilter() {
-    var bulan = filter.value;
-
-    Array.from(tbody.rows).forEach(function (baris) {
-      var tanggal = baris.cells[0]
-        ? baris.cells[0].textContent.trim()
-        : "";
-
-      baris.style.display =
-        !bulan || tanggal.indexOf(bulan) === 0 ? "" : "none";
-    });
-  }
-
-  filter.addEventListener("change", terapkanFilter);
-
-  reset.addEventListener("click", function () {
-    filter.value = "";
-    terapkanFilter();
-  });
-
-  new MutationObserver(terapkanFilter).observe(tbody, {
-    childList: true
-  });
-})();
-</script>
-
-<script>
-(function () {
-  var tombol = document.getElementById("ekspor-csv-absenku");
-  var filter = document.getElementById("filter-bulan-absenku");
-  var tbody = document.getElementById("historyBody");
-
-  if (!tombol || !tbody) return;
-
-  tombol.addEventListener("click", function () {
-    var bulan = filter ? filter.value : "";
-    var baris = Array.from(tbody.rows).filter(function (row) {
-      var tanggal = row.cells[0]
-        ? row.cells[0].textContent.trim()
-        : "";
-      return row.cells.length &&
-        (!bulan || tanggal.indexOf(bulan) === 0);
-    });
-
-    if (!baris.length) {
-      alert("Tidak ada riwayat absensi untuk diekspor.");
-      return;
-    }
-
-    var csv = [["Tanggal", "Check-in", "Check-out", "Status"]];
-
-    baris.forEach(function (row) {
-      csv.push(Array.from(row.cells).slice(0, 4).map(function (cell) {
-        return cell.textContent.trim();
-      }));
-    });
-
-    var isi = "\uFEFF" + csv.map(function (row) {
-      return row.map(function (nilai) {
-        return '"' + String(nilai).replace(/"/g, '""') + '"';
-      }).join(",");
-    }).join("\r\n");
-
-    var file = new Blob([isi], {
-      type: "text/csv;charset=utf-8;"
-    });
-    var url = URL.createObjectURL(file);
-    var link = document.createElement("a");
-    link.href = url;
-    link.download = "laporan-absenku" +
-      (bulan ? "-" + bulan : "") + ".csv";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-  });
-})();
-</script>
-
-<script>
-(function () {
-  var filter = document.getElementById("filter-bulan-absenku");
-  var total = document.getElementById("stat-total-absenku");
-  var lengkap = document.getElementById("stat-lengkap-absenku");
-  var belumPulang = document.getElementById("stat-belum-pulang-absenku");
-
-  if (!total || !lengkap || !belumPulang) return;
-
-  function perbaruiStatistik() {
-    var data = {};
-
-    try {
-      data = JSON.parse(
-        localStorage.getItem("absenku-demo-v1") || "{}"
-      );
-    } catch (e) {
-      data = {};
-    }
-
-    var hari = data.days || {};
-    var bulan = filter ? filter.value : "";
-    var jumlah = 0;
-    var jumlahLengkap = 0;
-    var jumlahBelumPulang = 0;
-
-    Object.keys(hari).forEach(function (tanggal) {
-      var catatan = hari[tanggal];
-
-      if (bulan && tanggal.indexOf(bulan) !== 0) return;
-      if (!catatan || !catatan.checkIn) return;
-
-      jumlah++;
-
-      if (catatan.checkOut) {
-        jumlahLengkap++;
-      } else {
-        jumlahBelumPulang++;
-      }
-    });
-
-    total.textContent = jumlah;
-    lengkap.textContent = jumlahLengkap;
-    belumPulang.textContent = jumlahBelumPulang;
-  }
-
-  if (filter) {
-    filter.addEventListener("change", perbaruiStatistik);
-  }
-
-  var reset = document.getElementById("reset-filter-absenku");
-  if (reset) {
-    reset.addEventListener("click", function () {
-      setTimeout(perbaruiStatistik, 0);
-    });
-  }
-
-  perbaruiStatistik();
-})();
-</script>
-
-<div id="laporan-cetak-absenku" style="display:none">
-  <h1 style="text-align:center">ABSENKU</h1>
-  <h2 style="text-align:center">LAPORAN ABSENSI KARYAWAN</h2>
-  <p id="judul-bulan-cetak" style="text-align:center"></p>
  
-<div style="margin:20px 0;padding:12px;border:1px solid #999;border-radius:8px">
-  <h3 style="margin-top:0">IDENTITAS KARYAWAN</h3>
-  <p>Nama Karyawan: <strong id="cetak-nama-karyawan">—</strong></p>
-  <p>Nomor Induk Karyawan: <strong id="cetak-nik-karyawan">—</strong></p>
-  <p>Jabatan: <strong id="cetak-jabatan-karyawan">—</strong></p>
-  <p>Email: <strong id="cetak-email-karyawan">—</strong></p>
-</div>
+ 
 
+async function submitLeaveRequest(event) {
+  event.preventDefault();
 
-  <div style="display:flex;justify-content:space-around;margin:20px 0">
-    <p>Hari tercatat: <strong id="cetak-total">0</strong></p>
-    <p>Absensi lengkap: <strong id="cetak-lengkap">0</strong></p>
-    <p>Belum check-out: <strong id="cetak-belum-pulang">0</strong></p>
-   
-<div class="rekap-invoice-absenku">
-  <h3>REKAPITULASI ABSENSI</h3>
+  const supabase = window.ABSENKU_SUPABASE;
+  const message = document.getElementById("leaveRequestMessage");
+  const button = event.submitter;
 
-  <div class="rekap-item">
-    <span>Total Jam Kerja</span>
-    <strong id="cetak-total-jam-kerja">0 jam 0 menit</strong>
-  </div>
+  const say = (text) => {
+    if (message) message.textContent = text;
+  };
 
-  <div class="rekap-item">
-    <span>Total Hari Hadir</span>
-    <strong id="cetak-total-hadir">0 hari</strong>
-  </div>
+  if (!supabase) {
+    say("Koneksi Supabase belum tersedia.");
+    return;
+  }
+async function submitNewEmployee(event) {
+  event.preventDefault();
 
-  <div class="rekap-item">
-    <span>Total Tidak Hadir</span>
-    <strong id="cetak-total-tidak-hadir">0 hari</strong>
-  </div>
+  const supabase = window.ABSENKU_SUPABASE;
+  const message = document.getElementById("addEmployeeMessage");
+  const form = document.getElementById("addEmployeeForm");
 
-  <div class="rekap-item">
-    <span>Belum Check-out</span>
-    <strong id="cetak-total-belum-checkout">0 hari</strong>
-  </div>
-</div>
+  const say = (text) => {
+    if (message) message.textContent = text;
+  };
 
-<style>
-.rekap-invoice-absenku {
-  margin: 20px 0;
-  padding: 16px;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  font-family: Arial, sans-serif;
-}
-.rekap-invoice-absenku h3 {
-  margin-top: 0;
-  text-align: center;
-}
-.rekap-item {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid #e2e8f0;
-}
-.rekap-item:last-child {
-  border-bottom: none;
-}
-</style>
+  if (!supabase) {
+    say("Koneksi Supabase belum tersedia.");
+    return;
+  }
 
-  </div>
+  const employeeCode = document.getElementById("newEmployeeCode").value.trim();
+  const fullName = document.getElementById("newEmployeeName").value.trim();
 
-  <table style="width:100%;border-collapse:collapse">
-    <thead>
-      <tr>
-        <th style="border:1px solid #333;padding:8px">Tanggal</th>
-        <th style="border:1px solid #333;padding:8px">Check-in</th>
-        <th style="border:1px solid #333;padding:8px">Check-out</th>
-        <th style="border:1px solid #333;padding:8px">Status</th>
-      </tr>
-    </thead>
-    <tbody id="tabel-cetak-absenku"></tbody>
-  </table>
+  if (!employeeCode || !fullName) {
+    say("Nomor dan nama karyawan wajib diisi.");
+    return;
+  }
 
-  <p style="margin-top:30px">Tanggal laporan dicetak: <span id="tanggal-cetak-absenku"></span></p>
-</div>
+  try {
+    say("Menyimpan data karyawan...");
 
-<script>
-(function () {
-  var tombol = document.getElementById("cetak-laporan-absenku");
-  var filter = document.getElementById("filter-bulan-absenku");
+    const { data: authData, error: authError } =
+      await supabase.auth.getUser();
+    if (authError) throw authError;
+    if (!authData.user) throw new Error("Silakan login terlebih dahulu.");
 
-  if (!tombol) return;
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("company_id, role, is_active")
+      .eq("id", authData.user.id)
+      .maybeSingle();
 
-  tombol.onclick = function () {
-    var laporan = document.getElementById("laporan-cetak-absenku");
-    var tabel = document.getElementById("tabel-cetak-absenku");
+    if (profileError) throw profileError;
 
-    if (!laporan || !tabel) {
-      alert("Bagian laporan ABSENKU tidak ditemukan.");
-      return;
+    if (!profile || profile.role !== "admin" || profile.is_active !== true ||
+        !profile.company_id) {
+      throw new Error("Hanya Admin aktif yang dapat menambahkan karyawan.");
     }
 
-    var tabLaporan = window.open("", "_blank");
-
-    if (!tabLaporan) {
-      alert("Chrome memblokir tab baru. Izinkan pop-up untuk ABSENKU.");
-      return;
-    }
-
-    var data = {};
-
-    try {
-      data = JSON.parse(localStorage.getItem("absenku-demo-v1") || "{}");
-    } catch (e) {
-      data = {};
-    }
-
-    var hari = data.days || {};
-    var bulan = filter ? filter.value : "";
-    var jumlah = 0;
-    var lengkap = 0;
-    var belum = 0;
-
-    tabel.replaceChildren();
-
-    Object.keys(hari).sort().forEach(function (tanggal) {
-      var catatan = hari[tanggal];
-
-      if (bulan && tanggal.indexOf(bulan) !== 0) return;
-      if (!catatan || !catatan.checkIn) return;
-
-      jumlah++;
-
-      if (catatan.checkOut) lengkap++;
-      else belum++;
-
-      var baris = document.createElement("tr");
-
-      [
-        tanggal,
-        catatan.checkIn || "—",
-        catatan.checkOut || "—",
-        catatan.checkOut ? "Lengkap" : "Belum check-out"
-      ].forEach(function (nilai) {
-        var sel = document.createElement("td");
-        sel.textContent = nilai;
-        sel.style.border = "1px solid #333";
-        sel.style.padding = "8px";
-        baris.appendChild(sel);
+    const { error: insertError } = await supabase
+      .from("employees")
+      .insert({
+        company_id: profile.company_id,
+        employee_code: employeeCode,
+        full_name: fullName,
+        email: document.getElementById("newEmployeeEmail").value.trim() || null,
+        phone: document.getElementById("newEmployeePhone").value.trim() || null,
+        department: document.getElementById("newEmployeeDepartment").value.trim() || null,
+        position: document.getElementById("newEmployeePosition").value.trim() || null,
+        branch_name: document.getElementById("newEmployeeBranch").value.trim() || null,
+        address: document.getElementById("newEmployeeAddress").value.trim() || null,
+        is_active: true
       });
 
-      tabel.appendChild(baris);
+    if (insertError) throw insertError;
+
+    form.reset();
+    say("Data karyawan berhasil disimpan.");
+  } catch (error) {
+    console.error("Gagal menyimpan karyawan:", error);
+    say("Gagal menyimpan: " + (error.message || "Periksa izin database."));
+  }
+}
+
+document.getElementById("addEmployeeForm")?.addEventListener(
+  "submit",
+  submitNewEmployee
+);
+
+
+  const start = document.getElementById("leaveStart")?.value;
+  const end = document.getElementById("leaveEnd")?.value;
+  const type = document.getElementById("leaveType")?.value;
+  const reason = document.getElementById("leaveReason")?.value.trim();
+  const file = document.getElementById("leaveEvidence")?.files?.[0];
+
+  if (!start || !end || end < start || !type || !reason || !file) {
+    say("Lengkapi formulir dan periksa tanggal serta bukti.");
+    return;
+  }
+
+  if (!["application/pdf", "image/jpeg", "image/png"].includes(file.type)) {
+    say("Bukti harus berupa PDF, JPG, atau PNG.");
+    return;
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    say("Ukuran bukti maksimal 10 MB.");
+    return;
+  }
+
+  try {
+    if (button) button.disabled = true;
+    say("Mengirim pengajuan...");
+
+    const { data: authData, error: authError } =
+      await supabase.auth.getUser();
+    if (authError) throw authError;
+
+    const user = authData.user;
+    if (!user) throw new Error("Silakan login terlebih dahulu.");
+
+    const { data: employee, error: employeeError } = await supabase
+      .from("employees")
+      .select("id, company_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (employeeError) throw employeeError;
+    if (!employee) throw new Error("Data karyawan tidak ditemukan.");
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("company_id,is_active")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profileError) throw profileError;
+    if (!profile || profile.is_active !== true ||
+        profile.company_id !== employee.company_id) {
+      throw new Error("Profil aktif atau data perusahaan tidak cocok.");
+    }
+
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const path = `${employee.company_id}/${employee.id}/${crypto.randomUUID()}-${safeName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("leave-evidence")
+      .upload(path, file, { upsert: false, contentType: file.type });
+
+    if (uploadError) throw uploadError;
+
+    const { error: insertError } = await supabase
+      .from("leave_requests")
+      .insert({
+        employee_id: employee.id,
+        company_id: employee.company_id,
+         request_type: ({
+  cuti: "leave",
+  sakit: "sick",
+  izin: "permission"
+})[type] || type,
+        start_date: start,
+        end_date: end,
+        reason: reason,
+        evidence_path: path,
+        status: "pending"
+      });
+
+    if (insertError) {
+      await supabase.storage.from("leave-evidence").remove([path]);
+      throw insertError;
+    }
+
+    document.getElementById("leaveRequestForm")?.reset();
+    say("Pengajuan berhasil dikirim dan menunggu persetujuan Admin/HRD.");
+  } catch (error) {
+    console.error("Pengajuan cuti/izin gagal:", error);
+    say("Gagal mengirim pengajuan: " + (error.message || "Periksa koneksi dan izin Supabase."));
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
+document.getElementById("leaveRequestForm")?.addEventListener(
+  "submit",
+  submitLeaveRequest
+);
+(function () {
+  function connectProfileMenu() {
+    document.querySelectorAll('[data-page="profile"]').forEach(link => {
+      if (link.dataset.profileConnected === "true") return;
+
+      link.dataset.profileConnected = "true";
+
+      link.addEventListener("click", function () {
+        loadEmployeeProfile();
+      });
     });
+  }
 
-    function isiTeks(id, nilai) {
-      var elemen = document.getElementById(id);
-      if (elemen) elemen.textContent = nilai;
-    }
-
-    function nilaiProfil(id) {
-      var elemen = document.getElementById(id);
-      return elemen && elemen.value ? elemen.value : "—";
-    }
-
-    isiTeks("cetak-nama-karyawan", nilaiProfil("profileFullName"));
-    isiTeks("cetak-nik-karyawan", nilaiProfil("profileEmployeeId"));
-    isiTeks("cetak-jabatan-karyawan", nilaiProfil("profilePosition"));
-    isiTeks("cetak-email-karyawan", nilaiProfil("profileEmail"));
-
-    isiTeks("cetak-total", jumlah);
-    isiTeks("cetak-lengkap", lengkap);
-    isiTeks("cetak-belum-pulang", belum);
-    isiTeks("judul-bulan-cetak", "Periode: " + (bulan || "Semua bulan"));
-
-    isiTeks(
-      "tanggal-cetak-absenku",
-      new Date().toLocaleDateString("id-ID", {
-        timeZone: "Asia/Makassar"
-      })
-    );
-
-    var isiLaporan = laporan.innerHTML;
-
-    tabLaporan.document.open();
-    tabLaporan.document.write(
-      '<!DOCTYPE html>' +
-      '<html lang="id"><head><meta charset="UTF-8">' +
-      '<meta name="viewport" content="width=device-width, initial-scale=1">' +
-      '<title>Laporan Absensi ABSENKU</title>' +
-      '<style>' +
-      'body{font-family:Arial,sans-serif;color:#111;background:white;padding:16px}' +
-      'h1,h2{text-align:center}' +
-      'table{width:100%;border-collapse:collapse;margin-bottom:20px}' +
-      'th,td{border:1px solid #333;padding:8px;text-align:left}' +
-      '.tombol-cetak{display:block;width:100%;padding:12px;margin-bottom:16px;background:#155eef;color:white;border:0;border-radius:8px;font-size:16px}' +
-      '@media print{body{padding:0}.tombol-cetak{display:none}tr{page-break-inside:avoid}}' +
-      '</style></head><body>' +
-      '<button class="tombol-cetak" onclick="window.print()">Cetak / Simpan PDF</button>' +
-      '<div style="display:block">' + isiLaporan + '</div>' +
-      '</body></html>'
-    );
-
-    tabLaporan.document.close();
-    tabLaporan.focus();
-  };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", connectProfileMenu);
+  } else {
+    connectProfileMenu();
+  }
 })();
-</script>
- 
-</body>
-</html>
+(function () {
+  async function connectProfileChangeForm() {
+    const form = document.getElementById("profileChangeForm");
+    const message = document.getElementById("profileChangeMessage");
+
+    if (!form || form.dataset.submitConnected === "true") return;
+    form.dataset.submitConnected = "true";
+
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const supabase = window.ABSENKU_SUPABASE;
+      if (!supabase) {
+        if (message) message.textContent = "Koneksi Supabase belum tersedia.";
+        return;
+      }
+
+      if (message) message.textContent = "Mengirim pengajuan...";
+
+      try {
+        const { data: authData, error: authError } =
+          await supabase.auth.getUser();
+
+        if (authError) throw authError;
+
+        const user = authData.user;
+        if (!user) throw new Error("Silakan login terlebih dahulu.");
+
+        const { data: employee, error: employeeError } = await supabase
+          .from("employees")
+          .select("id, company_id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (employeeError) throw employeeError;
+        if (!employee) throw new Error("Data karyawan tidak ditemukan.");
+
+        const value = id => {
+          const el = document.getElementById(id);
+          return el ? el.value.trim() : "";
+        };
+
+        const requestedData = {
+          full_name: value("profileFullName"),
+          gender: value("profileGender"),
+          birth_place: value("profileBirthPlace"),
+          birth_date: value("profileBirthDate"),
+          address: value("profileAddress"),
+          phone: value("profilePhone"),
+          email: value("profileEmail"),
+          department: value("profileDepartment"),
+          position: value("profilePosition"),
+          start_date: value("profileStartDate"),
+          employment_status: value("profileEmploymentStatus"),
+          supervisor: value("profileSupervisor")
+        };
+
+        const { error: insertError } = await supabase
+          .from("profile_change_requests")
+          .insert({
+            company_id: employee.company_id,
+            employee_id: employee.id,
+            requested_by: user.id,
+            requested_data: requestedData
+          });
+
+        if (insertError) throw insertError;
+
+        if (message) {
+          message.textContent =
+            "Pengajuan berhasil dikirim. Menunggu persetujuan Admin/HRD.";
+        }
+      } catch (error) {
+        console.error("Gagal mengirim pengajuan profil:", error);
+        if (message) {
+          message.textContent =
+            "Pengajuan gagal dikirim. Pastikan izin akses Supabase sudah diatur.";
+        }
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", connectProfileChangeForm);
+  } else {
+    connectProfileChangeForm();
+  }
+})();
+
+
+/* ABSENKU — PENGHUBUNG PERSETUJUAN PROFIL */
+(function () {
+  const menu = document.querySelector(
+    '[data-page="profile-approvals"]'
+  );
+  const message = () =>
+    document.getElementById("profileApprovalsMessage");
+  const list = () =>
+    document.getElementById("profileApprovalsList");
+
+  async function loadProfileApprovals() {
+    const supabase = window.ABSENKU_SUPABASE;
+    const msg = message();
+    const container = list();
+
+    if (!supabase || !msg || !container) return;
+
+    msg.textContent = "Memeriksa akses Admin/HRD...";
+    container.replaceChildren();
+
+    try {
+      const { data: authData, error: authError } =
+        await supabase.auth.getUser();
+
+      if (authError) throw authError;
+      if (!authData.user) {
+        msg.textContent = "Silakan login terlebih dahulu.";
+        return;
+      }
+
+      const { data: admin, error: adminError } = await supabase
+        .from("profiles")
+        .select("role, is_active, company_id")
+        .eq("id", authData.user.id)
+        .maybeSingle();
+
+      if (adminError) throw adminError;
+
+      if (
+        !admin ||
+        !admin.is_active ||
+        !["admin", "hrd"].includes(admin.role)
+      ) {
+        msg.textContent =
+          "Akses ditolak. Halaman ini khusus Admin/HRD aktif.";
+        return;
+      }
+
+      msg.textContent = "Memuat pengajuan...";
+      const { data: requests, error } = await supabase
+        .from("profile_change_requests")
+        .select("id, employee_id, requested_data, status, created_at")
+        .eq("company_id", admin.company_id)
+        .eq("status", "pending")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      if (!requests || requests.length === 0) {
+        msg.textContent = "Tidak ada pengajuan yang menunggu persetujuan.";
+        return;
+      }
+
+      msg.textContent = "Pengajuan menunggu: " + requests.length;
+
+      requests.forEach((request) => {
+        const card = document.createElement("div");
+        card.className = "about-box";
+
+        const title = document.createElement("h3");
+        title.textContent = "Pengajuan perubahan profil";
+
+        const detail = document.createElement("p");
+        detail.textContent =
+          "ID karyawan: " + request.employee_id;
+
+        const date = document.createElement("p");
+        date.textContent =
+          "Dikirim: " +
+          new Date(request.created_at).toLocaleString("id-ID");
+
+        const data = document.createElement("pre");
+        data.style.whiteSpace = "pre-wrap";
+        data.style.overflowWrap = "anywhere";
+        data.textContent = JSON.stringify(
+          request.requested_data || {},
+          null,
+          2
+        );
+
+        const note = document.createElement("input");
+        note.type = "text";
+        note.placeholder = "Catatan Admin (opsional)";
+        note.maxLength = 500;
+
+        const approve = document.createElement("button");
+        approve.type = "button";
+        approve.textContent = "Setujui";
+
+        const reject = document.createElement("button");
+        reject.type = "button";
+        reject.textContent = "Tolak";
+
+        async function review(decision) {
+          const confirmText = decision === "approved"
+            ? "Setujui perubahan profil ini?"
+            : "Tolak pengajuan profil ini?";
+
+          if (!confirm(confirmText)) return;
+
+          approve.disabled = true;
+          reject.disabled = true;
+          msg.textContent = "Memproses keputusan...";
+
+          try {
+            const { error: reviewError } = await supabase.rpc(
+              "review_profile_change_request",
+              {
+                p_request_id: request.id,
+                p_decision: decision,
+                p_admin_note: note.value.trim() || null
+              }
+            );
+
+            if (reviewError) throw reviewError;
+
+            msg.textContent = decision === "approved"
+              ? "Pengajuan berhasil disetujui."
+              : "Pengajuan berhasil ditolak.";
+
+            await loadProfileApprovals();
+          } catch (err) {
+            console.error("Gagal memproses pengajuan:", err);
+            msg.textContent =
+              "Gagal memproses. Periksa fungsi Supabase dan izin akses.";
+            approve.disabled = false;
+            reject.disabled = false;
+          }
+        }
+
+        approve.addEventListener("click", () => review("approved"));
+        reject.addEventListener("click", () => review("rejected"));
+
+        card.append(title, detail, date, data, note, approve, reject);
+        container.appendChild(card);
+      });
+    } catch (err) {
+      console.error("Gagal memuat persetujuan profil:", err);
+      msg.textContent =
+        "Pengajuan gagal dimuat. Periksa koneksi, login, dan izin database.";
+    }
+  }
+
+     if (menu) {
+    menu.addEventListener("click", () => {
+      setTimeout(loadProfileApprovals, 100);
+    });
+  }
+})();
+
+/* ABSENKU - Penghubung akun login karyawan */
+document
+  .getElementById("createEmployeeAccountForm")
+  ?.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const supabase = window.ABSENKU_SUPABASE;
+    const message = document.getElementById(
+      "createEmployeeAccountMessage"
+    );
+    const say = (text) => {
+      if (message) message.textContent = text;
+    };
+
+    if (!supabase) {
+      say("Koneksi Supabase belum tersedia.");
+      return;
+    }
+
+    const employeeId = document
+      .getElementById("accountEmployeeId").value.trim();
+    const email = document
+      .getElementById("accountEmployeeEmail").value.trim();
+    const password = document
+      .getElementById("accountEmployeePassword").value;
+
+    try {
+      say("Memeriksa sesi admin...");
+
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+
+      if (sessionError) throw sessionError;
+
+      if (!sessionData.session) {
+        throw new Error("Silakan login sebagai Admin terlebih dahulu.");
+      }
+
+      say("Memproses pembuatan akun...");
+
+      const { data, error } = await supabase.functions.invoke(
+        "smooth-service",
+        {
+          body: {
+            employee_id: employeeId,
+            email: email,
+            password: password
+          }
+        }
+      );
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      say(data?.message || "Permintaan pembuatan akun selesai.");
+      document.getElementById("accountEmployeePassword").value = "";
+    } catch (error) {
+      console.error("Gagal membuat akun karyawan:", error);
+      say("Gagal: " + (error.message || "Periksa konfigurasi Supabase."));
+    }
+  });

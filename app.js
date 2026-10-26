@@ -24,12 +24,9 @@ function showDashboardAfterLogin() {
       refresh();
     } catch (error) {
       console.error("Gagal memperbarui dashboard:", error);
-    }
-  }
-}
 
 window.showDashboardAfterLogin = showDashboardAfterLogin;
-
+    }
 function hideDashboardAfterLogout() {
   isLoggedIn = false;
   if (dashboard) dashboard.style.display = "none";

@@ -1,7 +1,6 @@
   
- const $ = (id) => document.getElementById(id);
-
-// ===============================
+  
+ // ===============================
 // ABSENKU — STATUS LOGIN
 // ===============================
 const dashboard = $("app-dashboard");
@@ -10,30 +9,30 @@ let isLoggedIn = false;
 if (dashboard) dashboard.style.display = "none";
 
 function showDashboardAfterLogin() {
-isLoggedIn = true;
+  isLoggedIn = true;
 
-const loginScreen = $("login-screen");
-if (loginScreen) loginScreen.style.display = "none";
+  const loginScreen = $("login-screen");
+  if (loginScreen) loginScreen.style.display = "none";
 
-if (dashboard) {
-dashboard.style.display = "block";
-dashboard.removeAttribute("hidden");
-}
+  if (dashboard) {
+    dashboard.style.display = "block";
+    dashboard.removeAttribute("hidden");
+  }
 
-if (typeof refresh === "function") {
-try {
-refresh();
-} catch (error) {
-console.error("Gagal memperbarui dashboard:", error);
-}
-}
+  if (typeof refresh === "function") {
+    try {
+      refresh();
+    } catch (error) {
+      console.error("Gagal memperbarui dashboard:", error);
+    }
+  }
 }
 
 window.showDashboardAfterLogin = showDashboardAfterLogin;
 
 function hideDashboardAfterLogout() {
-isLoggedIn = false;
-if (dashboard) dashboard.style.display = "none";
+  isLoggedIn = false;
+  if (dashboard) dashboard.style.display = "none";
 }
 
 // ===============================

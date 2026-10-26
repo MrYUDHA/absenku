@@ -1,30 +1,19 @@
+   
+const $ = (id) => document.getElementById(id);
 
+// ===============================
+// ABSENKU — STATUS LOGIN
+// ===============================
 const dashboard = $("app-dashboard");
 let isLoggedIn = false;
 
-if (dashboard) dashboard.style.display = "";
+if (dashboard) dashboard.style.display = "none";
 
 function showDashboardAfterLogin() {
   isLoggedIn = true;
-
-  const loginScreen = $("login-screen");
-  if (loginScreen) loginScreen.style.display = "none";
-
-  if (dashboard) {
-    dashboard.style.display = "block";
-    dashboard.removeAttribute("hidden");
-  }
-
-  if (typeof refresh === "function") {
-    try {
-      refresh();
-    } catch (error) {
-      console.error("Gagal memperbarui dashboard:", error);
-    }
-  }
+  if (dashboard) dashboard.style.display = "";
+  refresh();
 }
-
-window.showDashboardAfterLogin = showDashboardAfterLogin;
 
 function hideDashboardAfterLogout() {
   isLoggedIn = false;
@@ -637,142 +626,9 @@ const fields = {
       "Profil gagal dimuat. Periksa izin akses database.";
   }
 }
-   
-async function submitLeaveRequest(event) {
-  event.preventDefault();
 
-  const supabase = window.ABSENKU_SUPABASE;
-  const message = document.getElementById("leaveRequestMessage");
-  const form = document.getElementById("leaveRequestForm");
-  const button = event.submitter;
-
-  const say = (text) => {
-    if (message) message.textContent = text;
-  };
-
-  if (!supabase) {
-    say("Koneksi Supabase belum tersedia.");
-    return;
-  }
-
-  const start = document.getElementById("leaveStart")?.value;
-  const end = document.getElementById("leaveEnd")?.value;
-  const type = document.getElementById("leaveType")?.value;
-  const reason = document.getElementById("leaveReason")?.value.trim();
-  const file = document.getElementById("leaveEvidence")?.files?.[0];
-
-  if (!start || !end || end < start || !type || !reason || !file) {
-    say("Lengkapi formulir dan periksa tanggal serta bukti.");
-    return;
-  }
-
-  if (!["application/pdf", "image/jpeg", "image/png"].includes(file.type)) {
-    say("Bukti harus berupa PDF, JPG, atau PNG.");
-    return;
-  }
-
-  if (file.size > 10 * 1024 * 1024) {
-    say("Ukuran bukti maksimal 10 MB.");
-    return;
-  }
-
-  let uploadedPath = null;
-
-  try {
-    if (button) button.disabled = true;
-    say("Mengirim pengajuan...");
-
-    const { data: authData, error: authError } =
-      await supabase.auth.getUser();
-
-    if (authError) throw authError;
-
-    const user = authData.user;
-    if (!user) throw new Error("Silakan login terlebih dahulu.");
-
-    const { data: employee, error: employeeError } = await supabase
-      .from("employees")
-      .select("id, company_id")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (employeeError) throw employeeError;
-    if (!employee) throw new Error("Data karyawan tidak ditemukan.");
-
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("company_id, is_active")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if (profileError) throw profileError;
-
-    if (
-      !profile ||
-      profile.is_active !== true ||
-      profile.company_id !== employee.company_id
-    ) {
-      throw new Error("Profil aktif atau data perusahaan tidak cocok.");
-    }
-
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    uploadedPath =
-      `${employee.company_id}/${employee.id}/${crypto.randomUUID()}-${safeName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("leave-evidence")
-      .upload(uploadedPath, file, {
-        upsert: false,
-        contentType: file.type
-      });
-
-    if (uploadError) throw uploadError;
-
-    const { error: insertError } = await supabase
-      .from("leave_requests")
-      .insert({
-        employee_id: employee.id,
-        company_id: employee.company_id,
-        request_type: ({
-          cuti: "leave",
-          sakit: "sick",
-          izin: "permission"
-        })[type] || type,
-        start_date: start,
-        end_date: end,
-        reason: reason,
-        evidence_path: uploadedPath,
-        status: "pending"
-      });
-
-    if (insertError) throw insertError;
-
-    form?.reset();
-    say("Pengajuan berhasil dikirim dan menunggu persetujuan Admin/HRD.");
-  } catch (error) {
-    console.error("Pengajuan cuti/izin gagal:", error);
-
-    if (uploadedPath) {
-      const { error: cleanupError } = await supabase.storage
-        .from("leave-evidence")
-        .remove([uploadedPath]);
-
-      if (cleanupError) {
-        console.error("Pembersihan bukti gagal:", cleanupError);
-      }
-    }
-
-    say("Gagal mengirim pengajuan: " +
-      (error.message || "Periksa koneksi dan izin Supabase."));
-  } finally {
-    if (button) button.disabled = false;
-  }
-}
-
-document.getElementById("leaveRequestForm")?.addEventListener(
-  "submit",
-  submitLeaveRequest
-);
+ 
+ 
 
 async function submitLeaveRequest(event) {
   event.preventDefault();
@@ -862,6 +718,106 @@ async function submitNewEmployee(event) {
 document.getElementById("addEmployeeForm")?.addEventListener(
   "submit",
   submitNewEmployee
+);
+
+
+  const start = document.getElementById("leaveStart")?.value;
+  const end = document.getElementById("leaveEnd")?.value;
+  const type = document.getElementById("leaveType")?.value;
+  const reason = document.getElementById("leaveReason")?.value.trim();
+  const file = document.getElementById("leaveEvidence")?.files?.[0];
+
+  if (!start || !end || end < start || !type || !reason || !file) {
+    say("Lengkapi formulir dan periksa tanggal serta bukti.");
+    return;
+  }
+
+  if (!["application/pdf", "image/jpeg", "image/png"].includes(file.type)) {
+    say("Bukti harus berupa PDF, JPG, atau PNG.");
+    return;
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    say("Ukuran bukti maksimal 10 MB.");
+    return;
+  }
+
+  try {
+    if (button) button.disabled = true;
+    say("Mengirim pengajuan...");
+
+    const { data: authData, error: authError } =
+      await supabase.auth.getUser();
+    if (authError) throw authError;
+
+    const user = authData.user;
+    if (!user) throw new Error("Silakan login terlebih dahulu.");
+
+    const { data: employee, error: employeeError } = await supabase
+      .from("employees")
+      .select("id, company_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (employeeError) throw employeeError;
+    if (!employee) throw new Error("Data karyawan tidak ditemukan.");
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("company_id,is_active")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profileError) throw profileError;
+    if (!profile || profile.is_active !== true ||
+        profile.company_id !== employee.company_id) {
+      throw new Error("Profil aktif atau data perusahaan tidak cocok.");
+    }
+
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const path = `${employee.company_id}/${employee.id}/${crypto.randomUUID()}-${safeName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("leave-evidence")
+      .upload(path, file, { upsert: false, contentType: file.type });
+
+    if (uploadError) throw uploadError;
+
+    const { error: insertError } = await supabase
+      .from("leave_requests")
+      .insert({
+        employee_id: employee.id,
+        company_id: employee.company_id,
+         request_type: ({
+  cuti: "leave",
+  sakit: "sick",
+  izin: "permission"
+})[type] || type,
+        start_date: start,
+        end_date: end,
+        reason: reason,
+        evidence_path: path,
+        status: "pending"
+      });
+
+    if (insertError) {
+      await supabase.storage.from("leave-evidence").remove([path]);
+      throw insertError;
+    }
+
+    document.getElementById("leaveRequestForm")?.reset();
+    say("Pengajuan berhasil dikirim dan menunggu persetujuan Admin/HRD.");
+  } catch (error) {
+    console.error("Pengajuan cuti/izin gagal:", error);
+    say("Gagal mengirim pengajuan: " + (error.message || "Periksa koneksi dan izin Supabase."));
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
+document.getElementById("leaveRequestForm")?.addEventListener(
+  "submit",
+  submitLeaveRequest
 );
 (function () {
   function connectProfileMenu() {

@@ -1,5 +1,5 @@
   
-const $ = (id) => document.getElementById(id);
+ const $ = (id) => document.getElementById(id);
 
 // ===============================
 // ABSENKU — STATUS LOGIN
@@ -9,15 +9,31 @@ let isLoggedIn = false;
 
 if (dashboard) dashboard.style.display = "none";
 
-function showDashboardAfterLogin()window.showDashboardAfterLogin = showDashboardAfterLogin; {
-  isLoggedIn = true;
-  if (dashboard) dashboard.style.display = "";
-  refresh();
+function showDashboardAfterLogin() {
+isLoggedIn = true;
+
+const loginScreen = $("login-screen");
+if (loginScreen) loginScreen.style.display = "none";
+
+if (dashboard) {
+dashboard.style.display = "block";
+dashboard.removeAttribute("hidden");
 }
 
+if (typeof refresh === "function") {
+try {
+refresh();
+} catch (error) {
+console.error("Gagal memperbarui dashboard:", error);
+}
+}
+}
+
+window.showDashboardAfterLogin = showDashboardAfterLogin;
+
 function hideDashboardAfterLogout() {
-  isLoggedIn = false;
-  if (dashboard) dashboard.style.display = "none";
+isLoggedIn = false;
+if (dashboard) dashboard.style.display = "none";
 }
 
 // ===============================

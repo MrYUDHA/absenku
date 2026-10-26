@@ -17,7 +17,7 @@ function showDashboardAfterLogin() {
 
 function hideDashboardAfterLogout() {
   isLoggedIn = false;
-  if (dashboard) dashboard.style.display = "none";
+  if (dashboard) dashboard.style.display = "";
 }
 
 // ===============================

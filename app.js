@@ -14,6 +14,32 @@ function showDashboardAfterLogin() {
   if (dashboard) dashboard.style.display = "";
   refresh();
 }
+document.getElementById("login-form")?.addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const msg = document.getElementById("login-message");
+  const btn = this.querySelector('button[type="submit"]');
+  const supabase = window.ABSENKU_SUPABASE;
+
+  try {
+    if (!supabase) throw new Error("Koneksi Supabase belum tersedia.");
+    if (msg) msg.textContent = "Sedang masuk...";
+    if (btn) btn.disabled = true;
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: document.getElementById("login-email").value.trim(),
+      password: document.getElementById("login-password").value
+    });
+    if (error) throw error;
+
+    document.getElementById("login-screen").style.display = "none";
+    showDashboardAfterLogin();
+  } catch (err) {
+    if (msg) msg.textContent = "Login gagal: " + err.message;
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+});
 
 function hideDashboardAfterLogout() {
   isLoggedIn = false;

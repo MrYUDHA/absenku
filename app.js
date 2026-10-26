@@ -9,7 +9,7 @@ let isLoggedIn = false;
 
 if (dashboard) dashboard.style.display = "none";
 
-function showDashboardAfterLogin() {
+function showDashboardAfterLogin()window.showDashboardAfterLogin = showDashboardAfterLogin; {
   isLoggedIn = true;
   if (dashboard) dashboard.style.display = "";
   refresh();

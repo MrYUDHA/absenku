@@ -1244,16 +1244,22 @@ document
 
       if (uploadError) throw uploadError;
 
-      const { error: updateError } = await supabase
-        .from("employees")
-        .update({ photo_path: path })
-        .eq("id", employee.id)
-        .eq("user_id", user.id);
+       
+const { data: updatedRows, error: updateError } = await supabase
+  .from("employees")
+  .update({ photo_path: path })
+  .eq("id", employee.id)
+  .eq("user_id", user.id)
+  .select("id, photo_path");
 
-      if (updateError) {
-        await supabase.storage.from("profile-photos").remove([path]);
-        throw updateError;
-      }
+if (updateError) throw updateError;
+
+if (!updatedRows || updatedRows.length === 0 || !updatedRows[0].photo_path) {
+  throw new Error(
+    "Foto terunggah, tetapi photo_path tidak berhasil disimpan ke database."
+  );
+}
+
 
       const { data: signedData, error: signedError } =
         await supabase.storage

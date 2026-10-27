@@ -590,7 +590,7 @@ async function loadEmployeeProfile() {
 
     const { data: employee, error } = await supabase
       .from("employees")
-      .select("full_name, employee_code, department, position, branch_name, address, birth_date, phone, email")
+       .select("full_name, employee_code, department, position, branch_name, address, birth_date, phone, email, photo_path")
       .eq("user_id", user.id)
       .maybeSingle();
 

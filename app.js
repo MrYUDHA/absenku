@@ -1167,3 +1167,96 @@ document
       say("Gagal: " + (error.message || "Periksa konfigurasi Supabase."));
     }
   });
+/* ABSENKU - Unggah foto profil ke Supabase Storage */
+(function setupProfilePhotoUpload() {
+  const input = document.getElementById("profilePhotoInput");
+  const preview = document.getElementById("profilePhotoPreview");
+
+  if (!input || !preview || input.dataset.uploadReady === "1") return;
+  input.dataset.uploadReady = "1";
+
+  input.addEventListener("change", async function () {
+    const file = input.files && input.files[0];
+    if (!file) return;
+
+    const supabase = window.ABSENKU_SUPABASE;
+    if (!supabase) {
+      alert("Koneksi Supabase belum tersedia.");
+      return;
+    }
+
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      alert("Pilih foto JPG, PNG, atau WEBP.");
+      input.value = "";
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Ukuran foto maksimal 2 MB.");
+      input.value = "";
+      return;
+    }
+
+    try {
+      input.disabled = true;
+
+      const { data: authData, error: authError } =
+        await supabase.auth.getUser();
+      if (authError) throw authError;
+
+      const user = authData.user;
+      if (!user) throw new Error("Silakan login kembali.");
+
+      const { data: employee, error: employeeError } = await supabase
+        .from("employees")
+        .select("id, company_id")
+        .eq("user_id", user.id)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (employeeError) throw employeeError;
+      if (!employee) throw new Error("Data karyawan aktif tidak ditemukan.");
+
+      const extension = file.type === "image/png" ? "png" :
+        file.type === "image/webp" ? "webp" : "jpg";
+
+      const path = `${employee.company_id}/${employee.id}/${Date.now()}.${extension}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("profile-photos")
+        .upload(path, file, {
+          contentType: file.type,
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { error: updateError } = await supabase
+        .from("employees")
+        .update({ photo_path: path })
+        .eq("id", employee.id)
+        .eq("user_id", user.id);
+
+      if (updateError) {
+        await supabase.storage.from("profile-photos").remove([path]);
+        throw updateError;
+      }
+
+      const { data: signedData, error: signedError } =
+        await supabase.storage
+          .from("profile-photos")
+          .createSignedUrl(path, 3600);
+
+      if (signedError) throw signedError;
+
+      preview.src = signedData.signedUrl;
+      alert("Foto profil berhasil disimpan.");
+    } catch (error) {
+      console.error("Gagal menyimpan foto profil:", error);
+      alert("Foto gagal disimpan: " + (error.message || "Periksa izin akses."));
+    } finally {
+      input.disabled = false;
+    }
+  });
+})();
+

@@ -590,7 +590,7 @@ async function loadEmployeeProfile() {
 
     const { data: employee, error } = await supabase
       .from("employees")
-       .select("full_name, employee_code, department, position, branch_name, address, birth_date, phone, email, photo_path")
+      .select("full_name, employee_code, department, position, branch_name, address, birth_date, phone, email, photo_path, gender, birth_place, start_date, employment_status")
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -612,6 +612,10 @@ const fields = {
   profileEmail: employee.email,
   profileDepartment: employee.department,
   profilePosition: employee.position
+  profileGender: employee.gender,
+  profileBirthPlace: employee.birth_place,
+  profileStartDate: employee.start_date,
+  profileEmploymentStatus: employee.employment_status,
 };
 
     Object.entries(fields).forEach(([id, value]) => {

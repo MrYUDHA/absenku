@@ -645,6 +645,7 @@ async function submitLeaveRequest(event) {
     say("Koneksi Supabase belum tersedia.");
     return;
   }
+ 
 async function submitNewEmployee(event) {
   event.preventDefault();
 
@@ -661,8 +662,10 @@ async function submitNewEmployee(event) {
     return;
   }
 
-  const employeeCode = document.getElementById("newEmployeeCode").value.trim();
-  const fullName = document.getElementById("newEmployeeName").value.trim();
+  const employeeCode =
+    document.getElementById("newEmployeeCode").value.trim();
+  const fullName =
+    document.getElementById("newEmployeeName").value.trim();
 
   if (!employeeCode || !fullName) {
     say("Nomor dan nama karyawan wajib diisi.");
@@ -674,8 +677,11 @@ async function submitNewEmployee(event) {
 
     const { data: authData, error: authError } =
       await supabase.auth.getUser();
+
     if (authError) throw authError;
-    if (!authData.user) throw new Error("Silakan login terlebih dahulu.");
+    if (!authData.user) {
+      throw new Error("Silakan login terlebih dahulu.");
+    }
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
@@ -685,9 +691,15 @@ async function submitNewEmployee(event) {
 
     if (profileError) throw profileError;
 
-    if (!profile || profile.role !== "admin" || profile.is_active !== true ||
-        !profile.company_id) {
-      throw new Error("Hanya Admin aktif yang dapat menambahkan karyawan.");
+    if (
+      !profile ||
+      profile.role !== "admin" ||
+      profile.is_active !== true ||
+      !profile.company_id
+    ) {
+      throw new Error(
+        "Hanya Admin aktif yang dapat menambahkan karyawan."
+      );
     }
 
     const { error: insertError } = await supabase
@@ -696,12 +708,18 @@ async function submitNewEmployee(event) {
         company_id: profile.company_id,
         employee_code: employeeCode,
         full_name: fullName,
-        email: document.getElementById("newEmployeeEmail").value.trim() || null,
-        phone: document.getElementById("newEmployeePhone").value.trim() || null,
-        department: document.getElementById("newEmployeeDepartment").value.trim() || null,
-        position: document.getElementById("newEmployeePosition").value.trim() || null,
-        branch_name: document.getElementById("newEmployeeBranch").value.trim() || null,
-        address: document.getElementById("newEmployeeAddress").value.trim() || null,
+        email:
+          document.getElementById("newEmployeeEmail").value.trim() || null,
+        phone:
+          document.getElementById("newEmployeePhone").value.trim() || null,
+        department:
+          document.getElementById("newEmployeeDepartment").value.trim() || null,
+        position:
+          document.getElementById("newEmployeePosition").value.trim() || null,
+        branch_name:
+          document.getElementById("newEmployeeBranch").value.trim() || null,
+        address:
+          document.getElementById("newEmployeeAddress").value.trim() || null,
         is_active: true
       });
 
@@ -711,7 +729,8 @@ async function submitNewEmployee(event) {
     say("Data karyawan berhasil disimpan.");
   } catch (error) {
     console.error("Gagal menyimpan karyawan:", error);
-    say("Gagal menyimpan: " + (error.message || "Periksa izin database."));
+    say("Gagal menyimpan: " +
+      (error.message || "Periksa izin database."));
   }
 }
 
@@ -719,7 +738,6 @@ document.getElementById("addEmployeeForm")?.addEventListener(
   "submit",
   submitNewEmployee
 );
-
 
   const start = document.getElementById("leaveStart")?.value;
   const end = document.getElementById("leaveEnd")?.value;

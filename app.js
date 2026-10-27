@@ -611,7 +611,7 @@ const fields = {
   profilePhone: employee.phone,
   profileEmail: employee.email,
   profileDepartment: employee.department,
-  profilePosition: employee.position
+  profilePosition: employee.position,
   profileGender: employee.gender,
   profileBirthPlace: employee.birth_place,
   profileStartDate: employee.start_date,

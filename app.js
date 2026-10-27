@@ -618,7 +618,20 @@ const fields = {
       const element = document.getElementById(id);
       if (element) element.value = value || "";
     });
+    // Muat foto profil yang tersimpan di Supabase Storage
+if (employee.photo_path) {
+  const { data: photoData, error: photoError } =
+    await supabase.storage
+      .from("profile-photos")
+      .createSignedUrl(employee.photo_path, 3600);
 
+  if (!photoError && photoData?.signedUrl) {
+    const photoPreview = document.getElementById("profilePhotoPreview");
+    if (photoPreview) {
+      photoPreview.src = photoData.signedUrl;
+    }
+  }
+}
     if (message) message.textContent = "Data profil berhasil dimuat.";
   } catch (error) {
     console.error("Gagal memuat profil:", error);

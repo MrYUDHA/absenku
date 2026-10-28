@@ -1,4 +1,4 @@
-   
+    
 const $ = (id) => document.getElementById(id);
 
 // ===============================
@@ -799,214 +799,35 @@ document.getElementById("addEmployeeForm")?.addEventListener(
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
- async function submitNewEmployee(event) {
-  event.preventDefault();
-
-  const supabase = window.ABSENKU_SUPABASE;
-  const message = document.getElementById("addEmployeeMessage");
-  const form = document.getElementById("addEmployeeForm");
-
-  const say = (text) => {
-    if (message) message.textContent = text;
-  };
-
-  if (!supabase) {
-    say("Koneksi Supabase belum tersedia.");
-    return;
-  }
-
-  const employeeCode =
-    document.getElementById("newEmployeeCode").value.trim();
-  const fullName =
-    document.getElementById("newEmployeeName").value.trim();
-
-  if (!employeeCode || !fullName) {
-    say("Nomor dan nama karyawan wajib diisi.");
-    return;
-  }
-
-  try {
-    say("Menyimpan data karyawan...");
-
-    const { data: authData, error: authError } =
-      await supabase.auth.getUser();
-
-    if (authError) throw authError;
-
-    if (!authData.user) {
-      throw new Error("Silakan login terlebih dahulu.");
-    }
-
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("company_id, role, is_active")
-      .eq("id", authData.user.id)
-      .maybeSingle();
-
-    if (profileError) throw profileError;
-
-    if (
-      !profile ||
-      profile.role !== "admin" ||
-      profile.is_active !== true ||
-      !profile.company_id
-    ) {
-      throw new Error(
-        "Hanya Admin aktif yang dapat menambahkan karyawan."
-      );
-    }
-
-    const { error: insertError } = await supabase
-      .from("employees")
-      .insert({
-        company_id: profile.company_id,
-        employee_code: employeeCode,
-        full_name: fullName,
-        email:
-          document.getElementById("newEmployeeEmail").value.trim() || null,
-        phone:
-          document.getElementById("newEmployeePhone").value.trim() || null,
-        department:
-          document.getElementById("newEmployeeDepartment").value.trim() || null,
-        position:
-          document.getElementById("newEmployeePosition").value.trim() || null,
-        branch_name:
-          document.getElementById("newEmployeeBranch").value.trim() || null,
-        address:
-          document.getElementById("newEmployeeAddress").value.trim() || null,
-        is_active: true
-      });
-
-    if (insertError) throw insertError;
-
-    form.reset();
-    say("Data karyawan berhasil disimpan.");
-  } catch (error) {
-    console.error("Gagal menyimpan karyawan:", error);
-    say(
-      "Gagal menyimpan: " +
-      (error.message || "Periksa izin database.")
-    );
-  }
-}
-
-document.getElementById("addEmployeeForm")?.addEventListener(
-  "submit",
-  submitNewEmployee
-);
-
-
-async function submitLeaveRequest(event) {
-  event.preventDefault();
-
-  const supabase = window.ABSENKU_SUPABASE;
-  const message = document.getElementById("leaveRequestMessage");
-  const button = event.submitter;
-
-  const say = (text) => {
-    if (message) message.textContent = text;
-  };
-
-  if (!supabase) {
-    say("Koneksi Supabase belum tersedia.");
-    return;
-  }
-
-  const start = document.getElementById("leaveStart")?.value;
-  const end = document.getElementById("leaveEnd")?.value;
-  const type = document.getElementById("leaveType")?.value;
-  const reason =
-    document.getElementById("leaveReason")?.value.trim();
-  const file =
-    document.getElementById("leaveEvidence")?.files?.[0];
-
-  if (!start || !end || end < start || !type || !reason || !file) {
-    say("Lengkapi formulir dan periksa tanggal serta bukti.");
-    return;
-  }
-
-  if (
-    !["application/pdf", "image/jpeg", "image/png"].includes(file.type)
-  ) {
-    say("Bukti harus berupa PDF, JPG, atau PNG.");
-    return;
-  }
-
-  if (file.size > 10 * 1024 * 1024) {
-    say("Ukuran bukti maksimal 10 MB.");
-    return;
-  }
-
-  try {
-    if (button) button.disabled = true;
-    say("Mengirim pengajuan...");
-
-    const { data: authData, error: authError } =
-      await supabase.auth.getUser();
-
-    if (authError) throw authError;
-
-    const user = authData.user;
-
-    if (!user) {
-      throw new Error("Silakan login terlebih dahulu.");
-    }
-
-    const { data: employee, error: employeeError } = await supabase
-      .from("employees")
-      .select("id, company_id")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (employeeError) throw employeeError;
-
-    if (!employee) {
-      throw new Error("Data karyawan tidak ditemukan.");
-    }
-
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("company_id, is_active")
+      .select("company_id,is_active")
       .eq("id", user.id)
       .maybeSingle();
 
     if (profileError) throw profileError;
-
-    if (
-      !profile ||
-      profile.is_active !== true ||
-      profile.company_id !== employee.company_id
-    ) {
-      throw new Error(
-        "Profil aktif atau data perusahaan tidak cocok."
-      );
+    if (!profile || profile.is_active !== true ||
+        profile.company_id !== employee.company_id) {
+      throw new Error("Profil aktif atau data perusahaan tidak cocok.");
     }
 
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const path =
-      `${employee.company_id}/${employee.id}/${crypto.randomUUID()}-${safeName}`;
+    const path = `${employee.company_id}/${employee.id}/${crypto.randomUUID()}-${safeName}`;
 
     const { error: uploadError } = await supabase.storage
       .from("leave-evidence")
-      .upload(path, file, {
-        upsert: false,
-        contentType: file.type
-      });
+      .upload(path, file, { upsert: false, contentType: file.type });
 
     if (uploadError) throw uploadError;
-
-    const requestType = ({
-      cuti: "leave",
-      sakit: "sick",
-      izin: "permission"
-    })[type] || type;
 
     const { error: insertError } = await supabase
       .from("leave_requests")
       .insert({
         employee_id: employee.id,
         company_id: employee.company_id,
-        request_type: requestType,
+         request_type: ({
+  cuti: "leave",
+  sakit: "sick",
+  izin: "permission"
+})[type] || type,
         start_date: start,
         end_date: end,
         reason: reason,
@@ -1015,25 +836,15 @@ async function submitLeaveRequest(event) {
       });
 
     if (insertError) {
-      await supabase.storage
-        .from("leave-evidence")
-        .remove([path]);
-
+      await supabase.storage.from("leave-evidence").remove([path]);
       throw insertError;
     }
 
     document.getElementById("leaveRequestForm")?.reset();
-
-    say(
-      "Pengajuan berhasil dikirim dan menunggu persetujuan Admin/HRD."
-    );
+    say("Pengajuan berhasil dikirim dan menunggu persetujuan Admin/HRD.");
   } catch (error) {
     console.error("Pengajuan cuti/izin gagal:", error);
-
-    say(
-      "Gagal mengirim pengajuan: " +
-      (error.message || "Periksa koneksi dan izin Supabase.")
-    );
+    say("Gagal mengirim pengajuan: " + (error.message || "Periksa koneksi dan izin Supabase."));
   } finally {
     if (button) button.disabled = false;
   }
@@ -1471,4 +1282,3 @@ if (!updatedRows || updatedRows.length === 0 || !updatedRows[0].photo_path) {
     }
   });
 })();
-

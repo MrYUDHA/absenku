@@ -4,10 +4,10 @@ const $ = (id) => document.getElementById(id);
 // ===============================
 // ABSENKU — STATUS LOGIN
 // ===============================
-const dashboard = $("app-dashboard");
+const dashboard = $("app-dashboard") {
 let isLoggedIn = false;
-
 if (dashboard) dashboard.style.display = "none";
+}
 function showDashboardAfterLogin() {
   isLoggedIn = true;
   if (dashboard) dashboard.style.display = "";

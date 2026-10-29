@@ -1,4 +1,6 @@
- name: Build ABSENKU APK
+YML
+
+name: Build ABSENKU APK
 
 on:
   workflow_dispatch:

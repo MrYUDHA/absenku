@@ -1,4 +1,4 @@
-    
+     
 const $ = (id) => document.getElementById(id);
 
 // ===============================
@@ -1253,6 +1253,8 @@ document.getElementById("leaveRequestForm")?.addEventListener(
     });
   }
 })();
+
+
 /* ABSENKU - Penghubung akun login karyawan */
 document
   .getElementById("createEmployeeAccountForm")

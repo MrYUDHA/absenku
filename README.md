@@ -1,6 +1,6 @@
 # AbsensiBot — Chatbot Absensi Karyawan
 
-Prototipe website untuk demonstrasi final project. Dibuat dengan HTML, CSS, dan JavaScript tanpa instalasi library.
+Prototipe website untuk mempermudah perkerjaaan. Dibuat dengan HTML, CSS, dan JavaScript tanpa instalasi library.
 
 ## Fitur
 - Check-in dan check-out dengan waktu perangkat.
@@ -18,7 +18,7 @@ Prototipe website untuk demonstrasi final project. Dibuat dengan HTML, CSS, dan 
 1. Masuk atau daftar di GitHub.
 2. Buat repository baru bernama `absensibot`.
 3. Unggah file `index.html`, `style.css`, `app.js`, dan `README.md`.
-4. Setelah terunggah, salin URL repository untuk dimasukkan ke formulir final project.
+4. Setelah terunggah.
 5. Untuk menayangkan demo, buka **Settings → Pages**, pilih branch `main` dan folder `/ (root)`, lalu simpan. Tunggu sampai GitHub Pages memberikan alamat situs.
 
 ## Batasan penting

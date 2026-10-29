@@ -964,7 +964,7 @@ document.getElementById("leaveRequestForm")?.addEventListener(
 
 
 /* ABSENKU — PENGHUBUNG PERSETUJUAN PROFIL */
-function () {
+(function () {
   const menu = document.querySelector(
     '[data-page="profile-approvals"]'
   );
@@ -1253,8 +1253,6 @@ function () {
     });
   }
 })();
-
-
 /* ABSENKU - Penghubung akun login karyawan */
 document
   .getElementById("createEmployeeAccountForm")

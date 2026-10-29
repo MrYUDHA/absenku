@@ -1,5 +1,4 @@
-
-name: Build ABSENKU APK
+ name: Build ABSENKU APK
 
 on:
   workflow_dispatch:
@@ -34,12 +33,15 @@ jobs:
         run: |
           mkdir -p app/src/main/assets
           mkdir -p app/src/main/java/com/absenku/app
+          mkdir -p app/src/main/res/drawable
 
           tar \
             --exclude='./.git' \
             --exclude='./.github' \
             --exclude='./app' \
             -cf - . | tar -xf - -C app/src/main/assets
+
+          cp absenku-icon-premium.png app/src/main/res/drawable/ic_launcher.png
 
           cat > settings.gradle <<'EOF'
           pluginManagement {
@@ -90,6 +92,8 @@ jobs:
               <uses-permission android:name="android.permission.INTERNET" />
               <application
                   android:label="ABSENKU"
+                  android:icon="@drawable/ic_launcher"
+                  android:roundIcon="@drawable/ic_launcher"
                   android:theme="@android:style/Theme.Material.Light.NoActionBar"
                   android:usesCleartextTraffic="false">
                   <activity

@@ -8,58 +8,504 @@
   <title>ABSENKU — Absensi Karyawan</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* ABSENKU: halaman tambahan dan perapian navigasi */
+    /* ==========================================================================
+       ABSENKU PRO 3D GLASSMORPHISM & TRANSPARENT MOTION SYSTEM
+       ========================================================================== */
+    :root {
+      --primary-3d: #087fbd;
+      --primary-dark: #0e2f5a;
+      --accent-cyan: #06b6d4;
+      --glass-bg: rgba(255, 255, 255, 0.38);
+      --glass-bg-strong: rgba(255, 255, 255, 0.52);
+      --glass-border: 1px solid rgba(255, 255, 255, 0.55);
+      --shadow-3d-soft: 
+        0 14px 32px -6px rgba(14, 47, 90, 0.12),
+        0 6px 14px -4px rgba(14, 47, 90, 0.06),
+        inset 0 1px 1px rgba(255, 255, 255, 0.75);
+      --shadow-3d-hover: 
+        0 24px 45px -10px rgba(8, 127, 189, 0.28),
+        0 12px 20px -6px rgba(14, 47, 90, 0.12),
+        inset 0 1px 2px rgba(255, 255, 255, 0.9);
+    }
+
+    body {
+      background: linear-gradient(135deg, #bae6fd 0%, #e0f2fe 30%, #dbeafe 65%, #c7d2fe 100%);
+      background-attachment: fixed;
+      color: #0f172a;
+      perspective: 1400px;
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Elemen Dekorasi Latar 3D Melayang agar efek transparan terlihat nyata */
+    .bg-orb-1, .bg-orb-2, .bg-orb-3 {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(45px);
+      z-index: -1;
+      pointer-events: none;
+      animation: orbFloat 12s ease-in-out infinite alternate;
+    }
+    .bg-orb-1 {
+      width: 340px; height: 340px;
+      top: -60px; left: -60px;
+      background: rgba(6, 182, 212, 0.35);
+    }
+    .bg-orb-2 {
+      width: 420px; height: 420px;
+      bottom: -90px; right: -80px;
+      background: rgba(59, 130, 246, 0.3);
+      animation-delay: -4s;
+    }
+    .bg-orb-3 {
+      width: 260px; height: 260px;
+      top: 40%; left: 45%;
+      background: rgba(14, 165, 233, 0.22);
+      animation-delay: -8s;
+    }
+
+    /* ==========================================================================
+       ANIMASI 3D KEYFRAMES
+       ========================================================================== */
+    @keyframes orbFloat {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      100% { transform: translate3d(35px, -30px, 40px) scale(1.08); }
+    }
+
+    @keyframes float3D {
+      0%, 100% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg); }
+      50% { transform: translate3d(0, -7px, 12px) rotateX(4deg) rotateY(-4deg); }
+    }
+
+    @keyframes flipIn3D {
+      from {
+        opacity: 0;
+        transform: perspective(1000px) rotateX(-12deg) translateY(24px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: perspective(1000px) rotateX(0deg) translateY(0) scale(1);
+      }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.5); }
+      50% { box-shadow: 0 0 0 9px rgba(6, 182, 212, 0); }
+    }
+
+    @keyframes shimmerSweep {
+      0% { transform: translateX(-130%) skewX(-22deg); }
+      100% { transform: translateX(240%) skewX(-22deg); }
+    }
+
+    /* ==========================================================================
+       1. LOGIN SCREEN TRANSPARAN & 3D
+       ========================================================================== */
     #login-screen {
-      position:relative; overflow:hidden; max-width:440px!important;
-      margin:35px auto!important; padding:28px 24px!important; box-sizing:border-box;
-      border:1px solid rgba(255,255,255,.8)!important; border-radius:26px!important;
-      background:radial-gradient(circle at 10% 5%,#b9f0ff 0,transparent 35%),linear-gradient(145deg,#fff,#e3f7ff 60%,#d5eaff)!important;
-      box-shadow:0 24px 65px rgba(4,75,130,.23)!important; animation:loginAppear .8s ease both;
+      position: relative;
+      overflow: hidden;
+      max-width: 440px !important;
+      margin: 40px auto !important;
+      padding: 28px 24px !important;
+      box-sizing: border-box;
+      border: var(--glass-border) !important;
+      border-radius: 28px !important;
+      background: rgba(255, 255, 255, 0.45) !important;
+      backdrop-filter: blur(18px) saturate(160%) !important;
+      -webkit-backdrop-filter: blur(18px) saturate(160%) !important;
+      box-shadow: var(--shadow-3d-hover) !important;
+      animation: flipIn3D 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+      transform-style: preserve-3d;
     }
-    #login-screen h2 {text-align:center;color:#123d70;font-size:30px;font-weight:900;letter-spacing:2px;margin:8px 0 10px}
-    #login-screen > p:not(.login-tagline) {text-align:center;color:#486782;line-height:1.6}
-    #login-screen label {display:block;color:#163e62;font-size:14px;font-weight:700}
-    #login-screen input {border:1px solid #c3ddeb!important;border-radius:12px!important;background:rgba(255,255,255,.94);font:inherit;outline:none;transition:border-color .2s,box-shadow .2s}
-    #login-screen input:focus {border-color:#0891b2!important;box-shadow:0 0 0 4px rgba(8,145,178,.13)}
-    #login-screen button {border:0;border-radius:13px!important;color:#fff;font-size:16px;font-weight:800;cursor:pointer;background:linear-gradient(110deg,#06b6d4,#087fbd,#244ec7)!important;box-shadow:0 10px 25px rgba(8,127,189,.28)}
-    .pirate-mascot {min-height:128px;display:flex;align-items:center;justify-content:center;gap:12px;position:relative;margin-bottom:8px}
-    .pirate-emoji {font-size:76px;line-height:1.2;filter:drop-shadow(0 10px 8px rgba(10,70,130,.2));animation:pirateFloat 2.5s ease-in-out infinite}
-    .pirate-speech {max-width:145px;padding:12px 14px;border-radius:18px 18px 18px 4px;color:#fff;background:linear-gradient(135deg,#06b6d4,#153b80);font-size:14px;font-weight:800;line-height:1.5;box-shadow:0 8px 22px rgba(10,70,130,.22)}
-    .login-tagline {margin:0 0 23px;text-align:center;color:#087fbd;font-size:13px;font-weight:800;line-height:1.6}
-    @keyframes pirateFloat {0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-12px) rotate(4deg)}}
-    @keyframes loginAppear {from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-    #main-nav a {display:flex;align-items:center;gap:12px;text-decoration:none}
-    #main-nav a span:first-child {display:inline-flex;align-items:center;justify-content:center;min-width:28px;font-size:20px}
-    .new-page {display:none}
-    .profile-layout {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:18px}
-    .profile-photo-box,.profile-form-box,.leave-form-box,.about-box {background:var(--panel-bg,#fff);border:1px solid var(--border-color,#e1eaf0);border-radius:18px;padding:20px;box-sizing:border-box}
-    .profile-photo-box {text-align:center}
-    .profile-photo-preview {width:112px;height:112px;border-radius:50%;object-fit:cover;background:#e0f2fe;border:4px solid #dbeafe;display:block;margin:0 auto 12px}
-    .form-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-    .form-field {display:flex;flex-direction:column;gap:6px;min-width:0}
-    .form-field label {font-size:13px;font-weight:700;color:var(--text-color,#234)}
-    .form-field input,.form-field select,.form-field textarea {width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd5e1;border-radius:10px;font:inherit;background:#fff;color:#172554}
-    .form-field textarea {min-height:90px;resize:vertical}
-    .form-field.full {grid-column:1/-1}
-    .small-note {font-size:13px;line-height:1.5;color:#64748b}
-    .status-pill {display:inline-block;border-radius:999px;padding:5px 10px;background:#fef3c7;color:#92400e;font-size:12px;font-weight:800}
-    .secondary-button {border:1px solid #cbd5e1;border-radius:10px;padding:10px 14px;background:#fff;color:#123d70;font-weight:700;cursor:pointer}
-    .primary-button {border:0;border-radius:10px;padding:11px 15px;background:linear-gradient(110deg,#0891b2,#087fbd,#244ec7);color:#fff;font-weight:800;cursor:pointer}
-    .page-message {font-size:14px;margin-top:12px;line-height:1.5}
-    @media(max-width:700px) {
-      .profile-layout,.form-grid {grid-template-columns:1fr}
-      .form-field.full {grid-column:auto}
-      .profile-photo-box,.profile-form-box,.leave-form-box,.about-box {padding:15px}
+
+    #login-screen h2 {
+      text-align: center;
+      color: #0f294a;
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      margin: 8px 0 10px;
+      text-shadow: 0 2px 6px rgba(255, 255, 255, 0.8);
     }
-    @media(prefers-reduced-motion:reduce){.pirate-emoji,#login-screen{animation:none!important}}
+
+    #login-screen > p:not(.login-tagline) { text-align: center; color: #334155; line-height: 1.6; }
+    #login-screen label { display: block; color: #0f294a; font-size: 14px; font-weight: 700; }
+
+    #login-screen input {
+      border: 1px solid rgba(255, 255, 255, 0.7) !important;
+      border-radius: 14px !important;
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(8px);
+      font: inherit;
+      outline: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #login-screen input:focus {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: #0891b2 !important;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(8, 145, 178, 0.18), 0 0 0 4px rgba(8, 145, 178, 0.14);
+    }
+
+    #login-screen button {
+      border: 0;
+      border-radius: 14px !important;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      background: linear-gradient(135deg, #06b6d4, #087fbd, #1d4ed8) !important;
+      box-shadow: 0 12px 24px -6px rgba(8, 127, 189, 0.48), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    #login-screen button:hover {
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 0 16px 30px -6px rgba(8, 127, 189, 0.6);
+    }
+
+    .login-tagline { margin: 0 0 23px; text-align: center; color: #0369a1; font-size: 13px; font-weight: 800; line-height: 1.6; }
+
+    /* ==========================================================================
+       2. SIDEBAR & APP SHELL TRANSPARAN GLASSMORPHISM
+       ========================================================================== */
+    .app-shell {
+      background: transparent !important;
+    }
+
+    .sidebar {
+      background: rgba(11, 37, 69, 0.78) !important;
+      backdrop-filter: blur(20px) saturate(160%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+      box-shadow: 10px 0 35px rgba(11, 37, 69, 0.18);
+      border-right: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .brand-icon {
+      background: linear-gradient(135deg, #06b6d4, #0284c7) !important;
+      box-shadow: 0 8px 18px rgba(6, 182, 212, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+      animation: float3D 4.5s ease-in-out infinite;
+      transform-style: preserve-3d;
+    }
+
+    #main-nav a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      border-radius: 14px;
+      padding: 11px 14px;
+      margin-bottom: 4px;
+      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-style: preserve-3d;
+    }
+
+    #main-nav a:hover {
+      background: rgba(255, 255, 255, 0.14);
+      transform: translateX(6px) translateZ(8px);
+    }
+
+    #main-nav a.active {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.9), rgba(8, 127, 189, 0.92)) !important;
+      color: #ffffff !important;
+      box-shadow: 0 10px 22px -5px rgba(6, 182, 212, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      transform: translateX(5px);
+    }
+
+    #main-nav a span:first-child {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      font-size: 17px;
+      transition: transform 0.3s ease;
+    }
+
+    #main-nav a:hover span:first-child {
+      transform: rotateY(18deg) scale(1.15);
+    }
+
+    .online-dot {
+      animation: pulseGlow 2s infinite;
+    }
+
+    /* ==========================================================================
+       3. DASBOR TRANSPARAN & KARTU 3D INTERAKTIF
+       ========================================================================== */
+    .main {
+      background: transparent !important;
+    }
+
+    .topbar {
+      background: var(--glass-bg) !important;
+      backdrop-filter: blur(16px) saturate(150%) !important;
+      -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
+      border: var(--glass-border) !important;
+      border-radius: 24px !important;
+      padding: 20px 24px;
+      box-shadow: var(--shadow-3d-soft) !important;
+      animation: flipIn3D 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .date-chip {
+      background: rgba(255, 255, 255, 0.55) !important;
+      backdrop-filter: blur(10px);
+      color: #0369a1 !important;
+      font-weight: 800;
+      border: 1px solid rgba(255, 255, 255, 0.8) !important;
+      box-shadow: 0 6px 14px rgba(3, 105, 161, 0.1);
+    }
+
+    /* Stat Cards 3D Transparan */
+    .stats .stat-card {
+      background: var(--glass-bg) !important;
+      backdrop-filter: blur(16px) saturate(150%) !important;
+      -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
+      border: var(--glass-border) !important;
+      border-radius: 24px !important;
+      box-shadow: var(--shadow-3d-soft) !important;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, background 0.35s ease;
+      animation: flipIn3D 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+      transform-style: preserve-3d;
+    }
+
+    .stats .stat-card:nth-child(1) { animation-delay: 0.08s; }
+    .stats .stat-card:nth-child(2) { animation-delay: 0.16s; }
+    .stats .stat-card:nth-child(3) { animation-delay: 0.24s; }
+
+    .stats .stat-card:hover {
+      background: var(--glass-bg-strong) !important;
+      box-shadow: var(--shadow-3d-hover) !important;
+    }
+
+    .stat-symbol {
+      border-radius: 16px !important;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12), inset 0 2px 2px rgba(255, 255, 255, 0.7);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: translateZ(20px);
+    }
+
+    .stat-card:hover .stat-symbol {
+      transform: translateZ(32px) scale(1.1) rotateZ(-4deg);
+    }
+
+    /* Panel Transparan 3D */
+    .panel, .profile-photo-box, .profile-form-box, .leave-form-box, .about-box {
+      background: var(--glass-bg) !important;
+      backdrop-filter: blur(16px) saturate(150%) !important;
+      -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
+      border: var(--glass-border) !important;
+      border-radius: 24px !important;
+      box-shadow: var(--shadow-3d-soft) !important;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+      animation: flipIn3D 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+      transform-style: preserve-3d;
+    }
+
+    .panel:hover {
+      box-shadow: var(--shadow-3d-hover) !important;
+    }
+
+    /* Banner Motivasi 3D Glass */
+    #motivasi-absenku {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.82) 0%, rgba(15, 52, 96, 0.88) 65%, rgba(30, 27, 75, 0.9) 100%) !important;
+      backdrop-filter: blur(14px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.4) !important;
+      box-shadow: 0 20px 38px -10px rgba(2, 132, 199, 0.38), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
+      transform-style: preserve-3d;
+    }
+
+    #motivasi-absenku::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; width: 45%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+      animation: shimmerSweep 5s infinite;
+      pointer-events: none;
+    }
+
+    .clock {
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 4px 14px rgba(8, 127, 189, 0.25);
+      letter-spacing: 2px;
+      animation: float3D 5s ease-in-out infinite;
+    }
+
+    /* ==========================================================================
+       4. TOMBOL 3D INTERAKTIF
+       ========================================================================== */
+    .btn, .primary-button, .secondary-button, .text-button {
+      border-radius: 13px !important;
+      font-weight: 700;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-style: preserve-3d;
+    }
+
+    .btn-primary, .primary-button {
+      background: linear-gradient(135deg, #06b6d4, #087fbd, #1d4ed8) !important;
+      box-shadow: 0 10px 20px -4px rgba(8, 127, 189, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
+      color: #fff !important;
+    }
+
+    .btn-primary:hover, .primary-button:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 14px 26px -4px rgba(8, 127, 189, 0.6) !important;
+    }
+
+    .btn-dark {
+      background: linear-gradient(135deg, #1e293b, #0f172a) !important;
+      box-shadow: 0 10px 20px -4px rgba(15, 23, 42, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
+    }
+
+    .btn-dark:hover {
+      transform: translateY(-3px) scale(1.02);
+    }
+
+    .text-button, .secondary-button {
+      background: rgba(255, 255, 255, 0.6) !important;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .text-button:hover, .secondary-button:hover {
+      background: rgba(255, 255, 255, 0.9) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(8, 127, 189, 0.16);
+    }
+
+    /* ==========================================================================
+       5. KALENDER, TABEL & INPUT TRANSPARAN
+       ========================================================================== */
+    #kalender-grid > div {
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+      backdrop-filter: blur(6px);
+    }
+
+    #kalender-grid > div:not(:empty):hover {
+      transform: translateY(-4px) scale(1.08) translateZ(10px);
+      box-shadow: 0 8px 18px rgba(8, 127, 189, 0.25);
+      z-index: 2;
+    }
+
+    #statistik-bulanan-absenku > div {
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      box-shadow: 0 10px 22px -4px rgba(15, 23, 42, 0.08);
+      transition: transform 0.3s ease;
+    }
+
+    #statistik-bulanan-absenku > div:hover {
+      transform: translateY(-5px) scale(1.02);
+    }
+
+    table {
+      background: rgba(255, 255, 255, 0.35);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    table tbody tr {
+      transition: background-color 0.2s ease;
+    }
+
+    table tbody tr:hover {
+      background-color: rgba(255, 255, 255, 0.65);
+    }
+
+    .prof-icon {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .new-page { display: none; }
+    .profile-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 18px; }
+    .profile-photo-box { text-align: center; }
+    .profile-photo-preview {
+      width: 112px; height: 112px; border-radius: 50%; object-fit: cover;
+      background: #e0f2fe; border: 4px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 12px 26px rgba(8, 127, 189, 0.25);
+      display: block; margin: 0 auto 12px;
+      transition: transform 0.35s ease;
+    }
+    .profile-photo-preview:hover { transform: scale(1.06) rotateY(10deg); }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .form-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .form-field label { font-size: 13px; font-weight: 700; color: #0f294a; }
+    .form-field input, .form-field select, .form-field textarea {
+      width: 100%; box-sizing: border-box; padding: 11px;
+      border: 1px solid rgba(255, 255, 255, 0.75); border-radius: 12px; font: inherit;
+      background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(8px); color: #0f172a;
+      transition: all 0.2s;
+    }
+    .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.92);
+      border-color: #087fbd;
+      box-shadow: 0 0 0 3px rgba(8, 127, 189, 0.16);
+    }
+    .form-field textarea { min-height: 90px; resize: vertical; }
+    .form-field.full { grid-column: 1/-1; }
+    .small-note { font-size: 13px; line-height: 1.5; color: #475569; }
+    .status-pill { display: inline-block; border-radius: 999px; padding: 5px 12px; background: rgba(254, 243, 199, 0.85); color: #92400e; font-size: 12px; font-weight: 800; }
+    .page-message { font-size: 14px; margin-top: 12px; line-height: 1.5; }
+
+    /* ==========================================================================
+       6. PEMILIH BAHASA ONLINE (BERSIH TANPA BANNER NOTIFIKASI GOOGLE)
+       ========================================================================== */
+    .goog-te-banner-frame.skiptranslate,
+    .goog-te-gadget-icon,
+    #goog-gt-tt,
+    .goog-te-balloon-frame {
+      display: none !important;
+    }
+    body {
+      top: 0px !important;
+    }
+    .skiptranslate > iframe {
+      display: none !important;
+    }
+
+    @media(max-width: 700px) {
+      .profile-layout, .form-grid { grid-template-columns: 1fr; }
+      .form-field.full { grid-column: auto; }
+      .profile-photo-box, .profile-form-box, .leave-form-box, .about-box { padding: 15px; }
+    }
+
+    @media(prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
   </style>
 </head>
 <body>
-<div id="login-screen" style="max-width:400px;margin:40px auto;padding:24px;border:1px solid #ddd;border-radius:16px;">
-  <div style="text-align:center;padding:15px 0 20px;background:linear-gradient(180deg,#dff7ff,#fff);border-radius:20px;margin-bottom:16px;">
-     <img src="absenku-logo-premium.png" alt="Logo ABSENKU" style="display:block;width:100%;max-width:300px;height:auto;margin:10px auto 18px;">
-    <div style="display:inline-block;background:linear-gradient(135deg,#087fbd,#153b80);color:white;padding:12px 18px;border-radius:18px;font-weight:900;box-shadow:0 8px 20px #087fbd44;">SEMANGAT, SODARA! 🌊</div>
-    <p style="color:#1555a0;font-weight:800;margin:14px 0 0;">⚓ Disiplin hari ini, raih impianmu!</p>
+<!-- Latar Belakang Orbs 3D untuk memperjelas transparansi kaca -->
+<div class="bg-orb-1"></div>
+<div class="bg-orb-2"></div>
+<div class="bg-orb-3"></div>
+
+<!-- Elemen tersembunyi Google Translate Online -->
+<div id="google_translate_element" style="display:none;"></div>
+
+<div id="login-screen" style="max-width:400px;margin:40px auto;padding:24px;border-radius:16px;">
+  <div style="text-align:center;padding:15px 0 20px;background:rgba(255,255,255,0.45);border-radius:20px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.7);">
+    <img src="absenku-logo-premium.png" alt="Logo ABSENKU" style="display:block;width:100%;max-width:300px;height:auto;margin:10px auto 18px;filter:drop-shadow(0 10px 18px rgba(8,127,189,0.22));">
+    <div style="display:inline-block;background:linear-gradient(135deg,#087fbd,#153b80);color:white;padding:12px 18px;border-radius:18px;font-weight:900;box-shadow:0 10px 22px rgba(8,127,189,0.35), inset 0 1px 0 rgba(255,255,255,0.3);">
+      <svg class="prof-icon" style="width:16px;height:16px;margin-right:4px;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> SEMANGAT, SODARA!
+    </div>
+    <p style="color:#0f294a;font-weight:800;margin:14px 0 0;">Disiplin hari ini, raih impianmu!</p>
   </div>
   <p class="login-tagline">Disiplin hari ini, raih impian esok hari!</p>
   <h2>ABSENKU</h2>
@@ -69,353 +515,350 @@
     <input id="login-email" type="email" required placeholder="Masukkan email" autocomplete="username" style="display:block;width:100%;padding:12px;margin:8px 0 16px;box-sizing:border-box;">
     <label for="login-password">Kata sandi</label>
     <input id="login-password" type="password" required placeholder="Masukkan kata sandi" autocomplete="current-password" style="display:block;width:100%;padding:12px;margin:8px 0 16px;box-sizing:border-box;">
-    <button type="submit" style="width:100%;padding:12px;">Masuk</button>
+    <button type="submit" style="width:100%;padding:13px;">Masuk ke Portal</button>
     <p id="login-message" role="status"></p>
   </form>
 </div>
 
 <div class="app-shell" id="app-dashboard" style="display:none;">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-icon">✓</div><div><strong>ABSENKU</strong><small>Employee Attendance</small></div></div>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg class="prof-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div><strong>ABSENKU</strong><small>Absensi Karyawan</small></div>
+    </div>
     <nav id="main-nav" aria-label="Navigasi utama">
-       <a class="active" href="#dashboard" data-page="dashboard"><span>▦</span><span data-i18n="nav_home">Beranda</span></a>
-       <a href="#attendance" data-page="attendance"><span>✓</span><span data-i18n="nav_attendance">Absensi</span></a>
-        
-<a href="#profile" data-page="profile">
-  <span>👤</span>
-  <span data-i18n="nav_profile">Profil</span>
-</a>
-
-       <a href="#leave" data-page="leave"><span>📄</span><span data-i18n="nav_leave">Izin / Sakit / Cuti</span></a>
-       <a href="#chat" data-page="chat"><span>◉</span><span data-i18n="nav_chat">Asisten</span></a>
-       <a href="#history" data-page="history"><span>◷</span><span data-i18n="nav_history">Riwayat</span></a>
-       <a href="#about" data-page="about"><span>ⓘ</span><span data-i18n="nav_about">Tentang Aplikasi</span></a>
+       <a class="active" href="#dashboard" data-page="dashboard">
+         <span><svg class="prof-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+         <span>Beranda</span>
+       </a>
+       <a href="#attendance" data-page="attendance">
+         <span><svg class="prof-icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
+         <span>Absensi</span>
+       </a>
+       <a href="#profile" data-page="profile">
+         <span><svg class="prof-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+         <span>Profil</span>
+       </a>
+       <a href="#leave" data-page="leave">
+         <span><svg class="prof-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
+         <span>Izin / Sakit / Cuti</span>
+       </a>
+       <a href="#chat" data-page="chat">
+         <span><svg class="prof-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+         <span>Asisten</span>
+       </a>
+       <a href="#history" data-page="history">
+         <span><svg class="prof-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+         <span>Riwayat</span>
+       </a>
+       <a href="#about" data-page="about">
+         <span><svg class="prof-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
+         <span>Tentang Aplikasi</span>
+       </a>
        <a href="#profile-approvals" data-page="profile-approvals">
-  <span>🛡️</span>
-  <span>Persetujuan Administrasi</span>
-</a><a href="#employees" data-page="employees">
-  <span>👥</span>
-  <span>Data Karyawan</span>
-</a>
-
-     </nav>
+         <span><svg class="prof-icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+         <span>Persetujuan Administrasi</span>
+       </a>
+       <a href="#employees" data-page="employees">
+         <span><svg class="prof-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+         <span>Data Karyawan</span>
+       </a>
+    </nav>
 
     <div class="sidebar-note"><span class="online-dot"></span> ABSENKU<small>Portal absensi karyawan</small></div>
-    <div class="profile"><div class="avatar">AK</div><div><b>Karyawan</b><small>Profil karyawan</small></div></div>
+    <div class="profile">
+      <div class="avatar">
+        <svg class="prof-icon" style="width:14px;height:14px;" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div><b>Karyawan</b><small>Profil karyawan</small></div>
+    </div>
   </aside>
 
-  
-<section class="panel" id="employees" data-page="employees" style="display:none;padding:20px">
-  <h2>👥 Data Karyawan</h2>
-  <p>Tambah data karyawan perusahaan Anda.</p>
+  <section class="panel" id="employees" data-page="employees" style="display:none;padding:24px">
+    <h2>Data Karyawan</h2>
+    <p class="muted">Tambah data karyawan perusahaan Anda.</p>
 
-  <form id="addEmployeeForm">
-    <label>Nomor Karyawan *</label>
-    <input id="newEmployeeCode" required maxlength="50" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+    <form id="addEmployeeForm">
+      <label>Nomor Karyawan *</label>
+      <input id="newEmployeeCode" required maxlength="50" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
 
-    <label>Nama Lengkap *</label>
-    <input id="newEmployeeName" required maxlength="150" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+      <label>Nama Lengkap *</label>
+      <input id="newEmployeeName" required maxlength="150" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
 
-    <label>Email</label>
-    <input id="newEmployeeEmail" type="email" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+      <label>Email</label>
+      <input id="newEmployeeEmail" type="email" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
 
-    <label>Nomor HP</label>
-    <input id="newEmployeePhone" type="tel" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+      <label>Nomor HP</label>
+      <input id="newEmployeePhone" type="tel" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
 
-    <label>Departemen</label>
-    <input id="newEmployeeDepartment" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+      <label>Departemen</label>
+      <input id="newEmployeeDepartment" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
 
-    <label>Jabatan</label>
-    <input id="newEmployeePosition" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+      <label>Jabatan</label>
+      <input id="newEmployeePosition" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
 
-    <label>Cabang</label>
-    <input id="newEmployeeBranch" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+      <label>Cabang</label>
+      <input id="newEmployeeBranch" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
 
-    <label>Alamat</label>
-    <textarea id="newEmployeeAddress" rows="3" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box"></textarea>
+      <label>Alamat</label>
+      <textarea id="newEmployeeAddress" rows="3" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box"></textarea>
 
-    <button type="submit" class="btn btn-primary">Simpan Karyawan</button>
-    <p id="addEmployeeMessage" role="status"></p>
-  </form>
-<form id="createEmployeeAccountForm">
-  <h3>Buat Akun Login Karyawan</h3>
+      <button type="submit" class="btn btn-primary">Simpan Karyawan</button>
+      <p id="addEmployeeMessage" role="status"></p>
+    </form>
+    
+    <form id="createEmployeeAccountForm" style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.5);">
+      <h3>Buat Akun Login Karyawan</h3>
+      <label>ID Karyawan *</label>
+      <input id="accountEmployeeId" required placeholder="Masukkan ID karyawan dari database" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+      <label>Email Karyawan *</label>
+      <input id="accountEmployeeEmail" type="email" required style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+      <label>Kata Sandi Sementara *</label>
+      <input id="accountEmployeePassword" type="password" required minlength="8" autocomplete="new-password" placeholder="Minimal 8 karakter" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
+      <button type="submit" class="btn btn-primary">Buat Akun Login</button>
+      <p id="createEmployeeAccountMessage" role="status"></p>
+    </form>
+  </section>
 
-  <label>ID Karyawan *</label>
-  <input id="accountEmployeeId" required
-    placeholder="Masukkan ID karyawan dari database"
-    style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
-
-  <label>Email Karyawan *</label>
-  <input id="accountEmployeeEmail" type="email" required
-    style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
-
-  <label>Kata Sandi Sementara *</label>
-  <input id="accountEmployeePassword" type="password" required minlength="8"
-    autocomplete="new-password"
-    placeholder="Minimal 8 karakter"
-    style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
-
-  <button type="submit" class="btn btn-primary">Buat Akun Login</button>
-  <p id="createEmployeeAccountMessage" role="status"></p>
-</form>
-
-</section>
-<main class="main" id="dashboard">
+  <main class="main" id="dashboard">
     <header class="topbar" id="home-header">
       <div><p class="eyebrow">PORTAL KARYAWAN</p><h1>Beranda ABSENKU</h1><p class="muted">Pantau kehadiran dan riwayat absensi kamu.</p></div>
       <div class="date-chip" id="todayLabel">Hari ini</div>
     </header>
 
     <section class="stats" id="home-stats">
-      <article class="stat-card"><div class="stat-symbol green">✓</div><div><span>Status hari ini</span><strong id="statusValue">Belum absen</strong><small id="statusSub">Silakan check-in</small></div></article>
-      <article class="stat-card"><div class="stat-symbol blue">↗</div><div><span>Jam masuk</span><strong id="checkInValue">—</strong><small>Waktu check-in</small></div></article>
-      <article class="stat-card"><div class="stat-symbol purple">↙</div><div><span>Jam pulang</span><strong id="checkOutValue">—</strong><small>Waktu check-out</small></div></article>
+      <article class="stat-card" data-tilt>
+        <div class="stat-symbol green"><svg class="prof-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><span>Status hari ini</span><strong id="statusValue">Belum absen</strong><small id="statusSub">Silakan check-in</small></div>
+      </article>
+      <article class="stat-card" data-tilt>
+        <div class="stat-symbol blue"><svg class="prof-icon" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+        <div><span>Jam masuk</span><strong id="checkInValue">—</strong><small>Waktu check-in</small></div>
+      </article>
+      <article class="stat-card" data-tilt>
+        <div class="stat-symbol purple"><svg class="prof-icon" viewBox="0 0 24 24"><line x1="17" y1="7" x2="7" y2="17"/><polyline points="17 17 7 17 7 7"/></svg></div>
+        <div><span>Jam pulang</span><strong id="checkOutValue">—</strong><small>Waktu check-out</small></div>
+      </article>
     </section>
 
     <div class="content-grid" id="main-content-grid">
-     
-<section class="panel" id="motivasi-absenku" style="margin-bottom:18px;padding:20px;border-radius:18px;background:linear-gradient(135deg,#087fbd,#123d70);color:white;box-shadow:0 8px 24px rgba(8,127,189,.25)">
-  <div style="font-size:28px">⚓ 🌊</div>
-  <h2 style="margin:8px 0;color:white">Semangat,ki sodara!</h2>
-  <p id="teks-motivasi-absenku" style="margin:0 0 14px;line-height:1.6">Disiplin hari ini, sukses di masa depan!</p>
-  <button type="button" onclick="if(window.ABSENKU_FITUR_RINGAN){document.getElementById('teks-motivasi-absenku').textContent=window.ABSENKU_FITUR_RINGAN.ambilMotivasi()}" style="padding:10px 15px;border:0;border-radius:10px;background:white;color:#123d70;font-weight:bold;cursor:pointer">✨ Motivasi Lain</button>
-</section>
-
-      <section class="panel attendance-panel" id="attendance">
-        <div class="panel-heading"><div><h2>Absensi Hari Ini</h2><p class="muted">Catat kehadiran melalui sistem absensi.</p></div><span class="pill">ABSENKU</span></div>
-        <div class="clock" id="clock">00:00:00</div><div class="clock-date" id="clockDate"></div>
-        <div class="action-row"><button id="checkInBtn" class="btn btn-primary" type="button">✓ Check-in</button><button id="checkOutBtn" class="btn btn-dark" type="button">↗ Check-out</button></div>
-        <p class="helper" id="actionMessage" role="status">Silakan check-in untuk memulai absensi.</p>
-        <div class="notice">ⓘ <span>Pastikan akun dan lokasi kerja telah dikonfigurasi oleh admin. Status koneksi server ditangani oleh aplikasi.</span></div>
+      <section class="panel" id="motivasi-absenku" data-tilt style="margin-bottom:18px;padding:22px;color:white;">
+        <div style="display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,0.18);backdrop-filter:blur(6px);margin-bottom:8px;">
+          <svg class="prof-icon" style="width:24px;height:24px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <h2 style="margin:6px 0;color:white">Semangat, ki sodara!</h2>
+        <p id="teks-motivasi-absenku" style="margin:0 0 16px;line-height:1.6;opacity:0.95;">Disiplin hari ini, sukses di masa depan!</p>
+        <button type="button" onclick="if(window.ABSENKU_FITUR_RINGAN){document.getElementById('teks-motivasi-absenku').textContent=window.ABSENKU_FITUR_RINGAN.ambilMotivasi()}" style="padding:10px 16px;border:0;border-radius:12px;background:rgba(255,255,255,0.92);color:#123d70;font-weight:800;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,0.18);">
+          <svg class="prof-icon" style="width:15px;height:15px;margin-right:4px;" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg> Motivasi Lain
+        </button>
       </section>
 
-       <section class="panel chat-panel" id="chat">
+      <section class="panel attendance-panel" id="attendance" data-tilt>
+        <div class="panel-heading">
+          <div><h2>Absensi Hari Ini</h2><p class="muted">Catat kehadiran melalui sistem absensi.</p></div>
+          <span class="pill">ABSENKU</span>
+        </div>
+        <div class="clock" id="clock">00:00:00</div>
+        <div class="clock-date" id="clockDate"></div>
+        <div class="action-row">
+          <button id="checkInBtn" class="btn btn-primary" type="button">
+            <svg class="prof-icon" style="margin-right:6px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Check-in
+          </button>
+          <button id="checkOutBtn" class="btn btn-dark" type="button">
+            <svg class="prof-icon" style="margin-right:6px;" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg> Check-out
+          </button>
+        </div>
+        <p class="helper" id="actionMessage" role="status">Silakan check-in untuk memulai absensi.</p>
+        <div class="notice" style="background:rgba(255,255,255,0.5);border-radius:14px;padding:12px;">
+          <svg class="prof-icon" style="width:16px;height:16px;flex-shrink:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>Pastikan akun dan lokasi kerja telah dikonfigurasi oleh admin. Status koneksi server ditangani oleh aplikasi.</span>
+        </div>
+      </section>
+
+      <section class="panel chat-panel" id="chat">
         <div class="panel-heading"><div><h2>Asisten ABSENKU</h2><p class="muted">Tanyakan informasi seputar absensi.</p></div><span class="bot-badge">AI</span></div>
-        <div class="chat-window" id="chatWindow" aria-live="polite"><div class="message bot-message"><div class="mini-avatar">✓</div><div class="bubble"><b>Asisten ABSENKU</b><p>Halo! Ketik <em>bantuan</em>, <em>status</em>, <em>riwayat</em>, atau <em>jam kerja</em>.</p></div></div></div>
-        <form id="chatForm" class="chat-input"><input id="chatInput" autocomplete="off" placeholder="Tulis pesan..." aria-label="Pesan untuk chatbot" required><button aria-label="Kirim pesan" type="submit">➤</button></form>
+        <div class="chat-window" id="chatWindow" aria-live="polite" style="background:rgba(255,255,255,0.35);border-radius:16px;">
+          <div class="message bot-message">
+            <div class="mini-avatar"><svg class="prof-icon" style="width:12px;height:12px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="bubble"><b>Asisten ABSENKU</b><p>Halo! Ketik <em>bantuan</em>, <em>status</em>, <em>riwayat</em>, atau <em>jam kerja</em>.</p></div>
+          </div>
+        </div>
+        <form id="chatForm" class="chat-input">
+          <input id="chatInput" autocomplete="off" placeholder="Tulis pesan..." aria-label="Pesan untuk chatbot" required>
+          <button aria-label="Kirim pesan" type="submit">
+            <svg class="prof-icon" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </form>
         <div class="quick-actions"><button type="button" data-message="status">Status</button><button type="button" data-message="riwayat">Riwayat</button><button type="button" data-message="bantuan">Bantuan</button></div>
       </section>
     </div>
 
-   
-    
-<section class="panel" id="kalender-absenku" style="margin-bottom:18px;padding:18px;border-radius:16px">
-  <div class="panel-heading">
-    <div>
-      <h2>📅 Kalender Absensi</h2>
-      <p class="muted">Periksa tanggal dan hari dalam sebulan.</p>
-    </div>
-  </div>
+    <section class="panel" id="kalender-absenku" style="margin-bottom:18px;padding:20px;">
+      <div class="panel-heading">
+        <div>
+          <h2>Kalender Absensi</h2>
+          <p class="muted">Periksa tanggal dan hari dalam sebulan.</p>
+        </div>
+      </div>
 
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px">
-    <button type="button" id="kalender-sebelum" class="text-button">◀ Sebelumnya</button>
-    <strong id="kalender-bulan" style="text-align:center"></strong>
-    <button type="button" id="kalender-sesudah" class="text-button">Berikutnya ▶</button>
-  </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px">
+        <button type="button" id="kalender-sebelum" class="text-button">◀ Sebelumnya</button>
+        <strong id="kalender-bulan" style="text-align:center;font-size:16px;color:#0f294a;"></strong>
+        <button type="button" id="kalender-sesudah" class="text-button">Berikutnya ▶</button>
+      </div>
 
-  <div id="kalender-grid" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;text-align:center"></div>
-  <p class="small-note" style="margin-top:12px">Kalender ini menampilkan tanggal. Penanda kehadiran akan kita hubungkan ke data absensi pada langkah berikutnya.</p>
-</section>
-
-    <section class="panel history-panel" id="history">
-     <div class="panel-heading"><div><h2>Riwayat Absensi</h2><p class="muted">Daftar catatan kehadiran.</p></div><button id="clearBtn" class="text-button" type="button">Reset data demo</button></div>
-     
- 
-<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0">
-  <label for="filter-bulan-absenku">Filter bulan:</label>
-  <input id="filter-bulan-absenku" type="month"
-    style="padding:9px;border:1px solid #cbd5e1;border-radius:9px;max-width:100%">
-
-  <button id="reset-filter-absenku" type="button" class="text-button">
-    Tampilkan semua
-  </button>
-
-  <button id="ekspor-csv-absenku" type="button" class="text-button">
-    📥 Ekspor CSV
-  </button>
-
-   
-<button id="cetak-laporan-absenku" type="button"
-  class="text-button"
-   onclick="window.top.print()"
-  style="color:#123d70;background:#ffffff;border:1px solid #cbd5e1;padding:10px 14px;border-radius:10px">
-  🖨️ Cetak / Simpan PDF
-</button>
-
-
-<div id="statistik-bulanan-absenku"
-  style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:16px 0">
-
-  <div style="padding:16px;border-radius:14px;background:#e0f2fe;color:#075985">
-    <div style="font-size:13px">Hari tercatat</div>
-    <strong id="stat-total-absenku" style="font-size:26px">0</strong>
-  </div>
-
-  <div style="padding:16px;border-radius:14px;background:#dcfce7;color:#166534">
-    <div style="font-size:13px">Absensi lengkap</div>
-    <strong id="stat-lengkap-absenku" style="font-size:26px">0</strong>
-  </div>
-
-  <div style="padding:16px;border-radius:14px;background:#fef3c7;color:#92400e">
-    <div style="font-size:13px">Belum check-out</div>
-    <strong id="stat-belum-pulang-absenku" style="font-size:26px">0</strong>
-  </div>
-</div>
-
-     <div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Check-in</th><th>Check-out</th><th>Status</th></tr></thead><tbody id="historyBody"><tr><td colspan="4" class="empty">Belum ada data absensi.</td></tr></tbody></table></div>
+      <div id="kalender-grid" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;text-align:center"></div>
+      <p class="small-note" style="margin-top:12px">Kalender ini menampilkan tanggal. Penanda kehadiran akan kita hubungkan ke data absensi pada langkah berikutnya.</p>
     </section>
 
-    <!-- Halaman profil: formulir ini belum menyimpan perubahan ke database -->
+    <section class="panel history-panel" id="history">
+      <div class="panel-heading">
+        <div><h2>Riwayat Absensi</h2><p class="muted">Daftar catatan kehadiran.</p></div>
+        <button id="clearBtn" class="text-button" type="button">Reset data demo</button>
+      </div>
      
-<section class="panel new-page" id="profile">
-  <div class="panel-heading">
-    <div>
-      <h2>👤 Profil Karyawan</h2>
-      <p class="muted">Informasi pribadi dan data pekerjaan karyawan.</p>
-    </div>
-    <span class="status-pill">Data karyawan</span>
-  </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0">
+        <label for="filter-bulan-absenku">Filter bulan:</label>
+        <input id="filter-bulan-absenku" type="month" style="padding:9px;border:1px solid rgba(255,255,255,0.8);background:rgba(255,255,255,0.65);border-radius:10px;max-width:100%">
 
-  <div class="profile-layout">
-    <div class="profile-photo-box">
-      <img
-        id="profilePhotoPreview"
-        class="profile-photo-preview"
-        alt="Foto profil"
-        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='60' fill='%23dbeafe'/%3E%3Ccircle cx='60' cy='43' r='22' fill='%2393c5fd'/%3E%3Cpath d='M18 112c4-25 20-38 42-38s38 13 42 38' fill='%2393c5fd'/%3E%3C/svg%3E"
-      >
-
-      <label class="form-field">
-        <span>Foto profil</span>
-        <input id="profilePhotoInput" type="file" accept="image/*">
-      </label>
-
-      <p class="small-note">
-        Foto saat ini hanya pratinjau di perangkat ini.
-        Penyimpanan foto memerlukan fitur unggah.
-      </p>
-    </div>
-
-    <div class="profile-form-box">
-      <form id="profileChangeForm">
-        <h3>Data Identitas</h3>
-
-        <div class="form-grid">
-          <div class="form-field">
-            <label for="profileFullName">Nama lengkap</label>
-            <input id="profileFullName" name="full_name"
-              autocomplete="name"
-              placeholder="Nama sesuai data perusahaan" required>
-          </div>
-
-          <div class="form-field">
-            <label for="profileEmployeeId">ID / NIP karyawan</label>
-            <input id="profileEmployeeId" name="employee_code"
-              placeholder="ID karyawan" readonly>
-          </div>
-
-          <div class="form-field">
-            <label for="profileGender">Jenis kelamin</label>
-            <select id="profileGender" name="gender">
-              <option value="">Pilih jenis kelamin</option>
-              <option value="Laki-laki">Laki-laki</option>
-              <option value="Perempuan">Perempuan</option>
-            </select>
-          </div>
-
-          <div class="form-field">
-            <label for="profileBirthPlace">Tempat lahir</label>
-            <input id="profileBirthPlace" name="birth_place"
-              placeholder="Kota tempat lahir">
-          </div>
-
-          <div class="form-field">
-            <label for="profileBirthDate">Tanggal lahir</label>
-            <input id="profileBirthDate" name="birth_date" type="date">
-          </div>
-
-          <div class="form-field full">
-            <label for="profileAddress">Alamat lengkap</label>
-            <textarea id="profileAddress" name="address"
-              autocomplete="street-address"
-              placeholder="Jalan, kelurahan, kecamatan, kota"></textarea>
-          </div>
-        </div>
-
-        <h3>Informasi Kontak</h3>
-
-        <div class="form-grid">
-          <div class="form-field">
-            <label for="profilePhone">Nomor HP / WhatsApp</label>
-            <input id="profilePhone" name="phone" type="tel"
-              autocomplete="tel" placeholder="08xxxxxxxxxx">
-          </div>
-
-          <div class="form-field">
-            <label for="profileEmail">Email</label>
-            <input id="profileEmail" name="email" type="email"
-              autocomplete="email" placeholder="email@contoh.com">
-          </div>
-        </div>
-
-        <h3>Informasi Pekerjaan</h3>
-
-        <div class="form-grid">
-          <div class="form-field">
-            <label for="profileDepartment">Departemen / Bagian</label>
-            <input id="profileDepartment" name="department"
-              placeholder="Contoh: Administrasi">
-          </div>
-
-          <div class="form-field">
-            <label for="profilePosition">Jabatan</label>
-            <input id="profilePosition" name="position"
-              placeholder="Contoh: Staf Administrasi">
-          </div>
-
-          <div class="form-field">
-            <label for="profileStartDate">Tanggal mulai bekerja</label>
-            <input id="profileStartDate" name="start_date" type="date">
-          </div>
-
-          <div class="form-field">
-            <label for="profileEmploymentStatus">Status kepegawaian</label>
-            <select id="profileEmploymentStatus" name="employment_status">
-              <option value="">Pilih status</option>
-              <option value="Tetap">Karyawan Tetap</option>
-              <option value="Kontrak">Karyawan Kontrak</option>
-              <option value="Percobaan">Masa Percobaan</option>
-              <option value="Magang">Magang</option>
-              <option value="Paruh Waktu">Paruh Waktu</option>
-            </select>
-          </div>
-
-          <div class="form-field full">
-            <label for="profileSupervisor">Nama atasan langsung</label>
-            <input id="profileSupervisor" name="supervisor"
-              placeholder="Nama atasan atau supervisor">
-          </div>
-        </div>
-
-        <p class="small-note">
-          ID/NIP tidak dapat diubah melalui formulir ini.
-          Perubahan data perlu diperiksa oleh Admin/HRD.
-        </p>
-
-        <button class="primary-button" type="submit">
-          Ajukan Perubahan Profil
+        <button id="reset-filter-absenku" type="button" class="text-button">Tampilkan semua</button>
+        <button id="ekspor-csv-absenku" type="button" class="text-button">
+          <svg class="prof-icon" style="width:14px;height:14px;margin-right:4px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Ekspor CSV
         </button>
+        <button id="cetak-laporan-absenku" type="button" class="text-button" style="color:#123d70;padding:10px 14px;">
+          <svg class="prof-icon" style="width:14px;height:14px;margin-right:4px;" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Cetak / Simpan PDF
+        </button>
+      </div>
 
-        <p class="page-message" id="profileChangeMessage" role="status"></p>
-      </form>
-    </div>
-  </div>
-</section>
+      <div id="statistik-bulanan-absenku" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:16px 0">
+        <div style="padding:16px;border-radius:16px;background:rgba(224, 242, 254, 0.72);color:#075985">
+          <div style="font-size:13px;font-weight:600;">Hari tercatat</div>
+          <strong id="stat-total-absenku" style="font-size:28px">0</strong>
+        </div>
+        <div style="padding:16px;border-radius:16px;background:rgba(220, 252, 231, 0.72);color:#166534">
+          <div style="font-size:13px;font-weight:600;">Absensi lengkap</div>
+          <strong id="stat-lengkap-absenku" style="font-size:28px">0</strong>
+        </div>
+        <div style="padding:16px;border-radius:16px;background:rgba(254, 243, 199, 0.72);color:#92400e">
+          <div style="font-size:13px;font-weight:600;">Belum check-out</div>
+          <strong id="stat-belum-pulang-absenku" style="font-size:28px">0</strong>
+        </div>
+      </div>
 
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tanggal</th><th>Check-in</th><th>Check-out</th><th>Status</th></tr></thead>
+          <tbody id="historyBody"><tr><td colspan="4" class="empty">Belum ada data absensi.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
 
-    <!-- Pengajuan belum dikirim ke server sampai app.js dan Supabase disambungkan -->
+    <section class="panel new-page" id="profile">
+      <div class="panel-heading">
+        <div>
+          <h2>Profil Karyawan</h2>
+          <p class="muted">Informasi pribadi dan data pekerjaan karyawan.</p>
+        </div>
+        <span class="status-pill">Data karyawan</span>
+      </div>
+
+      <div class="profile-layout">
+        <div class="profile-photo-box">
+          <img id="profilePhotoPreview" class="profile-photo-preview" alt="Foto profil" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='60' fill='%23dbeafe'/%3E%3Ccircle cx='60' cy='43' r='22' fill='%2393c5fd'/%3E%3Cpath d='M18 112c4-25 20-38 42-38s38 13 42 38' fill='%2393c5fd'/%3E%3C/svg%3E">
+          <label class="form-field">
+            <span>Foto profil</span>
+            <input id="profilePhotoInput" type="file" accept="image/*">
+          </label>
+          <p class="small-note">Foto saat ini hanya pratinjau di perangkat ini.</p>
+        </div>
+
+        <div class="profile-form-box">
+          <form id="profileChangeForm">
+            <h3>Data Identitas</h3>
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="profileFullName">Nama lengkap</label>
+                <input id="profileFullName" name="full_name" placeholder="Nama sesuai data perusahaan" required>
+              </div>
+              <div class="form-field">
+                <label for="profileEmployeeId">ID / NIP karyawan</label>
+                <input id="profileEmployeeId" name="employee_code" placeholder="ID karyawan" readonly>
+              </div>
+              <div class="form-field">
+                <label for="profileGender">Jenis kelamin</label>
+                <select id="profileGender" name="gender">
+                  <option value="">Pilih jenis kelamin</option>
+                  <option value="Laki-laki">Laki-laki</option>
+                  <option value="Perempuan">Perempuan</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="profileBirthPlace">Tempat lahir</label>
+                <input id="profileBirthPlace" name="birth_place" placeholder="Kota tempat lahir">
+              </div>
+              <div class="form-field">
+                <label for="profileBirthDate">Tanggal lahir</label>
+                <input id="profileBirthDate" name="birth_date" type="date">
+              </div>
+              <div class="form-field full">
+                <label for="profileAddress">Alamat lengkap</label>
+                <textarea id="profileAddress" name="address" placeholder="Jalan, kelurahan, kecamatan, kota"></textarea>
+              </div>
+            </div>
+
+            <h3>Informasi Kontak</h3>
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="profilePhone">Nomor HP / WhatsApp</label>
+                <input id="profilePhone" name="phone" type="tel" placeholder="08xxxxxxxxxx">
+              </div>
+              <div class="form-field">
+                <label for="profileEmail">Email</label>
+                <input id="profileEmail" name="email" type="email" placeholder="email@contoh.com">
+              </div>
+            </div>
+
+            <h3>Informasi Pekerjaan</h3>
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="profileDepartment">Departemen / Bagian</label>
+                <input id="profileDepartment" name="department" placeholder="Contoh: Administrasi">
+              </div>
+              <div class="form-field">
+                <label for="profilePosition">Jabatan</label>
+                <input id="profilePosition" name="position" placeholder="Contoh: Staf Administrasi">
+              </div>
+              <div class="form-field">
+                <label for="profileStartDate">Tanggal mulai bekerja</label>
+                <input id="profileStartDate" name="start_date" type="date">
+              </div>
+              <div class="form-field">
+                <label for="profileEmploymentStatus">Status kepegawaian</label>
+                <select id="profileEmploymentStatus" name="employment_status">
+                  <option value="">Pilih status</option>
+                  <option value="Tetap">Karyawan Tetap</option>
+                  <option value="Kontrak">Karyawan Kontrak</option>
+                  <option value="Percobaan">Masa Percobaan</option>
+                  <option value="Magang">Magang</option>
+                </select>
+              </div>
+              <div class="form-field full">
+                <label for="profileSupervisor">Nama atasan langsung</label>
+                <input id="profileSupervisor" name="supervisor" placeholder="Nama atasan atau supervisor">
+              </div>
+            </div>
+
+            <button class="primary-button" type="submit" style="margin-top:16px;">Ajukan Perubahan Profil</button>
+            <p class="page-message" id="profileChangeMessage" role="status"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+
     <section class="panel new-page" id="leave">
-      <div class="panel-heading"><div><h2>📄 Pengajuan Izin, Sakit, dan Cuti</h2><p class="muted">Isi data dengan benar dan sertakan bukti pendukung.</p></div></div>
+      <div class="panel-heading"><div><h2>Pengajuan Izin, Sakit, dan Cuti</h2><p class="muted">Isi data dengan benar dan sertakan bukti pendukung.</p></div></div>
       <div class="leave-form-box">
         <form id="leaveRequestForm">
           <div class="form-grid">
@@ -426,8 +869,7 @@
             <div class="form-field full"><label for="leaveReason">Alasan / keterangan</label><textarea id="leaveReason" name="reason" required placeholder="Jelaskan alasan pengajuan"></textarea></div>
             <div class="form-field full"><label for="leaveEvidence">Lampiran bukti</label><input id="leaveEvidence" name="evidence" type="file" accept=".pdf,.jpg,.jpeg,.png" required><span class="small-note" id="leaveEvidenceHint">Sakit: surat keterangan sakit. Izin/cuti: dokumen atau bukti pendukung yang dapat diverifikasi.</span></div>
           </div>
-          <p class="small-note">Pengajuan berstatus menunggu sampai diperiksa Admin/HRD. Memilih file di sini belum mengunggahnya ke server.</p>
-          <button class="primary-button" type="submit">Kirim Pengajuan</button>
+          <button class="primary-button" type="submit" style="margin-top:14px;">Kirim Pengajuan</button>
           <p class="page-message" id="leaveRequestMessage" role="status"></p>
         </form>
       </div>
@@ -438,52 +880,50 @@
     </section>
 
     <section class="panel new-page" id="about">
-      <div class="panel-heading"><div><h2>ⓘ Tentang ABSENKU</h2><p class="muted">Informasi aplikasi</p></div></div>
+      <div class="panel-heading"><div><h2>Tentang ABSENKU</h2><p class="muted">Informasi aplikasi</p></div></div>
       <div class="about-box">
         <h3>ABSENKU — Sistem Absensi Karyawan</h3>
         <p>ABSENKU membantu karyawan mencatat kehadiran dan melihat riwayat absensi serta menyiapkan pengajuan izin, sakit, dan cuti.</p>
         <p><strong>Developer:</strong> MR.Y OFFICIAL</p>
         <p><strong>Versi:</strong> 1.0</p>
-        <p class="small-note">Persetujuan, penyimpanan lampiran, pembaruan profil, dan penentuan Alpa harus diproses melalui server dengan pemeriksaan hak akses Admin/HRD.</p>
       </div>
     </section>
    
     <section class="panel new-page" id="profile-approvals">
       <div class="panel-heading">
         <div>
-          <h2>🛡️ P3DAK </h2>
+          <h2>Persetujuan Administrasi</h2>
           <p class="muted">Periksa pengajuan perubahan data administrasi karyawan.</p>
         </div>
       </div>
-
       <div class="about-box">
-        <p id="profileApprovalsMessage">
-          Halaman persetujuan profil siap dibuka.
-        </p>
-        <div id="profileApprovalsList">
-          <p class="muted">
-            Pengajuan akan ditampilkan setelah halaman dihubungkan ke Supabase.
-          </p>
-        </div>
+        <p id="profileApprovalsMessage">Halaman persetujuan profil siap dibuka.</p>
+        <div id="profileApprovalsList"><p class="muted">Pengajuan akan ditampilkan setelah halaman dihubungkan ke Supabase.</p></div>
       </div>
     </section>
-
 
     <footer>ABSENKU · Sistem Absensi Karyawan<br>Developer: MR.Y OFFICIAL</footer>
   </main>
 </div>
 
-<!-- Bahasa -->
-<div id="absenku-language-box" style="margin:20px auto;padding:16px;max-width:500px;background:linear-gradient(135deg,#e0f7ff,#fff);border:1px solid #bae6fd;border-radius:18px;box-shadow:0 8px 25px rgba(8,127,189,.15);font-family:Arial,sans-serif;color:#123d70;">
-  <div style="font-size:22px;font-weight:800;margin-bottom:8px;">🌐 Bahasa / Language</div>
-  <label for="absenku-language" style="display:block;margin-bottom:8px;">Pilih bahasa aplikasi:</label>
-  <select id="absenku-language" style="width:100%;padding:12px;border:1px solid #7dd3fc;border-radius:10px;background:white;font-size:16px;">
-    <option value="id">🇮🇩 Bahasa Indonesia</option><option value="en">🇬🇧 English</option><option value="ms">🇲🇾 Bahasa Melayu</option><option value="zh">🇨🇳 中文（简体）— Mandarin</option>
+<!-- Pemilih Bahasa Online Otomatis Tanpa Notifikasi -->
+<div id="absenku-language-box" style="margin:20px auto;padding:18px;max-width:500px;background:rgba(255,255,255,0.45);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.7);border-radius:20px;box-shadow:0 12px 30px rgba(8,127,189,0.14);font-family:Arial,sans-serif;color:#0f294a;">
+  <div style="font-size:16px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+    <svg class="prof-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    Bahasa Aplikasi
+  </div>
+  <select id="absenku-language" aria-label="Pilih bahasa aplikasi" style="width:100%;padding:12px;border:1px solid rgba(255,255,255,0.8);border-radius:12px;background:rgba(255,255,255,0.75);font-size:15px;font-weight:600;color:#0f294a;cursor:pointer;">
+    <option value="id" selected>Bahasa Indonesia (Utama)</option>
+    <option value="en">English</option>
+    <option value="ms">Bahasa Melayu</option>
+    <option value="zh-CN">中文（简体）— Mandarin</option>
+    <option value="ja">日本語 — Jepang</option>
+    <option value="ko">한국어 — Korea</option>
+    <option value="ar">العربية — Arab</option>
   </select>
-  <p id="absenku-language-message" style="margin:12px 0 0;font-size:14px;">Pilihan bahasa tersimpan di perangkat ini.</p>
 </div>
 
-<!-- Supabase dan logika aplikasi asli tetap dipertahankan -->
+<!-- Supabase & Skrip Aplikasi -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <script>
@@ -498,50 +938,89 @@
 <script src="fitur-ringan.js"></script>
 <script src="live-chat.js"></script>
 
- 
+<!-- Efek 3D Tilt Interaktif saat Kursor Bergerak di Atas Kartu -->
 <script>
 (function () {
-  const selector = document.getElementById("absenku-language");
-  const message = document.getElementById("absenku-language-message");
-
-  if (!selector || !message) return;
-
-  const texts = {
-    id: "Pilihan bahasa tersimpan di perangkat ini.",
-    en: "Your language preference is saved on this device.",
-    ms: "Pilihan bahasa anda disimpan pada peranti ini.",
-    zh: "语言偏好已保存在此设备上。"
-  };
-
-  try {
-    const saved = localStorage.getItem("absenku-language");
-    if (saved && texts[saved]) {
-      selector.value = saved;
-    }
-  } catch (e) {}
-
-  message.textContent =
-    texts[selector.value] || texts.id;
-
-  selector.addEventListener("change", function () {
-    try {
-      localStorage.setItem("absenku-language", selector.value);
-    } catch (e) {}
-
-    message.textContent =
-      texts[selector.value] || texts.id;
-
-    if (typeof translateMenu === "function") {
-      translateMenu();
-    }
-
-    window.dispatchEvent(
-      new Event("absenku-language-changed")
-    );
+  const cards = document.querySelectorAll('[data-tilt]');
+  cards.forEach(function (card) {
+    card.addEventListener('mousemove', function (e) {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = ((y - centerY) / centerY) * -7;
+      const rotateY = ((x - centerX) / centerX) * 7;
+      card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
+    });
+    card.addEventListener('mouseleave', function () {
+      card.style.transform = '';
+    });
   });
 })();
 </script>
 
+<!-- Sistem Terjemahan Online Otomatis & Senyap (Bahasa Utama: Indonesia) -->
+<script>
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'id',
+    includedLanguages: 'id,en,ms,zh-CN,ja,ko,ar',
+    autoDisplay: false
+  }, 'google_translate_element');
+}
+
+(function () {
+  const selector = document.getElementById("absenku-language");
+  if (!selector) return;
+
+  function setGoogTransCookie(lang) {
+    const cookieVal = lang === 'id' ? '' : '/id/' + lang;
+    document.cookie = "googtrans=" + cookieVal + "; path=/";
+    document.cookie = "googtrans=" + cookieVal + "; path=/; domain=" + location.hostname;
+  }
+
+  function applyOnlineLanguage(lang) {
+    try { localStorage.setItem("absenku-language", lang); } catch (e) {}
+    setGoogTransCookie(lang);
+
+    const googleCombo = document.querySelector(".goog-te-combo");
+    if (googleCombo) {
+      if (lang === "id") {
+        // Kembali ke bahasa asli (Indonesia) tanpa notifikasi
+        googleCombo.value = "";
+        googleCombo.dispatchEvent(new Event("change"));
+        setTimeout(function () {
+          if (document.documentElement.classList.contains("translated-ltr") || document.documentElement.classList.contains("translated-rtl")) {
+            location.reload();
+          }
+        }, 150);
+      } else {
+        googleCombo.value = lang;
+        googleCombo.dispatchEvent(new Event("change"));
+      }
+    } else if (lang !== "id") {
+      location.reload();
+    }
+  }
+
+  // Muat preferensi bahasa tersimpan (Default: Bahasa Indonesia)
+  try {
+    const saved = localStorage.getItem("absenku-language") || "id";
+    selector.value = saved;
+    if (saved !== "id") {
+      setGoogTransCookie(saved);
+    }
+  } catch (e) {}
+
+  selector.addEventListener("change", function () {
+    applyOnlineLanguage(selector.value);
+  });
+})();
+</script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<!-- Navigasi Halaman -->
 <script>
 (function(){
   const nav=document.getElementById("main-nav");
@@ -556,25 +1035,24 @@
   const profile=document.getElementById("profile");
   const leave=document.getElementById("leave");
   const about=document.getElementById("about");
- const approvals=document.getElementById("profile-approvals");
+  const approvals=document.getElementById("profile-approvals");
+  const employees=document.getElementById("employees");
 
   function showPage(page){
     const isHome=page==="dashboard";
-   const kalender=document.getElementById("kalender-absenku");
-if(kalender) kalender.style.display=isHome?"":"none";
+    const kalender=document.getElementById("kalender-absenku");
+    if(kalender) kalender.style.display=isHome?"":"none";
     header.style.display=isHome?"":"none";
     stats.style.display=isHome?"":"none";
     attendance.style.display=page==="attendance"?"":"none";
     chat.style.display=page==="chat"?"":"none";
     history.style.display=page==="history"?"":"none";
-    profile.style.display=page==="profile"?"block":"";
-    leave.style.display=page==="leave"?"block":"";
-    about.style.display=page==="about"?"block":"";
-   approvals.style.display=page==="profile-approvals"?"block":"";
-   const employees = document.getElementById("employees");
-if (employees) {
-  employees.style.display = page === "employees" ? "block" : "none";
-}
+    profile.style.display=page==="profile"?"block":"none";
+    leave.style.display=page==="leave"?"block":"none";
+    about.style.display=page==="about"?"block":"none";
+    approvals.style.display=page==="profile-approvals"?"block":"none";
+    if (employees) employees.style.display = page === "employees" ? "block" : "none";
+    
     grid.style.display=(page==="attendance"||page==="chat")?"grid":"none";
     grid.style.gridTemplateColumns=(page==="attendance"||page==="chat")?"minmax(0, 1fr)":"";
     nav.querySelectorAll("[data-page]").forEach(function(link){
@@ -590,611 +1068,5 @@ if (employees) {
   showPage("dashboard");
 })();
 </script>
-
-<script>
-(function(){
-  const photoInput=document.getElementById("profilePhotoInput");
-  const photoPreview=document.getElementById("profilePhotoPreview");
-  const profileForm=document.getElementById("profileChangeForm");
-  const profileMessage=document.getElementById("profileChangeMessage");
-  const leaveForm=document.getElementById("leaveRequestForm");
-  const leaveType=document.getElementById("leaveType");
-  const evidenceHint=document.getElementById("leaveEvidenceHint");
-  const leaveMessage=document.getElementById("leaveRequestMessage");
-
-  if(photoInput&&photoPreview){
-    photoInput.addEventListener("change",function(){
-      const file=photoInput.files&&photoInput.files[0];
-      if(!file)return;
-      if(!file.type.startsWith("image/")){alert("Pilih file gambar yang valid.");photoInput.value="";return;}
-      if(file.size>5*1024*1024){alert("Ukuran foto maksimal 5 MB.");photoInput.value="";return;}
-      const reader=new FileReader();
-      reader.onload=function(){photoPreview.src=reader.result;};
-      reader.readAsDataURL(file);
-    });
-  }
-  if(leaveType&&evidenceHint){
-    leaveType.addEventListener("change",function(){
-      if(leaveType.value==="sakit")evidenceHint.textContent="Wajib lampirkan surat keterangan sakit dari fasilitas kesehatan.";
-      else if(leaveType.value==="izin")evidenceHint.textContent="Wajib lampirkan bukti yang relevan dan dapat diverifikasi untuk kepentingan izin.";
-      else if(leaveType.value==="cuti")evidenceHint.textContent="Lampirkan dokumen pendukung sesuai kebijakan perusahaan.";
-      else evidenceHint.textContent="Pilih jenis pengajuan untuk melihat bukti yang diperlukan.";
-    });
-  }
-  if(profileForm&&profileMessage){});
-  }
-  if(leaveForm&&leaveMessage){})();
-</script>
- <script>
-(function () {
-   
-const translations = {
-  id: {
-    nav_home: "Beranda",
-    nav_attendance: "Absensi",
-    nav_profile: "Profil",
-    nav_leave: "Izin / Sakit / Cuti",
-    nav_chat: "Asisten",
-    nav_history: "Riwayat",
-    nav_about: "Tentang Aplikasi",
-    check_in_time: "Jam Masuk",
-    check_out_time: "Jam Pulang",
-    check_in_value: "Waktu Check-in",
-    check_out_value: "Waktu Check-out",
-    chatbot_title: "Chatbot Absensi",
-    chatbot_desc: "Tanyakan informasi seputar absensi.",
-    leave_title: "Izin / Sakit / Cuti",
-    history_title: "Riwayat Absensi",
-    profile_title: "Profil Karyawan",
-    about_title: "Tentang Aplikasi"
-  },
-  en: {
-    nav_home: "Home",
-    nav_attendance: "Attendance",
-    nav_profile: "Profile",
-    nav_leave: "Leave / Sick Leave",
-    nav_chat: "Assistant",
-    nav_history: "History",
-    nav_about: "About the App",
-    check_in_time: "Check-in Time",
-    check_out_time: "Check-out Time",
-    check_in_value: "Check-in Record",
-    check_out_value: "Check-out Record",
-    chatbot_title: "Attendance Chatbot",
-    chatbot_desc: "Ask questions about attendance.",
-    leave_title: "Leave / Sick Leave",
-    history_title: "Attendance History",
-    profile_title: "Employee Profile",
-    about_title: "About the App"
-  },
-  ms: {
-    nav_home: "Laman Utama",
-    nav_attendance: "Kehadiran",
-    nav_profile: "Profil",
-    nav_leave: "Cuti / Sakit",
-    nav_chat: "Pembantu",
-    nav_history: "Sejarah",
-    nav_about: "Tentang Aplikasi",
-    check_in_time: "Waktu Masuk",
-    check_out_time: "Waktu Pulang",
-    check_in_value: "Rekod Daftar Masuk",
-    check_out_value: "Rekod Daftar Keluar",
-    chatbot_title: "Chatbot Kehadiran",
-    chatbot_desc: "Tanya tentang kehadiran.",
-    leave_title: "Cuti / Sakit",
-    history_title: "Sejarah Kehadiran",
-    profile_title: "Profil Pekerja",
-    about_title: "Tentang Aplikasi"
-  },
-  zh: {
-    nav_home: "首页",
-    nav_attendance: "考勤",
-    nav_profile: "个人资料",
-    nav_leave: "请假 / 病假",
-    nav_chat: "助手",
-    nav_history: "考勤记录",
-    nav_about: "关于应用",
-    check_in_time: "上班时间",
-    check_out_time: "下班时间",
-    check_in_value: "签到时间",
-    check_out_value: "签退时间",
-    chatbot_title: "考勤聊天助手",
-    chatbot_desc: "咨询考勤相关信息。",
-    leave_title: "请假 / 病假",
-    history_title: "考勤历史",
-    profile_title: "员工资料",
-    about_title: "关于应用"
-  }
-};
-
-   
-function translateMenu() {
-  const lang = localStorage.getItem("absenku-language") || "id";
-  const dictionary = translations[lang] || translations.id;
-
-  document.querySelectorAll("[data-i18n]").forEach(function (element) {
-    const key = element.getAttribute("data-i18n");
-    if (Object.prototype.hasOwnProperty.call(dictionary, key)) {
-      element.textContent = dictionary[key];
-    }
-  });
-}
-
-  window.addEventListener("DOMContentLoaded", translateMenu);
-  window.addEventListener("storage", translateMenu);
-
-   document.addEventListener("change", function (event) {
-    if (event.target && event.target.id === "absenku-language") {
-      translateMenu();
-    }
-  });
-
-  translateMenu();
-})();
-</script>
- 
-<script>
-(function () {
-  var grid = document.getElementById("kalender-grid");
-  var judul = document.getElementById("kalender-bulan");
-  var sebelum = document.getElementById("kalender-sebelum");
-  var sesudah = document.getElementById("kalender-sesudah");
-
-  if (!grid || !judul || !sebelum || !sesudah) return;
-
-  var bulanAktif = new Date();
-  var namaBulan = [
-    "Januari", "Februari", "Maret", "April",
-    "Mei", "Juni", "Juli", "Agustus",
-    "September", "Oktober", "November", "Desember"
-  ];
-  var namaHari = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
-
-  function gambarKalender() {
-    var tahun = bulanAktif.getFullYear();
-    var bulan = bulanAktif.getMonth();
-
-    judul.textContent = namaBulan[bulan] + " " + tahun;
-    grid.replaceChildren();
-
-    namaHari.forEach(function (hari) {
-      var kepala = document.createElement("div");
-      kepala.textContent = hari;
-      kepala.style.fontWeight = "bold";
-      kepala.style.padding = "8px 0";
-      kepala.style.fontSize = "12px";
-      grid.appendChild(kepala);
-    });
-
-    var hariPertama = new Date(tahun, bulan, 1).getDay();
-    var jumlahHari = new Date(tahun, bulan + 1, 0).getDate();
-    var hariIni = new Date();
-   
- 
-var catatanHarian = {};
-
-try {
-  var dataTersimpan = JSON.parse(
-    localStorage.getItem("absenku-demo-v1") || "{}"
-  );
-  catatanHarian = dataTersimpan.days || {};
-} catch (e) {
-  catatanHarian = {};
-}
-
-
-    for (var kosong = 0; kosong < hariPertama; kosong++) {
-      grid.appendChild(document.createElement("div"));
-    }
-
-    for (var tanggal = 1; tanggal <= jumlahHari; tanggal++) {
-      var sel = document.createElement("div");
-      sel.textContent = tanggal;
-      sel.style.padding = "9px 0";
-      sel.style.borderRadius = "9px";
-      sel.style.fontSize = "13px";
-      sel.style.background = "#eef6ff";
-      sel.style.color = "#174477";
-     
-var kunciTanggal =
-  tahun + "-" +
-  String(bulan + 1).padStart(2, "0") + "-" +
-  String(tanggal).padStart(2, "0");
-
-var catatan = catatanHarian[kunciTanggal];
-
-if (catatan && catatan.checkIn) {
-  sel.style.background = catatan.checkOut ? "#15803d" : "#f59e0b";
-  sel.style.color = "white";
-  sel.title = catatan.checkOut
-    ? "Absensi lengkap"
-    : "Sudah check-in, belum check-out";
-}
-
-
-       
-if (
-  tanggal === hariIni.getDate() &&
-  bulan === hariIni.getMonth() &&
-  tahun === hariIni.getFullYear()
-) {
-  sel.style.outline = "2px solid #087fbd";
-  sel.style.outlineOffset = "-2px";
-  sel.style.fontWeight = "bold";
-}
-
-
-      grid.appendChild(sel);
-    }
-  }
-
-  sebelum.addEventListener("click", function () {
-    bulanAktif.setMonth(bulanAktif.getMonth() - 1);
-    gambarKalender();
-  });
-
-  sesudah.addEventListener("click", function () {
-    bulanAktif.setMonth(bulanAktif.getMonth() + 1);
-    gambarKalender();
-  });
-
-  gambarKalender();
-})();
-</script>
-
-<script>
-(function () {
-  var filter = document.getElementById("filter-bulan-absenku");
-  var reset = document.getElementById("reset-filter-absenku");
-  var tbody = document.getElementById("historyBody");
-
-  if (!filter || !reset || !tbody) return;
-
-  function terapkanFilter() {
-    var bulan = filter.value;
-
-    Array.from(tbody.rows).forEach(function (baris) {
-      var tanggal = baris.cells[0]
-        ? baris.cells[0].textContent.trim()
-        : "";
-
-      baris.style.display =
-        !bulan || tanggal.indexOf(bulan) === 0 ? "" : "none";
-    });
-  }
-
-  filter.addEventListener("change", terapkanFilter);
-
-  reset.addEventListener("click", function () {
-    filter.value = "";
-    terapkanFilter();
-  });
-
-  new MutationObserver(terapkanFilter).observe(tbody, {
-    childList: true
-  });
-})();
-</script>
-
-<script>
-(function () {
-  var tombol = document.getElementById("ekspor-csv-absenku");
-  var filter = document.getElementById("filter-bulan-absenku");
-  var tbody = document.getElementById("historyBody");
-
-  if (!tombol || !tbody) return;
-
-  tombol.addEventListener("click", function () {
-    var bulan = filter ? filter.value : "";
-    var baris = Array.from(tbody.rows).filter(function (row) {
-      var tanggal = row.cells[0]
-        ? row.cells[0].textContent.trim()
-        : "";
-      return row.cells.length &&
-        (!bulan || tanggal.indexOf(bulan) === 0);
-    });
-
-    if (!baris.length) {
-      alert("Tidak ada riwayat absensi untuk diekspor.");
-      return;
-    }
-
-    var csv = [["Tanggal", "Check-in", "Check-out", "Status"]];
-
-    baris.forEach(function (row) {
-      csv.push(Array.from(row.cells).slice(0, 4).map(function (cell) {
-        return cell.textContent.trim();
-      }));
-    });
-
-    var isi = "\uFEFF" + csv.map(function (row) {
-      return row.map(function (nilai) {
-        return '"' + String(nilai).replace(/"/g, '""') + '"';
-      }).join(",");
-    }).join("\r\n");
-
-    var file = new Blob([isi], {
-      type: "text/csv;charset=utf-8;"
-    });
-    var url = URL.createObjectURL(file);
-    var link = document.createElement("a");
-    link.href = url;
-    link.download = "laporan-absenku" +
-      (bulan ? "-" + bulan : "") + ".csv";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-  });
-})();
-</script>
-
-<script>
-(function () {
-  var filter = document.getElementById("filter-bulan-absenku");
-  var total = document.getElementById("stat-total-absenku");
-  var lengkap = document.getElementById("stat-lengkap-absenku");
-  var belumPulang = document.getElementById("stat-belum-pulang-absenku");
-
-  if (!total || !lengkap || !belumPulang) return;
-
-  function perbaruiStatistik() {
-    var data = {};
-
-    try {
-      data = JSON.parse(
-        localStorage.getItem("absenku-demo-v1") || "{}"
-      );
-    } catch (e) {
-      data = {};
-    }
-
-    var hari = data.days || {};
-    var bulan = filter ? filter.value : "";
-    var jumlah = 0;
-    var jumlahLengkap = 0;
-    var jumlahBelumPulang = 0;
-
-    Object.keys(hari).forEach(function (tanggal) {
-      var catatan = hari[tanggal];
-
-      if (bulan && tanggal.indexOf(bulan) !== 0) return;
-      if (!catatan || !catatan.checkIn) return;
-
-      jumlah++;
-
-      if (catatan.checkOut) {
-        jumlahLengkap++;
-      } else {
-        jumlahBelumPulang++;
-      }
-    });
-
-    total.textContent = jumlah;
-    lengkap.textContent = jumlahLengkap;
-    belumPulang.textContent = jumlahBelumPulang;
-  }
-
-  if (filter) {
-    filter.addEventListener("change", perbaruiStatistik);
-  }
-
-  var reset = document.getElementById("reset-filter-absenku");
-  if (reset) {
-    reset.addEventListener("click", function () {
-      setTimeout(perbaruiStatistik, 0);
-    });
-  }
-
-  perbaruiStatistik();
-})();
-</script>
-
-<div id="laporan-cetak-absenku" style="display:none">
-  <h1 style="text-align:center">ABSENKU</h1>
-  <h2 style="text-align:center">LAPORAN ABSENSI KARYAWAN</h2>
-  <p id="judul-bulan-cetak" style="text-align:center"></p>
- 
-<div style="margin:20px 0;padding:12px;border:1px solid #999;border-radius:8px">
-  <h3 style="margin-top:0">IDENTITAS KARYAWAN</h3>
-  <p>Nama Karyawan: <strong id="cetak-nama-karyawan">—</strong></p>
-  <p>Nomor Induk Karyawan: <strong id="cetak-nik-karyawan">—</strong></p>
-  <p>Jabatan: <strong id="cetak-jabatan-karyawan">—</strong></p>
-  <p>Email: <strong id="cetak-email-karyawan">—</strong></p>
-</div>
-
-
-  <div style="display:flex;justify-content:space-around;margin:20px 0">
-    <p>Hari tercatat: <strong id="cetak-total">0</strong></p>
-    <p>Absensi lengkap: <strong id="cetak-lengkap">0</strong></p>
-    <p>Belum check-out: <strong id="cetak-belum-pulang">0</strong></p>
-   
-<div class="rekap-invoice-absenku">
-  <h3>REKAPITULASI ABSENSI</h3>
-
-  <div class="rekap-item">
-    <span>Total Jam Kerja</span>
-    <strong id="cetak-total-jam-kerja">0 jam 0 menit</strong>
-  </div>
-
-  <div class="rekap-item">
-    <span>Total Hari Hadir</span>
-    <strong id="cetak-total-hadir">0 hari</strong>
-  </div>
-
-  <div class="rekap-item">
-    <span>Total Tidak Hadir</span>
-    <strong id="cetak-total-tidak-hadir">0 hari</strong>
-  </div>
-
-  <div class="rekap-item">
-    <span>Belum Check-out</span>
-    <strong id="cetak-total-belum-checkout">0 hari</strong>
-  </div>
-</div>
-
-<style>
-.rekap-invoice-absenku {
-  margin: 20px 0;
-  padding: 16px;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  font-family: Arial, sans-serif;
-}
-.rekap-invoice-absenku h3 {
-  margin-top: 0;
-  text-align: center;
-}
-.rekap-item {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid #e2e8f0;
-}
-.rekap-item:last-child {
-  border-bottom: none;
-}
-</style>
-
-  </div>
-
-  <table style="width:100%;border-collapse:collapse">
-    <thead>
-      <tr>
-        <th style="border:1px solid #333;padding:8px">Tanggal</th>
-        <th style="border:1px solid #333;padding:8px">Check-in</th>
-        <th style="border:1px solid #333;padding:8px">Check-out</th>
-        <th style="border:1px solid #333;padding:8px">Status</th>
-      </tr>
-    </thead>
-    <tbody id="tabel-cetak-absenku"></tbody>
-  </table>
-
-  <p style="margin-top:30px">Tanggal laporan dicetak: <span id="tanggal-cetak-absenku"></span></p>
-</div>
-
-<script>
-(function () {
-  var tombol = document.getElementById("cetak-laporan-absenku");
-  var filter = document.getElementById("filter-bulan-absenku");
-
-  if (!tombol) return;
-
-  tombol.onclick = function () {
-    var laporan = document.getElementById("laporan-cetak-absenku");
-    var tabel = document.getElementById("tabel-cetak-absenku");
-
-    if (!laporan || !tabel) {
-      alert("Bagian laporan ABSENKU tidak ditemukan.");
-      return;
-    }
-
-    var tabLaporan = window.open("", "_blank");
-
-    if (!tabLaporan) {
-      alert("Chrome memblokir tab baru. Izinkan pop-up untuk ABSENKU.");
-      return;
-    }
-
-    var data = {};
-
-    try {
-      data = JSON.parse(localStorage.getItem("absenku-demo-v1") || "{}");
-    } catch (e) {
-      data = {};
-    }
-
-    var hari = data.days || {};
-    var bulan = filter ? filter.value : "";
-    var jumlah = 0;
-    var lengkap = 0;
-    var belum = 0;
-
-    tabel.replaceChildren();
-
-    Object.keys(hari).sort().forEach(function (tanggal) {
-      var catatan = hari[tanggal];
-
-      if (bulan && tanggal.indexOf(bulan) !== 0) return;
-      if (!catatan || !catatan.checkIn) return;
-
-      jumlah++;
-
-      if (catatan.checkOut) lengkap++;
-      else belum++;
-
-      var baris = document.createElement("tr");
-
-      [
-        tanggal,
-        catatan.checkIn || "—",
-        catatan.checkOut || "—",
-        catatan.checkOut ? "Lengkap" : "Belum check-out"
-      ].forEach(function (nilai) {
-        var sel = document.createElement("td");
-        sel.textContent = nilai;
-        sel.style.border = "1px solid #333";
-        sel.style.padding = "8px";
-        baris.appendChild(sel);
-      });
-
-      tabel.appendChild(baris);
-    });
-
-    function isiTeks(id, nilai) {
-      var elemen = document.getElementById(id);
-      if (elemen) elemen.textContent = nilai;
-    }
-
-    function nilaiProfil(id) {
-      var elemen = document.getElementById(id);
-      return elemen && elemen.value ? elemen.value : "—";
-    }
-
-    isiTeks("cetak-nama-karyawan", nilaiProfil("profileFullName"));
-    isiTeks("cetak-nik-karyawan", nilaiProfil("profileEmployeeId"));
-    isiTeks("cetak-jabatan-karyawan", nilaiProfil("profilePosition"));
-    isiTeks("cetak-email-karyawan", nilaiProfil("profileEmail"));
-
-    isiTeks("cetak-total", jumlah);
-    isiTeks("cetak-lengkap", lengkap);
-    isiTeks("cetak-belum-pulang", belum);
-    isiTeks("judul-bulan-cetak", "Periode: " + (bulan || "Semua bulan"));
-
-    isiTeks(
-      "tanggal-cetak-absenku",
-      new Date().toLocaleDateString("id-ID", {
-        timeZone: "Asia/Makassar"
-      })
-    );
-
-    var isiLaporan = laporan.innerHTML;
-
-    tabLaporan.document.open();
-    tabLaporan.document.write(
-      '<!DOCTYPE html>' +
-      '<html lang="id"><head><meta charset="UTF-8">' +
-      '<meta name="viewport" content="width=device-width, initial-scale=1">' +
-      '<title>Laporan Absensi ABSENKU</title>' +
-      '<style>' +
-      'body{font-family:Arial,sans-serif;color:#111;background:white;padding:16px}' +
-      'h1,h2{text-align:center}' +
-      'table{width:100%;border-collapse:collapse;margin-bottom:20px}' +
-      'th,td{border:1px solid #333;padding:8px;text-align:left}' +
-      '.tombol-cetak{display:block;width:100%;padding:12px;margin-bottom:16px;background:#155eef;color:white;border:0;border-radius:8px;font-size:16px}' +
-      '@media print{body{padding:0}.tombol-cetak{display:none}tr{page-break-inside:avoid}}' +
-      '</style></head><body>' +
-      '<button class="tombol-cetak" onclick="window.print()">Cetak / Simpan PDF</button>' +
-      '<div style="display:block">' + isiLaporan + '</div>' +
-      '</body></html>'
-    );
-
-    tabLaporan.document.close();
-    tabLaporan.focus();
-  };
-})();
-</script>
- 
 </body>
 </html>

@@ -3,191 +3,126 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#087fbd">
-  <meta name="description" content="ABSENKU - Sistem absensi karyawan berbasis web">
-  <title>ABSENKU — Absensi Karyawan</title>
+  <meta name="theme-color" content="#1e293b">
+  <meta name="description" content="ABSENKU - Sistem absensi karyawan berbasis web profesional">
+  <title>ABSENKU — Portal Absensi Karyawan</title>
   <link rel="stylesheet" href="style.css">
   <style>
     /* ==========================================================================
-       ABSENKU PRO 3D GLASSMORPHISM & TRANSPARENT MOTION SYSTEM
+       ABSENKU: SUNSET CITY SKYLINE & 3D GLASSMORPHISM SYSTEM
        ========================================================================== */
     :root {
-      --primary-3d: #087fbd;
-      --primary-dark: #0e2f5a;
-      --accent-cyan: #06b6d4;
-      --glass-bg: rgba(255, 255, 255, 0.38);
-      --glass-bg-strong: rgba(255, 255, 255, 0.52);
-      --glass-border: 1px solid rgba(255, 255, 255, 0.55);
-      --shadow-3d-soft: 
-        0 14px 32px -6px rgba(14, 47, 90, 0.12),
-        0 6px 14px -4px rgba(14, 47, 90, 0.06),
-        inset 0 1px 1px rgba(255, 255, 255, 0.75);
-      --shadow-3d-hover: 
-        0 24px 45px -10px rgba(8, 127, 189, 0.28),
-        0 12px 20px -6px rgba(14, 47, 90, 0.12),
-        inset 0 1px 2px rgba(255, 255, 255, 0.9);
+      --card-glass: rgba(15, 23, 42, 0.65);
+      --card-glass-hover: rgba(15, 23, 42, 0.82);
+      --accent-sunset: #f59e0b;
+      --accent-cyan: #38bdf8;
+      --shadow-exec: 
+        0 24px 48px -12px rgba(2, 6, 23, 0.5),
+        0 12px 24px -8px rgba(245, 158, 11, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
     }
 
     body {
-      background: linear-gradient(135deg, #bae6fd 0%, #e0f2fe 30%, #dbeafe 65%, #c7d2fe 100%);
+      /* Latar Belakang Perkotaan Senja (Sesuai Gambar Referensi Pengguna)[span_0](start_span)[span_0](end_span) */
+      background-color: #0f172a;
+      background-image: url('1001390512.jpg');
+      background-size: cover;
+      background-position: center bottom;
       background-attachment: fixed;
-      color: #0f172a;
+      color: #f8fafc;
       perspective: 1400px;
       margin: 0;
       min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* Elemen Dekorasi Latar 3D Melayang agar efek transparan terlihat nyata */
-    .bg-orb-1, .bg-orb-2, .bg-orb-3 {
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(45px);
-      z-index: -1;
-      pointer-events: none;
-      animation: orbFloat 12s ease-in-out infinite alternate;
-    }
-    .bg-orb-1 {
-      width: 340px; height: 340px;
-      top: -60px; left: -60px;
-      background: rgba(6, 182, 212, 0.35);
-    }
-    .bg-orb-2 {
-      width: 420px; height: 420px;
-      bottom: -90px; right: -80px;
-      background: rgba(59, 130, 246, 0.3);
-      animation-delay: -4s;
-    }
-    .bg-orb-3 {
-      width: 260px; height: 260px;
-      top: 40%; left: 45%;
-      background: rgba(14, 165, 233, 0.22);
-      animation-delay: -8s;
-    }
-
-    /* ==========================================================================
-       ANIMASI 3D KEYFRAMES
-       ========================================================================== */
-    @keyframes orbFloat {
-      0% { transform: translate3d(0, 0, 0) scale(1); }
-      100% { transform: translate3d(35px, -30px, 40px) scale(1.08); }
     }
 
     @keyframes float3D {
-      0%, 100% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg); }
-      50% { transform: translate3d(0, -7px, 12px) rotateX(4deg) rotateY(-4deg); }
+      0%, 100% { transform: translateY(0) rotateX(0deg); }
+      50% { transform: translateY(-5px) rotateX(2deg); }
     }
 
-    @keyframes flipIn3D {
-      from {
-        opacity: 0;
-        transform: perspective(1000px) rotateX(-12deg) translateY(24px) scale(0.96);
-      }
-      to {
-        opacity: 1;
-        transform: perspective(1000px) rotateX(0deg) translateY(0) scale(1);
-      }
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.5); }
-      50% { box-shadow: 0 0 0 9px rgba(6, 182, 212, 0); }
-    }
-
-    @keyframes shimmerSweep {
-      0% { transform: translateX(-130%) skewX(-22deg); }
-      100% { transform: translateX(240%) skewX(-22deg); }
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: translateY(20px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     /* ==========================================================================
-       1. LOGIN SCREEN TRANSPARAN & 3D
+       1. LOGIN SCREEN TRANSPARAN
        ========================================================================== */
     #login-screen {
       position: relative;
       overflow: hidden;
       max-width: 440px !important;
-      margin: 40px auto !important;
-      padding: 28px 24px !important;
+      margin: 45px auto !important;
+      padding: 30px 26px !important;
       box-sizing: border-box;
-      border: var(--glass-border) !important;
-      border-radius: 28px !important;
-      background: rgba(255, 255, 255, 0.45) !important;
-      backdrop-filter: blur(18px) saturate(160%) !important;
-      -webkit-backdrop-filter: blur(18px) saturate(160%) !important;
-      box-shadow: var(--shadow-3d-hover) !important;
-      animation: flipIn3D 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-      transform-style: preserve-3d;
+      border: 1px solid rgba(245, 158, 11, 0.3) !important;
+      border-radius: 26px !important;
+      background: rgba(15, 23, 42, 0.78) !important;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 30px 60px rgba(2, 6, 23, 0.7) !important;
+      animation: fadeInScale 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
     #login-screen h2 {
       text-align: center;
-      color: #0f294a;
-      font-size: 30px;
+      color: #f8fafc;
+      font-size: 28px;
       font-weight: 900;
-      letter-spacing: 2px;
+      letter-spacing: 1.5px;
       margin: 8px 0 10px;
-      text-shadow: 0 2px 6px rgba(255, 255, 255, 0.8);
     }
 
-    #login-screen > p:not(.login-tagline) { text-align: center; color: #334155; line-height: 1.6; }
-    #login-screen label { display: block; color: #0f294a; font-size: 14px; font-weight: 700; }
-
+    #login-screen label { display: block; color: #cbd5e1; font-size: 14px; font-weight: 700; }
+    
     #login-screen input {
-      border: 1px solid rgba(255, 255, 255, 0.7) !important;
-      border-radius: 14px !important;
-      background: rgba(255, 255, 255, 0.65);
-      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+      border-radius: 12px !important;
+      background: rgba(15, 23, 42, 0.6);
+      color: #ffffff;
       font: inherit;
       outline: none;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.25s ease;
     }
 
     #login-screen input:focus {
-      background: rgba(255, 255, 255, 0.9);
-      border-color: #0891b2 !important;
-      transform: translateY(-2px);
-      box-shadow: 0 10px 22px rgba(8, 145, 178, 0.18), 0 0 0 4px rgba(8, 145, 178, 0.14);
+      border-color: #f59e0b !important;
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.25);
+      background: rgba(15, 23, 42, 0.9);
     }
 
     #login-screen button {
       border: 0;
-      border-radius: 14px !important;
+      border-radius: 12px !important;
       color: #fff;
       font-size: 16px;
       font-weight: 800;
       cursor: pointer;
-      background: linear-gradient(135deg, #06b6d4, #087fbd, #1d4ed8) !important;
-      box-shadow: 0 12px 24px -6px rgba(8, 127, 189, 0.48), inset 0 1px 1px rgba(255, 255, 255, 0.5);
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+      box-shadow: 0 10px 25px -4px rgba(245, 158, 11, 0.5);
+      transition: all 0.25s ease;
     }
 
     #login-screen button:hover {
-      transform: translateY(-3px) scale(1.01);
-      box-shadow: 0 16px 30px -6px rgba(8, 127, 189, 0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px -4px rgba(245, 158, 11, 0.7);
     }
 
-    .login-tagline { margin: 0 0 23px; text-align: center; color: #0369a1; font-size: 13px; font-weight: 800; line-height: 1.6; }
+    .login-tagline { margin: 0 0 20px; text-align: center; color: #f59e0b; font-size: 13px; font-weight: 800; }
 
     /* ==========================================================================
-       2. SIDEBAR & APP SHELL TRANSPARAN GLASSMORPHISM
+       2. SIDEBAR & NAVIGASI KACA TRANSPARAN
        ========================================================================== */
-    .app-shell {
-      background: transparent !important;
-    }
-
     .sidebar {
-      background: rgba(11, 37, 69, 0.78) !important;
-      backdrop-filter: blur(20px) saturate(160%) !important;
-      -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
-      box-shadow: 10px 0 35px rgba(11, 37, 69, 0.18);
-      border-right: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(15, 23, 42, 0.85) !important;
+      backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 10px 0 35px rgba(2, 6, 23, 0.5);
     }
 
     .brand-icon {
-      background: linear-gradient(135deg, #06b6d4, #0284c7) !important;
-      box-shadow: 0 8px 18px rgba(6, 182, 212, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.6);
-      animation: float3D 4.5s ease-in-out infinite;
-      transform-style: preserve-3d;
+      background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+      box-shadow: 0 8px 18px rgba(245, 158, 11, 0.4);
+      animation: float3D 4s ease-in-out infinite;
     }
 
     #main-nav a {
@@ -195,237 +130,123 @@
       align-items: center;
       gap: 12px;
       text-decoration: none;
-      border-radius: 14px;
+      border-radius: 12px;
       padding: 11px 14px;
       margin-bottom: 4px;
-      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-      transform-style: preserve-3d;
+      color: #94a3b8;
+      transition: all 0.25s ease;
     }
 
     #main-nav a:hover {
-      background: rgba(255, 255, 255, 0.14);
-      transform: translateX(6px) translateZ(8px);
-    }
-
-    #main-nav a.active {
-      background: linear-gradient(135deg, rgba(6, 182, 212, 0.9), rgba(8, 127, 189, 0.92)) !important;
-      color: #ffffff !important;
-      box-shadow: 0 10px 22px -5px rgba(6, 182, 212, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
       transform: translateX(5px);
     }
 
-    #main-nav a span:first-child {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 24px;
-      font-size: 17px;
-      transition: transform 0.3s ease;
-    }
-
-    #main-nav a:hover span:first-child {
-      transform: rotateY(18deg) scale(1.15);
-    }
-
-    .online-dot {
-      animation: pulseGlow 2s infinite;
+    #main-nav a.active {
+      background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+      color: #ffffff !important;
+      box-shadow: 0 8px 20px -4px rgba(245, 158, 11, 0.5);
+      transform: translateX(5px);
     }
 
     /* ==========================================================================
-       3. DASBOR TRANSPARAN & KARTU 3D INTERAKTIF
+       3. PANEL & KARTU DASBOR TRANSPARAN 3D
        ========================================================================== */
-    .main {
-      background: transparent !important;
-    }
-
-    .topbar {
-      background: var(--glass-bg) !important;
-      backdrop-filter: blur(16px) saturate(150%) !important;
-      -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
-      border: var(--glass-border) !important;
-      border-radius: 24px !important;
-      padding: 20px 24px;
-      box-shadow: var(--shadow-3d-soft) !important;
-      animation: flipIn3D 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    .date-chip {
-      background: rgba(255, 255, 255, 0.55) !important;
-      backdrop-filter: blur(10px);
-      color: #0369a1 !important;
-      font-weight: 800;
-      border: 1px solid rgba(255, 255, 255, 0.8) !important;
-      box-shadow: 0 6px 14px rgba(3, 105, 161, 0.1);
-    }
-
-    /* Stat Cards 3D Transparan */
-    .stats .stat-card {
-      background: var(--glass-bg) !important;
-      backdrop-filter: blur(16px) saturate(150%) !important;
-      -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
-      border: var(--glass-border) !important;
-      border-radius: 24px !important;
-      box-shadow: var(--shadow-3d-soft) !important;
-      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, background 0.35s ease;
-      animation: flipIn3D 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
-      transform-style: preserve-3d;
-    }
-
-    .stats .stat-card:nth-child(1) { animation-delay: 0.08s; }
-    .stats .stat-card:nth-child(2) { animation-delay: 0.16s; }
-    .stats .stat-card:nth-child(3) { animation-delay: 0.24s; }
-
-    .stats .stat-card:hover {
-      background: var(--glass-bg-strong) !important;
-      box-shadow: var(--shadow-3d-hover) !important;
-    }
-
-    .stat-symbol {
-      border-radius: 16px !important;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12), inset 0 2px 2px rgba(255, 255, 255, 0.7);
-      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      transform: translateZ(20px);
-    }
-
-    .stat-card:hover .stat-symbol {
-      transform: translateZ(32px) scale(1.1) rotateZ(-4deg);
-    }
-
-    /* Panel Transparan 3D */
-    .panel, .profile-photo-box, .profile-form-box, .leave-form-box, .about-box {
-      background: var(--glass-bg) !important;
-      backdrop-filter: blur(16px) saturate(150%) !important;
-      -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
-      border: var(--glass-border) !important;
-      border-radius: 24px !important;
-      box-shadow: var(--shadow-3d-soft) !important;
-      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
-      animation: flipIn3D 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-      transform-style: preserve-3d;
+    .topbar, .panel, .profile-photo-box, .profile-form-box, .leave-form-box, .about-box {
+      background: var(--card-glass) !important;
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      border-radius: 22px !important;
+      box-shadow: var(--shadow-exec) !important;
+      animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
     }
 
     .panel:hover {
-      box-shadow: var(--shadow-3d-hover) !important;
+      background: var(--card-glass-hover) !important;
+      box-shadow: 0 30px 60px -15px rgba(2, 6, 23, 0.8) !important;
     }
 
-    /* Banner Motivasi 3D Glass */
+    .date-chip {
+      background: rgba(245, 158, 11, 0.2) !important;
+      color: #fbbf24 !important;
+      font-weight: 800;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+    }
+
+    .stats .stat-card {
+      background: var(--card-glass) !important;
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      border-radius: 22px !important;
+      box-shadow: var(--shadow-exec) !important;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+    }
+
+    .stats .stat-card:hover {
+      transform: translateY(-5px);
+      background: var(--card-glass-hover) !important;
+      box-shadow: 0 25px 45px -10px rgba(245, 158, 11, 0.3) !important;
+    }
+
     #motivasi-absenku {
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(135deg, rgba(2, 132, 199, 0.82) 0%, rgba(15, 52, 96, 0.88) 65%, rgba(30, 27, 75, 0.9) 100%) !important;
-      backdrop-filter: blur(14px) !important;
-      border: 1px solid rgba(255, 255, 255, 0.4) !important;
-      box-shadow: 0 20px 38px -10px rgba(2, 132, 199, 0.38), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
-      transform-style: preserve-3d;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(217, 119, 6, 0.45)) !important;
+      color: white !important;
+      border: 1px solid rgba(245, 158, 11, 0.3) !important;
+      box-shadow: 0 20px 40px -10px rgba(2, 6, 23, 0.6) !important;
     }
 
-    #motivasi-absenku::after {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; width: 45%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
-      animation: shimmerSweep 5s infinite;
-      pointer-events: none;
-    }
-
-    .clock {
-      font-variant-numeric: tabular-nums;
-      text-shadow: 0 4px 14px rgba(8, 127, 189, 0.25);
-      letter-spacing: 2px;
-      animation: float3D 5s ease-in-out infinite;
-    }
-
-    /* ==========================================================================
-       4. TOMBOL 3D INTERAKTIF
-       ========================================================================== */
     .btn, .primary-button, .secondary-button, .text-button {
-      border-radius: 13px !important;
+      border-radius: 12px !important;
       font-weight: 700;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      transform-style: preserve-3d;
+      transition: all 0.22s ease;
     }
 
     .btn-primary, .primary-button {
-      background: linear-gradient(135deg, #06b6d4, #087fbd, #1d4ed8) !important;
-      box-shadow: 0 10px 20px -4px rgba(8, 127, 189, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
+      background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+      box-shadow: 0 8px 18px -4px rgba(245, 158, 11, 0.5);
       color: #fff !important;
     }
 
     .btn-primary:hover, .primary-button:hover {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 14px 26px -4px rgba(8, 127, 189, 0.6) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px -4px rgba(245, 158, 11, 0.7);
     }
 
     .btn-dark {
       background: linear-gradient(135deg, #1e293b, #0f172a) !important;
-      box-shadow: 0 10px 20px -4px rgba(15, 23, 42, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
-    }
-
-    .btn-dark:hover {
-      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 18px -4px rgba(2, 6, 23, 0.5);
+      color: #fff !important;
     }
 
     .text-button, .secondary-button {
-      background: rgba(255, 255, 255, 0.6) !important;
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.8) !important;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #f1f5f9;
     }
 
     .text-button:hover, .secondary-button:hover {
-      background: rgba(255, 255, 255, 0.9) !important;
+      background: rgba(255, 255, 255, 0.2);
       transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(8, 127, 189, 0.16);
-    }
-
-    /* ==========================================================================
-       5. KALENDER, TABEL & INPUT TRANSPARAN
-       ========================================================================== */
-    #kalender-grid > div {
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
-      backdrop-filter: blur(6px);
     }
 
     #kalender-grid > div:not(:empty):hover {
-      transform: translateY(-4px) scale(1.08) translateZ(10px);
-      box-shadow: 0 8px 18px rgba(8, 127, 189, 0.25);
-      z-index: 2;
-    }
-
-    #statistik-bulanan-absenku > div {
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.75);
-      box-shadow: 0 10px 22px -4px rgba(15, 23, 42, 0.08);
-      transition: transform 0.3s ease;
-    }
-
-    #statistik-bulanan-absenku > div:hover {
-      transform: translateY(-5px) scale(1.02);
-    }
-
-    table {
-      background: rgba(255, 255, 255, 0.35);
-      border-radius: 16px;
-      overflow: hidden;
-    }
-
-    table tbody tr {
-      transition: background-color 0.2s ease;
+      transform: translateY(-3px) scale(1.05);
+      background: #f59e0b !important;
+      color: white;
     }
 
     table tbody tr:hover {
-      background-color: rgba(255, 255, 255, 0.65);
+      background-color: rgba(245, 158, 11, 0.15);
     }
 
     .prof-icon {
-      width: 18px;
-      height: 18px;
-      stroke: currentColor;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      fill: none;
-      display: inline-block;
-      vertical-align: middle;
+      width: 18px; height: 18px;
+      stroke: currentColor; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+      fill: none; display: inline-block; vertical-align: middle;
     }
 
     .new-page { display: none; }
@@ -433,89 +254,62 @@
     .profile-photo-box { text-align: center; }
     .profile-photo-preview {
       width: 112px; height: 112px; border-radius: 50%; object-fit: cover;
-      background: #e0f2fe; border: 4px solid rgba(255, 255, 255, 0.9);
-      box-shadow: 0 12px 26px rgba(8, 127, 189, 0.25);
+      background: rgba(245, 158, 11, 0.2); border: 4px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
       display: block; margin: 0 auto 12px;
-      transition: transform 0.35s ease;
     }
-    .profile-photo-preview:hover { transform: scale(1.06) rotateY(10deg); }
     .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
     .form-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-    .form-field label { font-size: 13px; font-weight: 700; color: #0f294a; }
+    .form-field label { font-size: 13px; font-weight: 700; color: #cbd5e1; }
     .form-field input, .form-field select, .form-field textarea {
       width: 100%; box-sizing: border-box; padding: 11px;
-      border: 1px solid rgba(255, 255, 255, 0.75); border-radius: 12px; font: inherit;
-      background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(8px); color: #0f172a;
-      transition: all 0.2s;
-    }
-    .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
-      outline: none;
-      background: rgba(255, 255, 255, 0.92);
-      border-color: #087fbd;
-      box-shadow: 0 0 0 3px rgba(8, 127, 189, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; font: inherit;
+      background: rgba(15, 23, 42, 0.6); color: #ffffff;
     }
     .form-field textarea { min-height: 90px; resize: vertical; }
     .form-field.full { grid-column: 1/-1; }
-    .small-note { font-size: 13px; line-height: 1.5; color: #475569; }
-    .status-pill { display: inline-block; border-radius: 999px; padding: 5px 12px; background: rgba(254, 243, 199, 0.85); color: #92400e; font-size: 12px; font-weight: 800; }
+    .small-note { font-size: 13px; line-height: 1.5; color: #94a3b8; }
+    .status-pill { display: inline-block; border-radius: 999px; padding: 5px 12px; background: rgba(245, 158, 11, 0.2); color: #fbbf24; font-size: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.4); }
     .page-message { font-size: 14px; margin-top: 12px; line-height: 1.5; }
 
-    /* ==========================================================================
-       6. PEMILIH BAHASA ONLINE (BERSIH TANPA BANNER NOTIFIKASI GOOGLE)
-       ========================================================================== */
+    /* Menyembunyikan banner dan notifikasi bawaan Google Translate agar bersih total */
     .goog-te-banner-frame.skiptranslate,
     .goog-te-gadget-icon,
     #goog-gt-tt,
     .goog-te-balloon-frame {
       display: none !important;
     }
-    body {
-      top: 0px !important;
-    }
-    .skiptranslate > iframe {
-      display: none !important;
-    }
+    body { top: 0px !important; }
+    .skiptranslate > iframe { display: none !important; }
 
     @media(max-width: 700px) {
       .profile-layout, .form-grid { grid-template-columns: 1fr; }
       .form-field.full { grid-column: auto; }
-      .profile-photo-box, .profile-form-box, .leave-form-box, .about-box { padding: 15px; }
-    }
-
-    @media(prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation: none !important;
-        transition: none !important;
-      }
     }
   </style>
 </head>
 <body>
-<!-- Latar Belakang Orbs 3D untuk memperjelas transparansi kaca -->
-<div class="bg-orb-1"></div>
-<div class="bg-orb-2"></div>
-<div class="bg-orb-3"></div>
 
-<!-- Elemen tersembunyi Google Translate Online -->
+<!-- Elemen Tersembunyi Google Translate Online (Tanpa Banner/Notifikasi) -->
 <div id="google_translate_element" style="display:none;"></div>
 
 <div id="login-screen" style="max-width:400px;margin:40px auto;padding:24px;border-radius:16px;">
-  <div style="text-align:center;padding:15px 0 20px;background:rgba(255,255,255,0.45);border-radius:20px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.7);">
-    <img src="absenku-logo-premium.png" alt="Logo ABSENKU" style="display:block;width:100%;max-width:300px;height:auto;margin:10px auto 18px;filter:drop-shadow(0 10px 18px rgba(8,127,189,0.22));">
-    <div style="display:inline-block;background:linear-gradient(135deg,#087fbd,#153b80);color:white;padding:12px 18px;border-radius:18px;font-weight:900;box-shadow:0 10px 22px rgba(8,127,189,0.35), inset 0 1px 0 rgba(255,255,255,0.3);">
-      <svg class="prof-icon" style="width:16px;height:16px;margin-right:4px;" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> SEMANGAT, SODARA!
+  <div style="text-align:center;padding:15px 0 20px;background:rgba(15, 23, 42, 0.6);border-radius:18px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.1);">
+    <img src="absenku-logo-premium.png" alt="Logo ABSENKU" style="display:block;width:100%;max-width:280px;height:auto;margin:10px auto 16px;filter:drop-shadow(0 6px 12px rgba(0,0,0,0.4));">
+    <div style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;padding:10px 16px;border-radius:14px;font-weight:800;font-size:14px;box-shadow:0 6px 16px rgba(245,158,11,0.3);">
+      ⚡ PORTAL EKSEKUTIF
     </div>
-    <p style="color:#0f294a;font-weight:800;margin:14px 0 0;">Disiplin hari ini, raih impianmu!</p>
+    <p style="color:#fbbf24;font-weight:700;margin:12px 0 0;font-size:13px;">Disiplin Tinggi, Kinerja Profesional</p>
   </div>
-  <p class="login-tagline">Disiplin hari ini, raih impian esok hari!</p>
+  <p class="login-tagline">Silakan masuk menggunakan kredensial perusahaan.</p>
   <h2>ABSENKU</h2>
-  <p>Silakan masuk ke akun karyawan atau admin.</p>
+  <p style="color:#94a3b8;">Sistem Manajemen Kehadiran Terpadu</p>
   <form id="login-form">
-    <label for="login-email">Email</label>
-    <input id="login-email" type="email" required placeholder="Masukkan email" autocomplete="username" style="display:block;width:100%;padding:12px;margin:8px 0 16px;box-sizing:border-box;">
-    <label for="login-password">Kata sandi</label>
+    <label for="login-email">Email Perusahaan</label>
+    <input id="login-email" type="email" required placeholder="nama@perusahaan.com" autocomplete="username" style="display:block;width:100%;padding:12px;margin:8px 0 16px;box-sizing:border-box;">
+    <label for="login-password">Kata Sandi</label>
     <input id="login-password" type="password" required placeholder="Masukkan kata sandi" autocomplete="current-password" style="display:block;width:100%;padding:12px;margin:8px 0 16px;box-sizing:border-box;">
-    <button type="submit" style="width:100%;padding:13px;">Masuk ke Portal</button>
+    <button type="submit" style="width:100%;padding:12px;">Masuk ke Sistem</button>
     <p id="login-message" role="status"></p>
   </form>
 </div>
@@ -526,7 +320,7 @@
       <div class="brand-icon">
         <svg class="prof-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
-      <div><strong>ABSENKU</strong><small>Absensi Karyawan</small></div>
+      <div><strong>ABSENKU</strong><small>Portal Karyawan</small></div>
     </div>
     <nav id="main-nav" aria-label="Navigasi utama">
        <a class="active" href="#dashboard" data-page="dashboard">
@@ -572,13 +366,13 @@
       <div class="avatar">
         <svg class="prof-icon" style="width:14px;height:14px;" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </div>
-      <div><b>Karyawan</b><small>Profil karyawan</small></div>
+      <div><b>Karyawan</b><small>Profil Karyawan</small></div>
     </div>
   </aside>
 
   <section class="panel" id="employees" data-page="employees" style="display:none;padding:24px">
     <h2>Data Karyawan</h2>
-    <p class="muted">Tambah data karyawan perusahaan Anda.</p>
+    <p class="muted">Kelola data karyawan perusahaan dengan sistem terpusat.</p>
 
     <form id="addEmployeeForm">
       <label>Nomor Karyawan *</label>
@@ -609,7 +403,7 @@
       <p id="addEmployeeMessage" role="status"></p>
     </form>
     
-    <form id="createEmployeeAccountForm" style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.5);">
+    <form id="createEmployeeAccountForm" style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.1);">
       <h3>Buat Akun Login Karyawan</h3>
       <label>ID Karyawan *</label>
       <input id="accountEmployeeId" required placeholder="Masukkan ID karyawan dari database" style="display:block;width:100%;padding:10px;margin:6px 0 14px;box-sizing:border-box">
@@ -624,40 +418,40 @@
 
   <main class="main" id="dashboard">
     <header class="topbar" id="home-header">
-      <div><p class="eyebrow">PORTAL KARYAWAN</p><h1>Beranda ABSENKU</h1><p class="muted">Pantau kehadiran dan riwayat absensi kamu.</p></div>
+      <div><p class="eyebrow">PORTAL EKSEKUTIF</p><h1>Beranda ABSENKU</h1><p class="muted">Pantau kehadiran dan rekam jejak kedisiplinan kerja.</p></div>
       <div class="date-chip" id="todayLabel">Hari ini</div>
     </header>
 
     <section class="stats" id="home-stats">
-      <article class="stat-card" data-tilt>
+      <article class="stat-card">
         <div class="stat-symbol green"><svg class="prof-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
         <div><span>Status hari ini</span><strong id="statusValue">Belum absen</strong><small id="statusSub">Silakan check-in</small></div>
       </article>
-      <article class="stat-card" data-tilt>
+      <article class="stat-card">
         <div class="stat-symbol blue"><svg class="prof-icon" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
         <div><span>Jam masuk</span><strong id="checkInValue">—</strong><small>Waktu check-in</small></div>
       </article>
-      <article class="stat-card" data-tilt>
+      <article class="stat-card">
         <div class="stat-symbol purple"><svg class="prof-icon" viewBox="0 0 24 24"><line x1="17" y1="7" x2="7" y2="17"/><polyline points="17 17 7 17 7 7"/></svg></div>
         <div><span>Jam pulang</span><strong id="checkOutValue">—</strong><small>Waktu check-out</small></div>
       </article>
     </section>
 
     <div class="content-grid" id="main-content-grid">
-      <section class="panel" id="motivasi-absenku" data-tilt style="margin-bottom:18px;padding:22px;color:white;">
-        <div style="display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,0.18);backdrop-filter:blur(6px);margin-bottom:8px;">
+      <section class="panel" id="motivasi-absenku" style="margin-bottom:18px;padding:22px;">
+        <div style="display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.15);margin-bottom:8px;">
           <svg class="prof-icon" style="width:24px;height:24px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
         </div>
-        <h2 style="margin:6px 0;color:white">Semangat, ki sodara!</h2>
-        <p id="teks-motivasi-absenku" style="margin:0 0 16px;line-height:1.6;opacity:0.95;">Disiplin hari ini, sukses di masa depan!</p>
-        <button type="button" onclick="if(window.ABSENKU_FITUR_RINGAN){document.getElementById('teks-motivasi-absenku').textContent=window.ABSENKU_FITUR_RINGAN.ambilMotivasi()}" style="padding:10px 16px;border:0;border-radius:12px;background:rgba(255,255,255,0.92);color:#123d70;font-weight:800;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,0.18);">
-          <svg class="prof-icon" style="width:15px;height:15px;margin-right:4px;" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg> Motivasi Lain
+        <h2 style="margin:6px 0;color:white">Semangat Profesionalisme!</h2>
+        <p id="teks-motivasi-absenku" style="margin:0 0 16px;line-height:1.6;opacity:0.95;">Disiplin kerja adalah landasan utama kesuksesan organisasi.</p>
+        <button type="button" onclick="if(window.ABSENKU_FITUR_RINGAN){document.getElementById('teks-motivasi-absenku').textContent=window.ABSENKU_FITUR_RINGAN.ambilMotivasi()}" style="padding:10px 16px;border:0;border-radius:10px;background:white;color:#0b192c;font-weight:800;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+          ✨ Motivasi Lain
         </button>
       </section>
 
-      <section class="panel attendance-panel" id="attendance" data-tilt>
+      <section class="panel attendance-panel" id="attendance">
         <div class="panel-heading">
-          <div><h2>Absensi Hari Ini</h2><p class="muted">Catat kehadiran melalui sistem absensi.</p></div>
+          <div><h2>Absensi Hari Ini</h2><p class="muted">Catat kehadiran secara real-time.</p></div>
           <span class="pill">ABSENKU</span>
         </div>
         <div class="clock" id="clock">00:00:00</div>
@@ -670,16 +464,16 @@
             <svg class="prof-icon" style="margin-right:6px;" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg> Check-out
           </button>
         </div>
-        <p class="helper" id="actionMessage" role="status">Silakan check-in untuk memulai absensi.</p>
-        <div class="notice" style="background:rgba(255,255,255,0.5);border-radius:14px;padding:12px;">
+        <p class="helper" id="actionMessage" role="status">Silakan check-in untuk memulai sesi kerja.</p>
+        <div class="notice" style="background:rgba(255,255,255,0.06);border-radius:12px;padding:12px;">
           <svg class="prof-icon" style="width:16px;height:16px;flex-shrink:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          <span>Pastikan akun dan lokasi kerja telah dikonfigurasi oleh admin. Status koneksi server ditangani oleh aplikasi.</span>
+          <span>Pastikan perangkat terhubung dengan jaringan kerja dan lokasi valid.</span>
         </div>
       </section>
 
       <section class="panel chat-panel" id="chat">
-        <div class="panel-heading"><div><h2>Asisten ABSENKU</h2><p class="muted">Tanyakan informasi seputar absensi.</p></div><span class="bot-badge">AI</span></div>
-        <div class="chat-window" id="chatWindow" aria-live="polite" style="background:rgba(255,255,255,0.35);border-radius:16px;">
+        <div class="panel-heading"><div><h2>Asisten Eksekutif</h2><p class="muted">Konsultasi informasi seputar absensi.</p></div><span class="bot-badge">AI</span></div>
+        <div class="chat-window" id="chatWindow" aria-live="polite" style="background:rgba(15,23,42,0.4);border-radius:16px;">
           <div class="message bot-message">
             <div class="mini-avatar"><svg class="prof-icon" style="width:12px;height:12px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
             <div class="bubble"><b>Asisten ABSENKU</b><p>Halo! Ketik <em>bantuan</em>, <em>status</em>, <em>riwayat</em>, atau <em>jam kerja</em>.</p></div>
@@ -699,49 +493,49 @@
       <div class="panel-heading">
         <div>
           <h2>Kalender Absensi</h2>
-          <p class="muted">Periksa tanggal dan hari dalam sebulan.</p>
+          <p class="muted">Periksa rekam kehadiran bulanan.</p>
         </div>
       </div>
 
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px">
         <button type="button" id="kalender-sebelum" class="text-button">◀ Sebelumnya</button>
-        <strong id="kalender-bulan" style="text-align:center;font-size:16px;color:#0f294a;"></strong>
+        <strong id="kalender-bulan" style="text-align:center;font-size:16px;color:#f8fafc;"></strong>
         <button type="button" id="kalender-sesudah" class="text-button">Berikutnya ▶</button>
       </div>
 
       <div id="kalender-grid" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;text-align:center"></div>
-      <p class="small-note" style="margin-top:12px">Kalender ini menampilkan tanggal. Penanda kehadiran akan kita hubungkan ke data absensi pada langkah berikutnya.</p>
+      <p class="small-note" style="margin-top:12px">Kalender ini menampilkan rekapitulasi harian status kehadiran Anda.</p>
     </section>
 
     <section class="panel history-panel" id="history">
       <div class="panel-heading">
-        <div><h2>Riwayat Absensi</h2><p class="muted">Daftar catatan kehadiran.</p></div>
+        <div><h2>Riwayat Absensi</h2><p class="muted">Arsip lengkap catatan kehadiran.</p></div>
         <button id="clearBtn" class="text-button" type="button">Reset data demo</button>
       </div>
      
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0">
         <label for="filter-bulan-absenku">Filter bulan:</label>
-        <input id="filter-bulan-absenku" type="month" style="padding:9px;border:1px solid rgba(255,255,255,0.8);background:rgba(255,255,255,0.65);border-radius:10px;max-width:100%">
+        <input id="filter-bulan-absenku" type="month" style="padding:9px;border:1px solid rgba(255,255,255,0.2);background:rgba(15,23,42,0.6);color:#fff;border-radius:10px;max-width:100%">
 
         <button id="reset-filter-absenku" type="button" class="text-button">Tampilkan semua</button>
         <button id="ekspor-csv-absenku" type="button" class="text-button">
           <svg class="prof-icon" style="width:14px;height:14px;margin-right:4px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Ekspor CSV
         </button>
-        <button id="cetak-laporan-absenku" type="button" class="text-button" style="color:#123d70;padding:10px 14px;">
+        <button id="cetak-laporan-absenku" type="button" class="text-button" style="color:#f8fafc;padding:10px 14px;">
           <svg class="prof-icon" style="width:14px;height:14px;margin-right:4px;" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Cetak / Simpan PDF
         </button>
       </div>
 
       <div id="statistik-bulanan-absenku" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:16px 0">
-        <div style="padding:16px;border-radius:16px;background:rgba(224, 242, 254, 0.72);color:#075985">
+        <div style="padding:16px;border-radius:16px;background:rgba(14, 165, 233, 0.2);color:#38bdf8;border:1px solid rgba(14, 165, 233, 0.3)">
           <div style="font-size:13px;font-weight:600;">Hari tercatat</div>
           <strong id="stat-total-absenku" style="font-size:28px">0</strong>
         </div>
-        <div style="padding:16px;border-radius:16px;background:rgba(220, 252, 231, 0.72);color:#166534">
+        <div style="padding:16px;border-radius:16px;background:rgba(34, 197, 94, 0.2);color:#4ade80;border:1px solid rgba(34, 197, 94, 0.3)">
           <div style="font-size:13px;font-weight:600;">Absensi lengkap</div>
           <strong id="stat-lengkap-absenku" style="font-size:28px">0</strong>
         </div>
-        <div style="padding:16px;border-radius:16px;background:rgba(254, 243, 199, 0.72);color:#92400e">
+        <div style="padding:16px;border-radius:16px;background:rgba(245, 158, 11, 0.2);color:#fbbf24;border:1px solid rgba(245, 158, 11, 0.3)">
           <div style="font-size:13px;font-weight:600;">Belum check-out</div>
           <strong id="stat-belum-pulang-absenku" style="font-size:28px">0</strong>
         </div>
@@ -759,7 +553,7 @@
       <div class="panel-heading">
         <div>
           <h2>Profil Karyawan</h2>
-          <p class="muted">Informasi pribadi dan data pekerjaan karyawan.</p>
+          <p class="muted">Informasi personal dan kepegawaian resmi.</p>
         </div>
         <span class="status-pill">Data karyawan</span>
       </div>
@@ -771,7 +565,7 @@
             <span>Foto profil</span>
             <input id="profilePhotoInput" type="file" accept="image/*">
           </label>
-          <p class="small-note">Foto saat ini hanya pratinjau di perangkat ini.</p>
+          <p class="small-note">Pratinjau foto profil aktif perangkat ini.</p>
         </div>
 
         <div class="profile-form-box">
@@ -858,7 +652,7 @@
     </section>
 
     <section class="panel new-page" id="leave">
-      <div class="panel-heading"><div><h2>Pengajuan Izin, Sakit, dan Cuti</h2><p class="muted">Isi data dengan benar dan sertakan bukti pendukung.</p></div></div>
+      <div class="panel-heading"><div><h2>Pengajuan Izin, Sakit, dan Cuti</h2><p class="muted">Formulir pengajuan resmi perusahaan.</p></div></div>
       <div class="leave-form-box">
         <form id="leaveRequestForm">
           <div class="form-grid">
@@ -867,7 +661,7 @@
             <div class="form-field"><label for="leaveStart">Tanggal mulai</label><input id="leaveStart" name="start_date" type="date" required></div>
             <div class="form-field"><label for="leaveEnd">Tanggal selesai</label><input id="leaveEnd" name="end_date" type="date" required></div>
             <div class="form-field full"><label for="leaveReason">Alasan / keterangan</label><textarea id="leaveReason" name="reason" required placeholder="Jelaskan alasan pengajuan"></textarea></div>
-            <div class="form-field full"><label for="leaveEvidence">Lampiran bukti</label><input id="leaveEvidence" name="evidence" type="file" accept=".pdf,.jpg,.jpeg,.png" required><span class="small-note" id="leaveEvidenceHint">Sakit: surat keterangan sakit. Izin/cuti: dokumen atau bukti pendukung yang dapat diverifikasi.</span></div>
+            <div class="form-field full"><label for="leaveEvidence">Lampiran bukti</label><input id="leaveEvidence" name="evidence" type="file" accept=".pdf,.jpg,.jpeg,.png" required><span class="small-note" id="leaveEvidenceHint">Sakit: surat keterangan sakit. Izin/cuti: dokumen pendukung sah.</span></div>
           </div>
           <button class="primary-button" type="submit" style="margin-top:14px;">Kirim Pengajuan</button>
           <p class="page-message" id="leaveRequestMessage" role="status"></p>
@@ -880,12 +674,12 @@
     </section>
 
     <section class="panel new-page" id="about">
-      <div class="panel-heading"><div><h2>Tentang ABSENKU</h2><p class="muted">Informasi aplikasi</p></div></div>
+      <div class="panel-heading"><div><h2>Tentang ABSENKU</h2><p class="muted">Informasi sistem</p></div></div>
       <div class="about-box">
         <h3>ABSENKU — Sistem Absensi Karyawan</h3>
-        <p>ABSENKU membantu karyawan mencatat kehadiran dan melihat riwayat absensi serta menyiapkan pengajuan izin, sakit, dan cuti.</p>
+        <p>ABSENKU membantu perusahaan mengelola kehadiran, riwayat kerja, dan perizinan secara profesional dan terstruktur.</p>
         <p><strong>Developer:</strong> MR.Y OFFICIAL</p>
-        <p><strong>Versi:</strong> 1.0</p>
+        <p><strong>Versi:</strong> 1.0 Eksekutif</p>
       </div>
     </section>
    
@@ -893,12 +687,12 @@
       <div class="panel-heading">
         <div>
           <h2>Persetujuan Administrasi</h2>
-          <p class="muted">Periksa pengajuan perubahan data administrasi karyawan.</p>
+          <p class="muted">Validasi perubahan data administrasi karyawan.</p>
         </div>
       </div>
       <div class="about-box">
         <p id="profileApprovalsMessage">Halaman persetujuan profil siap dibuka.</p>
-        <div id="profileApprovalsList"><p class="muted">Pengajuan akan ditampilkan setelah halaman dihubungkan ke Supabase.</p></div>
+        <div id="profileApprovalsList"><p class="muted">Pengajuan akan ditampilkan setelah terhubung ke database.</p></div>
       </div>
     </section>
 
@@ -906,20 +700,17 @@
   </main>
 </div>
 
-<!-- Pemilih Bahasa Online Otomatis Tanpa Notifikasi -->
-<div id="absenku-language-box" style="margin:20px auto;padding:18px;max-width:500px;background:rgba(255,255,255,0.45);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.7);border-radius:20px;box-shadow:0 12px 30px rgba(8,127,189,0.14);font-family:Arial,sans-serif;color:#0f294a;">
-  <div style="font-size:16px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
-    <svg class="prof-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-    Bahasa Aplikasi
+<!-- Pemilih Bahasa Online Senyap (Tanpa Notifikasi / Banner) -->
+<div id="absenku-language-box" style="margin:20px auto;padding:16px;max-width:500px;background:rgba(15,23,42,0.75);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.15);border-radius:18px;box-shadow:0 12px 30px rgba(0,0,0,0.5);font-family:Arial,sans-serif;color:#f8fafc;">
+  <div style="font-size:15px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+    🌐 Bahasa Aplikasi / Language
   </div>
-  <select id="absenku-language" aria-label="Pilih bahasa aplikasi" style="width:100%;padding:12px;border:1px solid rgba(255,255,255,0.8);border-radius:12px;background:rgba(255,255,255,0.75);font-size:15px;font-weight:600;color:#0f294a;cursor:pointer;">
-    <option value="id" selected>Bahasa Indonesia (Utama)</option>
-    <option value="en">English</option>
-    <option value="ms">Bahasa Melayu</option>
-    <option value="zh-CN">中文（简体）— Mandarin</option>
-    <option value="ja">日本語 — Jepang</option>
-    <option value="ko">한국어 — Korea</option>
-    <option value="ar">العربية — Arab</option>
+  <select id="absenku-language" aria-label="Pilih bahasa aplikasi" style="width:100%;padding:11px;border:1px solid rgba(255,255,255,0.25);border-radius:10px;background:rgba(15,23,42,0.85);font-size:14px;font-weight:600;color:#f8fafc;cursor:pointer;">
+    <option value="id" selected>🇮🇩 Bahasa Indonesia (Utama)</option>
+    <option value="en">🇬🇧 English</option>
+    <option value="ms">🇲🇾 Bahasa Melayu</option>
+    <option value="zh-CN">🇨🇳 中文（简体）— Mandarin</option>
+    <option value="ja">🇯🇵 日本語 — Jepang</option>
   </select>
 </div>
 
@@ -938,34 +729,12 @@
 <script src="fitur-ringan.js"></script>
 <script src="live-chat.js"></script>
 
-<!-- Efek 3D Tilt Interaktif saat Kursor Bergerak di Atas Kartu -->
-<script>
-(function () {
-  const cards = document.querySelectorAll('[data-tilt]');
-  cards.forEach(function (card) {
-    card.addEventListener('mousemove', function (e) {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const rotateX = ((y - centerY) / centerY) * -7;
-      const rotateY = ((x - centerX) / centerX) * 7;
-      card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
-    });
-    card.addEventListener('mouseleave', function () {
-      card.style.transform = '';
-    });
-  });
-})();
-</script>
-
-<!-- Sistem Terjemahan Online Otomatis & Senyap (Bahasa Utama: Indonesia) -->
+<!-- Skrip Terjemahan Online Senyap & Otomatis Tanpa Notifikasi -->
 <script>
 function googleTranslateElementInit() {
   new google.translate.TranslateElement({
     pageLanguage: 'id',
-    includedLanguages: 'id,en,ms,zh-CN,ja,ko,ar',
+    includedLanguages: 'id,en,ms,zh-CN,ja',
     autoDisplay: false
   }, 'google_translate_element');
 }
@@ -987,14 +756,13 @@ function googleTranslateElementInit() {
     const googleCombo = document.querySelector(".goog-te-combo");
     if (googleCombo) {
       if (lang === "id") {
-        // Kembali ke bahasa asli (Indonesia) tanpa notifikasi
         googleCombo.value = "";
         googleCombo.dispatchEvent(new Event("change"));
         setTimeout(function () {
           if (document.documentElement.classList.contains("translated-ltr") || document.documentElement.classList.contains("translated-rtl")) {
             location.reload();
           }
-        }, 150);
+        }, 100);
       } else {
         googleCombo.value = lang;
         googleCombo.dispatchEvent(new Event("change"));
@@ -1004,7 +772,6 @@ function googleTranslateElementInit() {
     }
   }
 
-  // Muat preferensi bahasa tersimpan (Default: Bahasa Indonesia)
   try {
     const saved = localStorage.getItem("absenku-language") || "id";
     selector.value = saved;

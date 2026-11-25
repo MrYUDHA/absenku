@@ -11,6 +11,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -114,39 +115,6 @@
             z-index: 10;
         }
 
-        .id-card-watermark {
-            position: absolute;
-            inset: 0;
-            z-index: 25;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            background: repeating-linear-gradient(
-                -32deg,
-                rgba(220, 38, 38, 0.04) 0px,
-                rgba(220, 38, 38, 0.04) 14px,
-                rgba(15, 23, 42, 0.04) 14px,
-                rgba(15, 23, 42, 0.04) 28px
-            );
-            user-select: none;
-        }
-
-        .id-card-watermark-stamp {
-            border: 3px dashed rgba(220, 38, 38, 0.55);
-            color: rgba(185, 28, 28, 0.72);
-            background: rgba(255, 255, 255, 0.78);
-            padding: 6px 14px;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 900;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            transform: rotate(-22deg);
-        }
-
         .signature-script {
             font-family: 'Brush Script MT', 'Segoe Script', cursive;
             font-size: 24px;
@@ -186,7 +154,8 @@
             
             <!-- Brand Logo Above Form Panel (Larger & Prominent) -->
             <div class="flex flex-col items-center text-center space-y-2.5">
-                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white flex items-center justify-center shadow-xl shadow-brand-600/25 ring-4 ring-white">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white flex items-center justify-center shadow-xl shadow-brand-600/25 ring-4 ring-white overflow-hidden">
+                    <img data-app-logo-src="true" src="./assets/absen-kita-logo-transparent.png" alt="Logo Aplikasi Absen Kita" class="w-full h-full object-contain p-2 hidden bg-transparent">
                     <i data-lucide="scan-face" class="w-11 h-11 sm:w-12 sm:h-12 stroke-[2.2]" data-brand-logo-icon="true"></i>
                 </div>
                 <div>
@@ -401,8 +370,9 @@
             <!-- Complementary Features Space Below Form -->
             <div class="w-full grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <div class="bg-white/90 border border-slate-200/80 rounded-2xl p-3 flex items-center sm:flex-col sm:text-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0">
-                        <i data-lucide="map-pin" class="w-4 h-4"></i>
+                    <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0 overflow-hidden">
+                        <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon GPS" class="w-full h-full object-contain p-1 hidden bg-transparent">
+                        <i data-lucide="map-pin" class="w-4 h-4" data-app-icon-fallback="true"></i>
                     </div>
                     <div>
                         <div class="text-xs font-extrabold text-slate-800">GPS & Shift</div>
@@ -410,8 +380,9 @@
                     </div>
                 </div>
                 <div class="bg-white/90 border border-slate-200/80 rounded-2xl p-3 flex items-center sm:flex-col sm:text-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0">
-                        <i data-lucide="id-card" class="w-4 h-4"></i>
+                    <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0 overflow-hidden">
+                        <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon ID Card" class="w-full h-full object-contain p-1 hidden bg-transparent">
+                        <i data-lucide="id-card" class="w-4 h-4" data-app-icon-fallback="true"></i>
                     </div>
                     <div>
                         <div class="text-xs font-extrabold text-slate-800">ID Card & QR</div>
@@ -419,8 +390,9 @@
                     </div>
                 </div>
                 <div class="bg-white/90 border border-slate-200/80 rounded-2xl p-3 flex items-center sm:flex-col sm:text-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0">
-                        <i data-lucide="printer" class="w-4 h-4"></i>
+                    <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0 overflow-hidden">
+                        <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Laporan" class="w-full h-full object-contain p-1 hidden bg-transparent">
+                        <i data-lucide="printer" class="w-4 h-4" data-app-icon-fallback="true"></i>
                     </div>
                     <div>
                         <div class="text-xs font-extrabold text-slate-800">Rekap A4 & AI</div>
@@ -446,6 +418,7 @@
         <header class="lg:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center justify-between no-print">
             <div class="flex items-center gap-2.5">
                 <div id="mobile-brand-badge" class="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-sm overflow-hidden">
+                    <img data-app-logo-src="true" src="./assets/absen-kita-logo-transparent.png" alt="Logo Aplikasi Absen Kita" class="w-full h-full object-contain p-1 hidden bg-transparent">
                     <i data-lucide="scan-face" class="w-5 h-5" data-brand-logo-icon="true"></i>
                 </div>
                 <div>
@@ -455,11 +428,13 @@
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="navigateTo('notifications')" class="relative p-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200">
-                    <i data-lucide="bell" class="w-5 h-5"></i>
+                    <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Notifikasi" class="w-5 h-5 object-contain hidden bg-transparent">
+                    <i data-lucide="bell" class="w-5 h-5" data-app-icon-fallback="true"></i>
                     <span id="mobile-notif-badge" class="hidden absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-brand-600"></span>
                 </button>
                 <button onclick="toggleMobileSidebar()" class="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">
-                    <i data-lucide="menu" class="w-5 h-5"></i>
+                    <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Menu" class="w-5 h-5 object-contain hidden bg-transparent">
+                    <i data-lucide="menu" class="w-5 h-5" data-app-icon-fallback="true"></i>
                 </button>
             </div>
         </header>
@@ -474,6 +449,7 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div id="sidebar-brand-badge" class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-md shadow-brand-600/20 overflow-hidden">
+                            <img data-app-logo-src="true" src="./assets/absen-kita-logo-transparent.png" alt="Logo Aplikasi Absen Kita" class="w-full h-full object-contain p-1 hidden bg-transparent">
                             <i data-lucide="scan-face" class="w-6 h-6" data-brand-logo-icon="true"></i>
                         </div>
                         <div>
@@ -505,21 +481,24 @@
                     
                     <button onclick="navigateTo('dashboard')" data-nav="dashboard" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold bg-brand-50 text-brand-600 transition">
                         <div class="flex items-center gap-3">
-                            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                            <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Dashboard" class="w-4 h-4 object-contain hidden bg-transparent">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4" data-app-icon-fallback="true"></i>
                             <span>Dashboard & Absensi</span>
                         </div>
                     </button>
 
                     <button onclick="navigateTo('history')" data-nav="history" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
                         <div class="flex items-center gap-3">
-                            <i data-lucide="calendar-check" class="w-4 h-4"></i>
+                            <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Riwayat" class="w-4 h-4 object-contain hidden bg-transparent">
+                            <i data-lucide="calendar-check" class="w-4 h-4" data-app-icon-fallback="true"></i>
                             <span>Riwayat & Rekap A4</span>
                         </div>
                     </button>
 
                     <button onclick="navigateTo('leaves')" data-nav="leaves" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
                         <div class="flex items-center gap-3">
-                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                            <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Izin" class="w-4 h-4 object-contain hidden bg-transparent">
+                            <i data-lucide="file-text" class="w-4 h-4" data-app-icon-fallback="true"></i>
                             <span>Izin, Sakit & Cuti</span>
                         </div>
                         <span id="nav-leave-badge" class="hidden px-1.5 py-0.5 text-[10px] font-extrabold rounded-full bg-amber-100 text-amber-700">0</span>
@@ -527,21 +506,24 @@
 
                     <button onclick="navigateTo('idcard')" data-nav="idcard" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
                         <div class="flex items-center gap-3">
-                            <i data-lucide="id-card" class="w-4 h-4"></i>
+                            <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon ID Card" class="w-4 h-4 object-contain hidden bg-transparent">
+                            <i data-lucide="id-card" class="w-4 h-4" data-app-icon-fallback="true"></i>
                             <span>ID Card Digital & QR</span>
                         </div>
                     </button>
 
                     <button onclick="navigateTo('profile')" data-nav="profile" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
                         <div class="flex items-center gap-3">
-                            <i data-lucide="user-circle-2" class="w-4 h-4"></i>
+                            <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Profil" class="w-4 h-4 object-contain hidden bg-transparent">
+                            <i data-lucide="user-circle-2" class="w-4 h-4" data-app-icon-fallback="true"></i>
                             <span>Profil & Data Karyawan</span>
                         </div>
                     </button>
 
                     <button onclick="navigateTo('chat')" data-nav="chat" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
                         <div class="flex items-center gap-3">
-                            <i data-lucide="bot" class="w-4 h-4"></i>
+                            <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Chat" class="w-4 h-4 object-contain hidden bg-transparent">
+                            <i data-lucide="bot" class="w-4 h-4" data-app-icon-fallback="true"></i>
                             <span>SENIA AI & Room Chat</span>
                         </div>
                     </button>
@@ -552,7 +534,8 @@
                         
                         <button onclick="navigateTo('employees')" data-nav="employees" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
                             <div class="flex items-center gap-3">
-                                <i data-lucide="users" class="w-4 h-4"></i>
+                                <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Karyawan" class="w-4 h-4 object-contain hidden bg-transparent">
+                                <i data-lucide="users" class="w-4 h-4" data-app-icon-fallback="true"></i>
                                 <span>Data Karyawan & Approval</span>
                             </div>
                             <span id="nav-pending-badge" class="hidden px-1.5 py-0.5 text-[10px] font-extrabold rounded-full bg-brand-600 text-white">0</span>
@@ -560,7 +543,8 @@
 
                         <button onclick="navigateTo('settings')" data-nav="settings" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
                             <div class="flex items-center gap-3">
-                                <i data-lucide="settings" class="w-4 h-4"></i>
+                                <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Pengaturan" class="w-4 h-4 object-contain hidden bg-transparent">
+                                <i data-lucide="settings" class="w-4 h-4" data-app-icon-fallback="true"></i>
                                 <span>Pengaturan Kantor</span>
                             </div>
                         </button>
@@ -587,7 +571,8 @@
 
                 <!-- Bottom-Most About Aplikasi Icon Button -->
                 <button onclick="navigateTo('about')" data-nav="about" class="nav-item w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs">
-                    <i data-lucide="info" class="w-3.5 h-3.5 text-brand-400"></i>
+                    <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Info" class="w-3.5 h-3.5 object-contain hidden bg-transparent">
+                    <i data-lucide="info" class="w-3.5 h-3.5 text-brand-400" data-app-icon-fallback="true"></i>
                     <span>About Aplikasi</span>
                 </button>
             </div>
@@ -608,7 +593,8 @@
                         <span>Sinkron</span>
                     </button>
                     <button onclick="navigateTo('notifications')" class="relative p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
-                        <i data-lucide="bell" class="w-4 h-4"></i>
+                        <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Notifikasi" class="w-4 h-4 object-contain hidden bg-transparent">
+                        <i data-lucide="bell" class="w-4 h-4" data-app-icon-fallback="true"></i>
                         <span id="desktop-notif-badge" class="hidden absolute top-2 right-2 w-2 h-2 rounded-full bg-brand-600"></span>
                     </button>
                 </div>
@@ -850,15 +836,15 @@
                     <div class="w-full max-w-md flex flex-wrap items-center justify-between gap-2 mb-4">
                         <div>
                             <h2 class="text-lg font-extrabold text-slate-900">Kartu Identitas Karyawan</h2>
-                            <p class="text-xs text-slate-500">Tersinkronisasi otomatis dengan data profil & perusahaan.</p>
+                            <p class="text-xs text-slate-500">Tersinkronisasi otomatis dengan data profil & perusahaan • Gratis cetak.</p>
                         </div>
-                        <button id="btn-print-idcard" onclick="printEmployeeIDCard()" class="py-2 px-4 rounded-xl bg-brand-600 hover:bg-brand-700 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-bold text-xs shadow-sm flex items-center gap-2">
+                        <button id="btn-print-idcard" onclick="printEmployeeIDCard()" class="py-2 px-4 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-sm flex items-center gap-2">
                             <i data-lucide="printer" class="w-4 h-4"></i>
                             <span>Cetak ID Card</span>
                         </button>
                     </div>
 
-                    <!-- Custom Warna ID Card & Status Pembayaran Cetak (Rp10.000) -->
+                    <!-- Custom Warna ID Card -->
                     <div class="w-full max-w-md p-4 rounded-2xl bg-slate-50 border border-slate-200/90 mb-6 space-y-3.5">
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <span class="text-xs font-extrabold text-slate-800">Custom Warna ID Card Perusahaan</span>
@@ -878,25 +864,10 @@
                                 <input type="color" id="idcard-color-footer" value="#0b2545" onchange="updateIdCardColors()" class="w-6 h-6 rounded border-0 bg-transparent cursor-pointer">
                             </label>
                         </div>
-
-                        <div class="pt-3 border-t border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                            <div>
-                                <div class="text-xs font-extrabold text-slate-800">Biaya Cetak ID Card: <span class="text-brand-600">Rp10.000</span></div>
-                                <div id="idcard-payment-status-text" class="text-[11px] font-bold text-amber-700 mt-0.5">Belum Lunas • Watermark aktif & cetak terkunci</div>
-                            </div>
-                            <button type="button" id="btn-pay-idcard" onclick="payIdCardPrintFee()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-xs transition shrink-0">
-                                Bayar Rp10.000
-                            </button>
-                        </div>
                     </div>
 
                     <!-- Reference-Matched ID Card -->
                     <div id="id-card-visual" class="ref-id-card">
-                        <div id="idcard-watermark-overlay" class="id-card-watermark">
-                            <div class="id-card-watermark-stamp">BELUM LUNAS • RP10.000</div>
-                            <div class="id-card-watermark-stamp">PRA-CETAK • WATERMARK</div>
-                        </div>
-
                         <div id="card-header-bg" class="ref-id-header-bg"></div>
                         <div id="card-header-accent" class="ref-id-header-accent"></div>
 
@@ -1053,16 +1024,12 @@
                             <div>
                                 <h3 class="font-extrabold text-sm text-slate-900">SENIA — Asisten Virtual HRD</h3>
                                 <span class="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Siap membantu kebijakan & rekap absen
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Privat khusus akun Anda • Siap membantu kebijakan & rekap absen
                                 </span>
                             </div>
                         </div>
 
-                        <div id="senia-messages" class="flex-1 overflow-y-auto py-4 space-y-3 text-xs">
-                            <div class="p-3.5 rounded-2xl rounded-tl-none bg-slate-100 text-slate-800 max-w-[85%] leading-relaxed">
-                                Halo! Saya <strong>SENIA</strong>. Tanyakan seputar aturan jam kerja, keterlambatan, sisa cuti, atau status kehadiran Anda bulan ini.
-                            </div>
-                        </div>
+                        <div id="senia-messages" class="flex-1 overflow-y-auto py-4 space-y-3 text-xs"></div>
 
                         <form id="senia-form" class="pt-3 border-t border-slate-100 flex gap-2">
                             <input type="text" id="senia-input" required placeholder="Tanya SENIA (misal: rekap hadir saya)..." class="flex-1 px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:border-brand-600 outline-none">
@@ -1354,11 +1321,13 @@
     <!-- ========================================== -->
     <script>
         // ==========================================
-        // 0. PENYEBUTAN LOGO & IKON DI LUAR KODE
+        // 0. PEMANGGILAN GAMBAR PNG LOGO & IKON APLIKASI ABSEN KITA (TANPA LATAR)
         // ==========================================
         const EXTERNAL_BRAND_LOGO_REF = {
             brandName: 'ABSEN KITA',
             tagline: 'Sistem Kehadiran, Shift & Administrasi Tim',
+            appLogoUrl: './assets/absen-kita-logo-transparent.png',
+            appIconUrl: './assets/absen-kita-icon-transparent.png',
             lucideIconName: 'scan-face',
             idCardSubTagline: 'Innovate • Create • Grow',
             idCardFooterTagline: 'TOGETHER FOR A BETTER DIGITAL FUTURE'
@@ -1371,6 +1340,36 @@
             document.getElementById('sidebar-brand-name').textContent = EXTERNAL_BRAND_LOGO_REF.brandName;
             document.getElementById('card-company-tagline').textContent = EXTERNAL_BRAND_LOGO_REF.idCardSubTagline;
             document.getElementById('card-footer-tagline').textContent = EXTERNAL_BRAND_LOGO_REF.idCardFooterTagline;
+
+            document.querySelectorAll('img[data-app-logo-src="true"]').forEach(img => {
+                if (!EXTERNAL_BRAND_LOGO_REF.appLogoUrl) return;
+                img.src = EXTERNAL_BRAND_LOGO_REF.appLogoUrl;
+                img.onload = () => {
+                    img.classList.remove('hidden');
+                    const siblingIcon = img.parentElement?.querySelector('[data-brand-logo-icon="true"]');
+                    if (siblingIcon) siblingIcon.classList.add('hidden');
+                };
+                img.onerror = () => {
+                    img.classList.add('hidden');
+                    const siblingIcon = img.parentElement?.querySelector('[data-brand-logo-icon="true"]');
+                    if (siblingIcon) siblingIcon.classList.remove('hidden');
+                };
+            });
+
+            document.querySelectorAll('img[data-app-icon-src="true"]').forEach(img => {
+                if (!EXTERNAL_BRAND_LOGO_REF.appIconUrl) return;
+                img.src = EXTERNAL_BRAND_LOGO_REF.appIconUrl;
+                img.onload = () => {
+                    img.classList.remove('hidden');
+                    const siblingFallback = img.parentElement?.querySelector('[data-app-icon-fallback="true"]');
+                    if (siblingFallback) siblingFallback.classList.add('hidden');
+                };
+                img.onerror = () => {
+                    img.classList.add('hidden');
+                    const siblingFallback = img.parentElement?.querySelector('[data-app-icon-fallback="true"]');
+                    if (siblingFallback) siblingFallback.classList.remove('hidden');
+                };
+            });
 
             document.querySelectorAll('[data-brand-logo-icon="true"]').forEach(el => {
                 el.setAttribute('data-lucide', EXTERNAL_BRAND_LOGO_REF.lucideIconName);
@@ -1388,6 +1387,11 @@
                 if (!box) return;
                 if (isSafePhotoUrl(logoUrl)) {
                     box.innerHTML = `<img src="${logoUrl}" alt="${escapeHtml(currentCompany.name)}" class="w-full h-full object-contain bg-white p-0.5">`;
+                } else if (EXTERNAL_BRAND_LOGO_REF.appLogoUrl) {
+                    box.innerHTML = `
+                        <img src="${EXTERNAL_BRAND_LOGO_REF.appLogoUrl}" alt="${escapeHtml(EXTERNAL_BRAND_LOGO_REF.brandName)}" class="w-full h-full object-contain p-1 bg-transparent" onerror="this.classList.add('hidden'); if(this.nextElementSibling) this.nextElementSibling.classList.remove('hidden');">
+                        <i data-lucide="${EXTERNAL_BRAND_LOGO_REF.lucideIconName}" class="w-5 h-5 hidden" data-brand-logo-icon="true"></i>
+                    `;
                 } else {
                     box.innerHTML = `<i data-lucide="${EXTERNAL_BRAND_LOGO_REF.lucideIconName}" class="w-5 h-5" data-brand-logo-icon="true"></i>`;
                 }
@@ -1400,6 +1404,7 @@
         // ==========================================
         const SUPABASE_URL = 'https://lrzgmyqgavnnexzcnoif.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_6hYX1pOgfX34pNyX7JpCeA_G9Xm4htn';
+        const SUPABASE_STORAGE_BUCKET = 'absenkita-assets';
         let supabaseClient = null;
 
         try {
@@ -1418,13 +1423,13 @@
             LEAVES: 'absenkita_leaves_v3',
             NOTIFS: 'absenkita_notifs_v3',
             CHATS: 'absenkita_chats_v3',
+            BOT_CHATS: 'absenkita_senia_private_v3_9',
             FEEDBACKS: 'absenkita_feedbacks_v3',
-            IDCARD_PAID: 'absenkita_idcard_paid_v3_9',
+            LOGIN_ATTEMPTS: 'absenkita_login_attempts_v3_9',
             SESSION: 'absenkita_session_v3'
         };
 
         const LAUNCH_PURGE_DONE_KEY = 'absenkita_prod_init_v3_9_done';
-        const IDCARD_PRINT_FEE = 10000;
 
         function clearAllLocalAppData() {
             Object.values(STORAGE_KEYS).forEach(k => localStorage.removeItem(k));
@@ -1510,13 +1515,94 @@
             });
         }
 
-        async function hashPassword(plainText) {
-            if (!plainText) return '';
+        function dataUrlToBlob(dataUrl) {
+            const parts = dataUrl.split(',');
+            const mimeMatch = parts[0].match(/:(.*?);/);
+            const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+            const byteString = atob(parts[1]);
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            return new Blob([ab], { type: mime });
+        }
+
+        async function uploadImageAssetToStorage(file, objectPath, maxSize = 360, quality = 0.8, preserveTransparency = false) {
+            const compressedDataUrl = await compressImageToDataUrl(file, maxSize, quality, preserveTransparency);
+
+            if (supabaseClient && navigator.onLine) {
+                try {
+                    const blob = dataUrlToBlob(compressedDataUrl);
+                    const { error } = await supabaseClient.storage
+                        .from(SUPABASE_STORAGE_BUCKET)
+                        .upload(objectPath, blob, {
+                            contentType: preserveTransparency ? 'image/png' : 'image/jpeg',
+                            upsert: true
+                        });
+                    if (!error) {
+                        const { data: pubData } = supabaseClient.storage
+                            .from(SUPABASE_STORAGE_BUCKET)
+                            .getPublicUrl(objectPath);
+                        if (pubData?.publicUrl) {
+                            return `${pubData.publicUrl}?t=${Date.now()}`;
+                        }
+                    } else {
+                        console.warn('Supabase Storage upload fallback ke lokal:', error.message);
+                    }
+                } catch (err) {
+                    console.warn('Supabase Storage error fallback ke lokal:', err);
+                }
+            }
+            return compressedDataUrl;
+        }
+
+        function generateUserSalt() {
+            const arr = new Uint8Array(16);
+            crypto.getRandomValues(arr);
+            return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function hashPasswordWithSalt(plainText, salt) {
+            if (!plainText || !salt) return '';
             const encoder = new TextEncoder();
-            const data = encoder.encode(plainText + '_ABSENKITA_SALT_2026');
+            const data = encoder.encode(`${salt}:${plainText}`);
             const hashBuffer = await crypto.subtle.digest('SHA-256', data);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function checkLoginLockout(identifier) {
+            const attempts = getStore(STORAGE_KEYS.LOGIN_ATTEMPTS, {});
+            const record = attempts[identifier];
+            if (!record) return { locked: false, remainingSec: 0 };
+            if (record.lockUntil && Date.now() < record.lockUntil) {
+                return {
+                    locked: true,
+                    remainingSec: Math.ceil((record.lockUntil - Date.now()) / 1000)
+                };
+            }
+            return { locked: false, remainingSec: 0 };
+        }
+
+        function recordFailedLoginAttempt(identifier) {
+            const attempts = getStore(STORAGE_KEYS.LOGIN_ATTEMPTS, {});
+            const current = attempts[identifier] || { count: 0, lockUntil: 0 };
+            current.count += 1;
+            if (current.count >= 5) {
+                current.lockUntil = Date.now() + 60 * 1000;
+                current.count = 0;
+            }
+            attempts[identifier] = current;
+            setStore(STORAGE_KEYS.LOGIN_ATTEMPTS, attempts);
+        }
+
+        function clearLoginAttempts(identifier) {
+            const attempts = getStore(STORAGE_KEYS.LOGIN_ATTEMPTS, {});
+            if (attempts[identifier]) {
+                delete attempts[identifier];
+                setStore(STORAGE_KEYS.LOGIN_ATTEMPTS, attempts);
+            }
         }
 
         function getStore(key, fallback = []) {
@@ -1564,12 +1650,14 @@
                     const updatedUser = getStore(STORAGE_KEYS.USERS).find(u => u.id === currentUser.id);
                     if (updatedComp) currentCompany = updatedComp;
                     if (updatedUser) currentUser = updatedUser;
+                    checkAutoFreeze25Days();
                     applyCompanyBrandingBadges();
                     renderAvatarContent(document.getElementById('sidebar-user-avatar'), currentUser.name, currentUser.photo_url);
                     updateDashboardUI();
                     renderIDCard();
                     renderProfileSection();
                     renderLeavesList();
+                    renderChatMessages();
                     if (currentUser.role === 'admin') {
                         renderEmployeesAdmin();
                         renderCompanyAssetPreviews();
@@ -1697,7 +1785,8 @@
                 shift2_out: '22:00'
             };
 
-            const passHash = await hashPassword(adminPass);
+            const authSalt = generateUserSalt();
+            const passHash = await hashPasswordWithSalt(adminPass, authSalt);
             const newAdmin = {
                 id: generateId('USR'),
                 company_id: newComp.id,
@@ -1706,6 +1795,7 @@
                 email: adminEmail,
                 phone: adminPhone,
                 photo_url: null,
+                auth_salt: authSalt,
                 password_hash: passHash,
                 role: 'admin',
                 division: 'Direksi / HRD Admin',
@@ -1754,7 +1844,8 @@
             }
 
             generatedOTP = String(Math.floor(100000 + Math.random() * 900000));
-            const passHash = await hashPassword(password);
+            const authSalt = generateUserSalt();
+            const passHash = await hashPasswordWithSalt(password, authSalt);
 
             pendingEmpDraft = {
                 id: generateId('PND'),
@@ -1762,6 +1853,7 @@
                 name,
                 email,
                 phone,
+                auth_salt: authSalt,
                 password_hash: passHash,
                 division,
                 created_at: new Date().toISOString()
@@ -1817,6 +1909,11 @@
             const identifier = document.getElementById('login-identifier').value.trim().toLowerCase();
             const password = document.getElementById('login-password').value;
 
+            const lockStatus = checkLoginLockout(identifier);
+            if (lockStatus.locked) {
+                return showToast(`Terlalu banyak percobaan gagal. Coba lagi dalam ${lockStatus.remainingSec} detik.`, 'error');
+            }
+
             const users = getStore(STORAGE_KEYS.USERS);
             const pendings = getStore(STORAGE_KEYS.PENDING);
 
@@ -1826,11 +1923,14 @@
 
             const foundUser = users.find(u => u.email === identifier || u.phone === identifier);
             if (!foundUser) {
+                recordFailedLoginAttempt(identifier);
                 return showToast('Akun tidak ditemukan. Periksa email/nomor HP Anda.', 'error');
             }
 
-            const inputHash = await hashPassword(password);
+            const saltToUse = foundUser.auth_salt || '';
+            const inputHash = await hashPasswordWithSalt(password, saltToUse);
             if (foundUser.password_hash && foundUser.password_hash !== inputHash) {
+                recordFailedLoginAttempt(identifier);
                 return showToast('Kata sandi salah! Silakan coba lagi.', 'error');
             }
 
@@ -1840,6 +1940,7 @@
                 return showToast('Data perusahaan tidak ditemukan.', 'error');
             }
 
+            clearLoginAttempts(identifier);
             loginSession(foundUser, comp);
         });
 
@@ -1893,7 +1994,6 @@
             const isFrozen = currentUser.status === 'frozen';
             document.getElementById('frozen-banner').classList.toggle('hidden', !isFrozen);
             document.getElementById('btn-clock-in').disabled = isFrozen;
-            document.getElementById('btn-clock-out').disabled = isFrozen;
 
             const now = new Date();
             const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -1979,7 +2079,7 @@
         }
 
         // ==========================================
-        // 6. GEOLOCATION & ATTENDANCE ENGINE
+        // 6. GEOLOCATION & ATTENDANCE ENGINE (NO. 2)
         // ==========================================
         function calculateDistanceMeters(lat1, lon1, lat2, lon2) {
             const R = 6371e3;
@@ -2045,11 +2145,42 @@
                     el.className = 'work-mode-btn py-2.5 px-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 text-xs font-bold transition text-center';
                 }
             });
+            updateClockOutAvailability();
         }
 
         function timeToMinutes(hhmm) {
             const [h, m] = hhmm.split(':').map(Number);
             return h * 60 + m;
+        }
+
+        function getScheduledOutTimeStr(modeForToday) {
+            if (!currentCompany) return '17:00';
+            if (modeForToday === 'Shift 2') return currentCompany.shift2_out || '22:00';
+            return currentCompany.shift1_out || '17:00';
+        }
+
+        function canClockOutNow(modeForToday) {
+            const schedOut = getScheduledOutTimeStr(modeForToday);
+            return timeToMinutes(getCurrentTimeStr()) >= timeToMinutes(schedOut);
+        }
+
+        function updateClockOutAvailability() {
+            const outBtn = document.getElementById('btn-clock-out');
+            if (!outBtn || !currentUser || !currentCompany) return;
+
+            const isFrozen = currentUser.status === 'frozen';
+            const logs = getStore(STORAGE_KEYS.LOGS).filter(
+                l => l.company_id === currentCompany.id && l.user_id === currentUser.id && l.date === getTodayStr()
+            );
+            const todayLog = logs[0];
+            const activeMode = todayLog?.mode || selectedWorkMode;
+            const schedOut = getScheduledOutTimeStr(activeMode);
+            const allowedByTime = canClockOutNow(activeMode);
+
+            outBtn.disabled = isFrozen || !allowedByTime;
+            outBtn.title = allowedByTime
+                ? `Absen pulang tersedia (jadwal pulang ${schedOut})`
+                : `Absen pulang baru dapat diakses mulai pukul ${schedOut}`;
         }
 
         async function handleAttendanceAction(type) {
@@ -2100,6 +2231,11 @@
 
                 showToast(`Absen Masuk berhasil pukul ${nowTime}${lateMinutes > 0 ? ` (Terlambat ${lateMinutes} mnt)` : ''}`, 'success');
             } else {
+                const modeForCheck = todayLog?.mode || selectedWorkMode;
+                const schedOut = getScheduledOutTimeStr(modeForCheck);
+                if (!canClockOutNow(modeForCheck)) {
+                    return showToast(`Absen pulang belum dapat diakses. Jadwal pulang ditetapkan pukul ${schedOut}.`, 'warning');
+                }
                 if (!todayLog || !todayLog.clock_in) {
                     return showToast('Anda belum melakukan Absen Masuk hari ini!', 'warning');
                 }
@@ -2107,7 +2243,6 @@
                     return showToast('Anda sudah melakukan Absen Pulang hari ini.', 'warning');
                 }
 
-                const schedOut = todayLog.mode === 'Shift 2' ? currentCompany.shift2_out : currentCompany.shift1_out;
                 const diffOut = timeToMinutes(nowTime) - timeToMinutes(schedOut);
                 const overtimeMinutes = diffOut > 0 ? diffOut : 0;
 
@@ -2137,6 +2272,7 @@
 
             document.getElementById('today-in-time').textContent = todayLog?.clock_in ? `Masuk ${todayLog.clock_in}` : 'Belum Absen';
             document.getElementById('today-out-time').textContent = todayLog?.clock_out ? `Pulang ${todayLog.clock_out}` : 'Belum Pulang';
+            updateClockOutAvailability();
 
             const now = new Date();
             const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -2176,7 +2312,7 @@
         }
 
         // ==========================================
-        // 7. HISTORY & A4 REPORT PRINTING
+        // 7. HISTORY & A4 REPORT PRINTING (NO. 4)
         // ==========================================
         function renderHistoryTable() {
             const monthFilter = document.getElementById('filter-history-month').value;
@@ -2227,16 +2363,25 @@
             const monthVal = document.getElementById('filter-history-month').value || getTodayStr().slice(0, 7);
             const rowsHtml = document.getElementById('history-tbody').innerHTML;
             const printArea = document.getElementById('print-area');
+            const kopLogoSrc = isSafePhotoUrl(currentCompany?.logo_url)
+                ? currentCompany.logo_url
+                : EXTERNAL_BRAND_LOGO_REF.appLogoUrl;
+            const kopLogoHtml = isSafePhotoUrl(kopLogoSrc)
+                ? `<img src="${kopLogoSrc}" alt="Logo Perusahaan" style="width: 56px; height: 56px; object-fit: contain; flex-shrink: 0;">`
+                : '';
             const stampHtml = isSafePhotoUrl(currentCompany?.stamp_url)
-                ? `<img src="${currentCompany.stamp_url}" alt="Stempel Perusahaan" style="position: absolute; left: -24px; top: 10px; width: 92px; height: 92px; object-fit: contain; pointer-events: none;">`
+                ? `<img src="${currentCompany.stamp_url}" alt="Stempel Resmi Perusahaan" style="position: absolute; left: -24px; top: 10px; width: 92px; height: 92px; object-fit: contain; pointer-events: none;">`
                 : '';
 
             printArea.innerHTML = `
                 <div style="font-family: 'Plus Jakarta Sans', sans-serif; color: #0f172a; padding: 10px;">
-                    <div style="border-bottom: 3px solid #0b2545; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <h1 style="margin: 0; font-size: 20px; font-weight: 800; text-transform: uppercase;">${escapeHtml(currentCompany.name)}</h1>
-                            <p style="margin: 4px 0 0; font-size: 11px; color: #475569;">${escapeHtml(currentCompany.address)}</p>
+                    <div style="border-bottom: 3px solid #0b2545; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            ${kopLogoHtml}
+                            <div>
+                                <h1 style="margin: 0; font-size: 20px; font-weight: 800; text-transform: uppercase;">${escapeHtml(currentCompany.name)}</h1>
+                                <p style="margin: 4px 0 0; font-size: 11px; color: #475569;">${escapeHtml(currentCompany.address)}</p>
+                            </div>
                         </div>
                         <div style="text-align: right;">
                             <span style="font-size: 12px; font-weight: 800; color: #0d3b66;">LAPORAN REKAPITULASI ABSENSI</span>
@@ -2374,34 +2519,8 @@
         }
 
         // ==========================================
-        // 9. ID CARD (CUSTOM COLOR, WATERMARK & Rp10.000 PAYMENT LOCK)
+        // 9. ID CARD (CUSTOM COLOR, QR STANDAR & STEMPEL CETAK NO. 1 & 4)
         // ==========================================
-        function getIdCardPaymentKey() {
-            if (!currentCompany || !currentUser) return '';
-            return `${currentCompany.id}::${currentUser.id}`;
-        }
-
-        function isIdCardPaid() {
-            const key = getIdCardPaymentKey();
-            if (!key) return false;
-            const paidMap = getStore(STORAGE_KEYS.IDCARD_PAID, {});
-            return Boolean(paidMap[key]?.paid);
-        }
-
-        function payIdCardPrintFee() {
-            const key = getIdCardPaymentKey();
-            if (!key) return;
-            const paidMap = getStore(STORAGE_KEYS.IDCARD_PAID, {});
-            paidMap[key] = {
-                paid: true,
-                amount: IDCARD_PRINT_FEE,
-                paid_at: new Date().toISOString()
-            };
-            setStore(STORAGE_KEYS.IDCARD_PAID, paidMap);
-            renderIDCard();
-            showToast('Pembayaran cetak ID Card Rp10.000 lunas! Watermark dilepas & cetak aktif.', 'success');
-        }
-
         function applyIdCardCustomColors() {
             const primary = isValidHexColor(currentCompany?.card_primary_color) ? currentCompany.card_primary_color : '#0b2545';
             const secondary = isValidHexColor(currentCompany?.card_secondary_color) ? currentCompany.card_secondary_color : '#0284c7';
@@ -2458,35 +2577,66 @@
             showToast('Warna ID Card dikembalikan ke bawaan.', 'info');
         }
 
-        function updateIdCardPaymentStateUI() {
-            const paid = isIdCardPaid();
-            const watermark = document.getElementById('idcard-watermark-overlay');
-            const printBtn = document.getElementById('btn-print-idcard');
-            const payBtn = document.getElementById('btn-pay-idcard');
-            const statusText = document.getElementById('idcard-payment-status-text');
+        function renderStandardQRCode(canvas, payload, darkColor = '#0b2545') {
+            if (!canvas) return;
+            const size = canvas.width || 76;
 
-            if (watermark) watermark.classList.toggle('hidden', paid);
-            if (printBtn) printBtn.disabled = !paid;
-            if (payBtn) {
-                payBtn.disabled = paid;
-                payBtn.textContent = paid ? 'Lunas (Rp10.000)' : 'Bayar Rp10.000';
-                payBtn.className = paid
-                    ? 'px-3.5 py-2 rounded-xl bg-slate-200 text-slate-600 text-xs font-extrabold cursor-default shrink-0'
-                    : 'px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-xs transition shrink-0';
+            if (window.QRCode && typeof window.QRCode.toCanvas === 'function') {
+                window.QRCode.toCanvas(canvas, payload, {
+                    width: size,
+                    margin: 1,
+                    color: {
+                        dark: darkColor,
+                        light: '#ffffff'
+                    }
+                }, (err) => {
+                    if (err) {
+                        drawFallbackQRMatrix(canvas, payload, darkColor);
+                    }
+                });
+            } else {
+                drawFallbackQRMatrix(canvas, payload, darkColor);
             }
-            if (statusText) {
-                statusText.textContent = paid
-                    ? 'Lunas Rp10.000 • Watermark dihapus & siap cetak'
-                    : 'Belum Lunas • Watermark aktif & cetak terkunci';
-                statusText.className = paid
-                    ? 'text-[11px] font-bold text-emerald-700 mt-0.5'
-                    : 'text-[11px] font-bold text-amber-700 mt-0.5';
+        }
+
+        function drawFallbackQRMatrix(canvas, payload, darkColor = '#0b2545') {
+            const ctx = canvas.getContext('2d');
+            const size = canvas.width;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+
+            let seed = 0;
+            for (let i = 0; i < payload.length; i++) seed = (seed * 31 + payload.charCodeAt(i)) % 100000;
+
+            const cells = 21;
+            const cellSize = Math.floor((size - 10) / cells);
+            const offset = 5;
+
+            ctx.fillStyle = darkColor;
+            for (let r = 0; r < cells; r++) {
+                for (let c = 0; c < cells; c++) {
+                    const isFinder = (r < 7 && c < 7) || (r < 7 && c >= cells - 7) || (r >= cells - 7 && c < 7);
+                    if (isFinder) {
+                        const inBorder = r === 0 || r === 6 || c === 0 || c === 6 ||
+                                         c === cells - 7 || c === cells - 1 || r === cells - 7 || r === cells - 1;
+                        const inCenter = (r >= 2 && r <= 4 && c >= 2 && c <= 4) ||
+                                         (r >= 2 && r <= 4 && c >= cells - 5 && c <= cells - 3) ||
+                                         (r >= cells - 5 && r <= cells - 3 && c >= 2 && c <= 4);
+                        if (inBorder || inCenter) {
+                            ctx.fillRect(offset + c * cellSize, offset + r * cellSize, cellSize, cellSize);
+                        }
+                    } else {
+                        seed = (seed * 16807) % 2147483647;
+                        if (seed % 2 === 0) {
+                            ctx.fillRect(offset + c * cellSize, offset + r * cellSize, cellSize, cellSize);
+                        }
+                    }
+                }
             }
         }
 
         function renderIDCard() {
             applyIdCardCustomColors();
-            updateIdCardPaymentStateUI();
 
             const initials = currentUser.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
             const firstNameOnly = currentUser.name.split(' ')[0] || 'HRD';
@@ -2495,6 +2645,11 @@
 
             if (isSafePhotoUrl(currentCompany.logo_url)) {
                 logoBox.innerHTML = `<img src="${currentCompany.logo_url}" alt="${escapeHtml(currentCompany.name)}" class="w-full h-full object-contain bg-white p-0.5">`;
+            } else if (EXTERNAL_BRAND_LOGO_REF.appLogoUrl) {
+                logoBox.innerHTML = `
+                    <img src="${EXTERNAL_BRAND_LOGO_REF.appLogoUrl}" alt="${escapeHtml(currentCompany.name)}" class="w-full h-full object-contain p-1 bg-transparent" onerror="this.classList.add('hidden'); if(this.nextElementSibling) this.nextElementSibling.classList.remove('hidden');">
+                    <span id="card-brand-monogram" class="text-2xl font-black italic tracking-tighter text-sky-200 hidden">${escapeHtml((currentCompany.name[0] || 'A').toUpperCase())}</span>
+                `;
             } else {
                 logoBox.innerHTML = `<span id="card-brand-monogram" class="text-2xl font-black italic tracking-tighter text-sky-200">${escapeHtml((currentCompany.name[0] || 'A').toUpperCase())}</span>`;
             }
@@ -2519,52 +2674,38 @@
             document.getElementById('card-hrd-signature').textContent = currentUser.role === 'admin' ? firstNameOnly : 'HRD';
 
             const canvas = document.getElementById('id-qr-canvas');
-            const ctx = canvas.getContext('2d');
-            const size = canvas.width;
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, size, size);
-
-            const payload = `${currentCompany.code}|${currentUser.nip}|${currentUser.email}|${currentUser.id}`;
-            let seed = 0;
-            for (let i = 0; i < payload.length; i++) seed = (seed * 31 + payload.charCodeAt(i)) % 100000;
-
-            const cells = 21;
-            const cellSize = Math.floor((size - 10) / cells);
-            const offset = 5;
-
-            ctx.fillStyle = '#0b2545';
-            for (let r = 0; r < cells; r++) {
-                for (let c = 0; c < cells; c++) {
-                    const isFinder = (r < 7 && c < 7) || (r < 7 && c >= cells - 7) || (r >= cells - 7 && c < 7);
-                    if (isFinder) {
-                        const inBorder = r === 0 || r === 6 || c === 0 || c === 6 ||
-                                         c === cells - 7 || c === cells - 1 || r === cells - 7 || r === cells - 1;
-                        const inCenter = (r >= 2 && r <= 4 && c >= 2 && c <= 4) ||
-                                         (r >= 2 && r <= 4 && c >= cells - 5 && c <= cells - 3) ||
-                                         (r >= cells - 5 && r <= cells - 3 && c >= 2 && c <= 4);
-                        if (inBorder || inCenter) {
-                            ctx.fillRect(offset + c * cellSize, offset + r * cellSize, cellSize, cellSize);
-                        }
-                    } else {
-                        seed = (seed * 16807) % 2147483647;
-                        if (seed % 2 === 0) {
-                            ctx.fillRect(offset + c * cellSize, offset + r * cellSize, cellSize, cellSize);
-                        }
-                    }
-                }
-            }
+            const payload = JSON.stringify({
+                company: currentCompany.code,
+                nip: currentUser.nip,
+                name: currentUser.name,
+                id: currentUser.id
+            });
+            const qrDark = isValidHexColor(currentCompany?.card_primary_color) ? currentCompany.card_primary_color : '#0b2545';
+            renderStandardQRCode(canvas, payload, qrDark);
         }
 
         function printEmployeeIDCard() {
-            if (!isIdCardPaid()) {
-                return showToast('ID Card belum lunas (Rp10.000). Selesaikan pembayaran terlebih dahulu sebelum mencetak.', 'error');
-            }
             const cardEl = document.getElementById('id-card-visual').cloneNode(true);
-            const wm = cardEl.querySelector('#idcard-watermark-overlay');
-            if (wm) wm.remove();
+            const srcCanvas = document.getElementById('id-qr-canvas');
+            const clonedCanvas = cardEl.querySelector('#id-qr-canvas');
+            if (srcCanvas && clonedCanvas) {
+                const cCtx = clonedCanvas.getContext('2d');
+                cCtx.drawImage(srcCanvas, 0, 0);
+            }
+
+            const stampHtml = isSafePhotoUrl(currentCompany?.stamp_url)
+                ? `<img src="${currentCompany.stamp_url}" alt="Stempel Resmi Perusahaan" style="position: absolute; right: 14px; bottom: 52px; width: 72px; height: 72px; object-fit: contain; pointer-events: none; z-index: 30;">`
+                : '';
 
             const printArea = document.getElementById('print-area');
-            printArea.innerHTML = `<div style="display:flex;justify-content:center;padding:30px;">${cardEl.outerHTML}</div>`;
+            printArea.innerHTML = `
+                <div style="display:flex;justify-content:center;padding:30px;">
+                    <div style="position:relative;display:inline-block;">
+                        ${cardEl.outerHTML}
+                        ${stampHtml}
+                    </div>
+                </div>
+            `;
             printArea.classList.remove('hidden');
             window.print();
             printArea.classList.add('hidden');
@@ -2573,9 +2714,9 @@
         // ==========================================
         // 9B. PROFIL, FOTO PROFIL & DATA KARYAWAN
         // ==========================================
-        async function saveUserPhotoToDatabase(photoDataUrl) {
+        async function saveUserPhotoToDatabase(photoUrlOrDataUrl) {
             if (!currentUser) return;
-            currentUser.photo_url = photoDataUrl || null;
+            currentUser.photo_url = photoUrlOrDataUrl || null;
 
             const users = getStore(STORAGE_KEYS.USERS);
             const idx = users.findIndex(u => u.id === currentUser.id);
@@ -2608,9 +2749,10 @@
                 return showToast('Pilih berkas gambar (JPG, PNG, WEBP).', 'error');
             }
             try {
-                const compressed = await compressImageToDataUrl(file, 360, 0.78, false);
-                await saveUserPhotoToDatabase(compressed);
-                showToast('Foto profil berhasil diperbarui dan disimpan ke database!', 'success');
+                const path = `avatars/${currentCompany.id}/${currentUser.id}.jpg`;
+                const savedUrl = await uploadImageAssetToStorage(file, path, 360, 0.78, false);
+                await saveUserPhotoToDatabase(savedUrl);
+                showToast('Foto profil berhasil diperbarui dan disimpan!', 'success');
             } catch (err) {
                 showToast(err.message || 'Gagal memproses foto profil.', 'error');
             } finally {
@@ -2710,22 +2852,74 @@
         }
 
         // ==========================================
-        // 10. SENIA AI & INTERNAL TEAM CHAT
+        // 10. SENIA AI (PRIVAT PER USER) & INTERNAL TEAM CHAT (NO. 3)
         // ==========================================
+        function getPrivateBotChatKey() {
+            if (!currentUser || !currentCompany) return '';
+            return `${currentCompany.id}::${currentUser.id}`;
+        }
+
+        function getUserPrivateBotHistory() {
+            const key = getPrivateBotChatKey();
+            if (!key) return [];
+            const storeMap = getStore(STORAGE_KEYS.BOT_CHATS, {});
+            return Array.isArray(storeMap[key]) ? storeMap[key] : [];
+        }
+
+        function appendUserPrivateBotMessage(role, htmlOrText, isHtml = false) {
+            const key = getPrivateBotChatKey();
+            if (!key) return;
+            const storeMap = getStore(STORAGE_KEYS.BOT_CHATS, {});
+            if (!Array.isArray(storeMap[key])) storeMap[key] = [];
+            storeMap[key].push({
+                id: generateId('BOT'),
+                role,
+                content: htmlOrText,
+                isHtml,
+                time: getCurrentTimeStr()
+            });
+            setStore(STORAGE_KEYS.BOT_CHATS, storeMap);
+        }
+
+        function renderPrivateBotMessages() {
+            const box = document.getElementById('senia-messages');
+            if (!box || !currentUser) return;
+
+            const history = getUserPrivateBotHistory();
+            const greetingHtml = `Halo <strong>${escapeHtml(currentUser.name)}</strong>! Saya <strong>SENIA</strong> (asisten privat akun Anda). Tanyakan seputar aturan jam kerja, keterlambatan, sisa cuti, atau status kehadiran Anda bulan ini.`;
+
+            const items = [
+                `<div class="p-3.5 rounded-2xl rounded-tl-none bg-slate-100 text-slate-800 max-w-[85%] leading-relaxed">${greetingHtml}</div>`
+            ];
+
+            history.forEach(msg => {
+                if (msg.role === 'user') {
+                    items.push(`<div class="p-3 rounded-2xl rounded-tr-none bg-brand-600 text-white ml-auto max-w-[85%]">${escapeHtml(msg.content)}</div>`);
+                } else {
+                    const body = msg.isHtml ? msg.content : escapeHtml(msg.content);
+                    items.push(`<div class="p-3.5 rounded-2xl rounded-tl-none bg-slate-100 text-slate-800 max-w-[88%] leading-relaxed">${body}</div>`);
+                }
+            });
+
+            box.innerHTML = items.join('');
+            box.scrollTop = box.scrollHeight;
+        }
+
         document.getElementById('senia-form').addEventListener('submit', (e) => {
             e.preventDefault();
+            if (!currentUser) return;
             const input = document.getElementById('senia-input');
             const q = input.value.trim();
             if (!q) return;
 
-            const box = document.getElementById('senia-messages');
-            box.innerHTML += `<div class="p-3 rounded-2xl rounded-tr-none bg-brand-600 text-white ml-auto max-w-[85%]">${escapeHtml(q)}</div>`;
+            appendUserPrivateBotMessage('user', q, false);
             input.value = '';
+            renderPrivateBotMessages();
 
             const reply = generateSeniaReply(q.toLowerCase());
             setTimeout(() => {
-                box.innerHTML += `<div class="p-3.5 rounded-2xl rounded-tl-none bg-slate-100 text-slate-800 max-w-[88%] leading-relaxed">${reply}</div>`;
-                box.scrollTop = box.scrollHeight;
+                appendUserPrivateBotMessage('bot', reply, true);
+                renderPrivateBotMessages();
             }, 300);
         });
 
@@ -2749,7 +2943,7 @@
                 return `Untuk mengajukan Izin, Sakit, atau Cuti, buka menu <strong>Izin, Sakit & Cuti</strong> di bilah navigasi. Pengajuan Anda akan langsung masuk ke dashboard Admin HRD untuk disetujui.`;
             }
             if (q.includes('beku') || q.includes('alpa')) {
-                return `Sistem secara otomatis membekukan akun apabila pegawai tidak hadir tanpa keterangan selama <strong>25 hari kerja berturut-turut</strong>. Hubungi Admin HRD jika memerlukan aktivasi ulang.`;
+                return `Sistem secara otomatis membekukan akun apabila pegawai tidak hadir tanpa keterangan (di luar hari libur/cuti/izin yang disetujui) selama <strong>25 hari kerja berturut-turut</strong>. Hubungi Admin HRD jika memerlukan aktivasi ulang.`;
             }
             return `Terima kasih atas pertanyaannya! Anda dapat menanyakan tentang <em>"rekap hadir saya"</em>, <em>"jam shift kantor"</em>, <em>"cara ajukan cuti"</em>, atau <em>"aturan pembekuan akun"</em>.`;
         }
@@ -2771,10 +2965,10 @@
             });
             setStore(STORAGE_KEYS.CHATS, chats);
             input.value = '';
-            renderChatMessages();
+            renderTeamChatMessages();
         });
 
-        function renderChatMessages() {
+        function renderTeamChatMessages() {
             const chats = getStore(STORAGE_KEYS.CHATS).filter(c => c.company_id === currentCompany.id);
             const box = document.getElementById('team-chat-messages');
             if (!chats.length) {
@@ -2795,8 +2989,13 @@
             box.scrollTop = box.scrollHeight;
         }
 
+        function renderChatMessages() {
+            renderPrivateBotMessages();
+            renderTeamChatMessages();
+        }
+
         // ==========================================
-        // 11. NOTIFICATIONS & 25-DAY AUTO FREEZE
+        // 11. NOTIFICATIONS & 25-DAY WORKDAY AUTO FREEZE
         // ==========================================
         function addNotification(companyId, userId, title, message) {
             const notifs = getStore(STORAGE_KEYS.NOTIFS);
@@ -2850,13 +3049,41 @@
             showToast('Semua notifikasi ditandai sudah dibaca.', 'info');
         }
 
-        function checkAutoFreeze25Days() {
+        function isDateCoveredByApprovedLeave(dateStr, approvedLeaves) {
+            return approvedLeaves.some(lv => lv.start_date <= dateStr && dateStr <= lv.end_date);
+        }
+
+        async function checkAutoFreeze25Days() {
             if (!currentUser || currentUser.role === 'admin') return;
+
             const logs = getStore(STORAGE_KEYS.LOGS).filter(l => l.user_id === currentUser.id);
-            if (!logs.length) return;
-            const lastDate = new Date(logs[0].date);
-            const diffDays = Math.floor((new Date() - lastDate) / (1000 * 60 * 60 * 24));
-            if (diffDays >= 25 && currentUser.status !== 'frozen') {
+            const approvedLeaves = getStore(STORAGE_KEYS.LEAVES).filter(
+                lv => lv.user_id === currentUser.id && lv.status === 'approved'
+            );
+
+            const attendedDates = new Set(logs.map(l => l.date));
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let consecutiveAbsentWorkdays = 0;
+            const cursor = new Date(today);
+
+            for (let i = 0; i < 90; i++) {
+                const dayOfWeek = cursor.getDay();
+                const dateStr = cursor.toISOString().split('T')[0];
+
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    if (attendedDates.has(dateStr)) {
+                        break;
+                    }
+                    if (!isDateCoveredByApprovedLeave(dateStr, approvedLeaves)) {
+                        consecutiveAbsentWorkdays += 1;
+                    }
+                }
+                cursor.setDate(cursor.getDate() - 1);
+            }
+
+            if (consecutiveAbsentWorkdays >= 25 && currentUser.status !== 'frozen') {
                 currentUser.status = 'frozen';
                 const users = getStore(STORAGE_KEYS.USERS);
                 const idx = users.findIndex(u => u.id === currentUser.id);
@@ -2864,6 +3091,15 @@
                     users[idx].status = 'frozen';
                     setStore(STORAGE_KEYS.USERS, users);
                 }
+                if (supabaseClient) {
+                    await supabaseClient.from('users').update({ status: 'frozen' }).eq('id', currentUser.id);
+                }
+                addNotification(
+                    currentCompany.id,
+                    currentUser.id,
+                    'Akun Dibekukan Otomatis',
+                    'Akun dibekukan karena tidak hadir tanpa keterangan selama 25 hari kerja berturut-turut.'
+                );
             }
         }
 
@@ -2941,6 +3177,7 @@
                 email: p.email,
                 phone: p.phone,
                 photo_url: null,
+                auth_salt: p.auth_salt || generateUserSalt(),
                 password_hash: p.password_hash,
                 role: 'employee',
                 division: p.division,
@@ -3061,13 +3298,22 @@
             }
             try {
                 const isStamp = kind === 'stamp';
-                const dataUrl = await compressImageToDataUrl(file, isStamp ? 300 : 320, 0.85, isStamp);
+                const objectPath = isStamp
+                    ? `companies/${currentCompany.id}/stamp.png`
+                    : `companies/${currentCompany.id}/logo.jpg`;
+                const savedUrl = await uploadImageAssetToStorage(
+                    file,
+                    objectPath,
+                    isStamp ? 300 : 320,
+                    0.85,
+                    isStamp
+                );
                 const field = isStamp ? 'stamp_url' : 'logo_url';
-                await persistCompanyUpdate({ [field]: dataUrl });
+                await persistCompanyUpdate({ [field]: savedUrl });
                 renderCompanyAssetPreviews();
                 applyCompanyBrandingBadges();
                 renderIDCard();
-                showToast(isStamp ? 'Stempel perusahaan berhasil disimpan ke database!' : 'Foto profil perusahaan berhasil disimpan ke database!', 'success');
+                showToast(isStamp ? 'Stempel perusahaan berhasil disimpan!' : 'Foto profil perusahaan berhasil disimpan!', 'success');
             } catch (err) {
                 showToast(err.message || 'Gagal mengunggah gambar.', 'error');
             } finally {
@@ -3166,6 +3412,7 @@
                         weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
                     });
                 }
+                updateClockOutAvailability();
             };
             update();
             setInterval(update, 1000);

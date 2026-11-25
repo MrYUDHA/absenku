@@ -115,6 +115,69 @@
             z-index: 10;
         }
 
+        /* Model ID Card Variants */
+        .ref-id-card.model-modern .ref-id-header-bg {
+            clip-path: ellipse(115% 82% at 50% 10%);
+        }
+        .ref-id-card.model-modern .ref-id-header-accent {
+            border-radius: 999px;
+            transform: rotate(-18deg);
+        }
+
+        .ref-id-card.model-executive .ref-id-header-bg {
+            clip-path: polygon(0 0, 100% 0, 100% 78%, 50% 98%, 0 78%);
+        }
+        .ref-id-card.model-executive .ref-id-header-accent {
+            transform: skewX(20deg);
+        }
+
+        .ref-id-card.model-minimal .ref-id-header-bg {
+            height: 132px;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        }
+        .ref-id-card.model-minimal .ref-id-header-accent {
+            display: none;
+        }
+
+        .ref-id-card.model-ribbon .ref-id-header-bg {
+            height: 170px;
+            clip-path: polygon(0 0, 100% 0, 100% 55%, 68% 92%, 0 72%);
+        }
+        .ref-id-card.model-ribbon .ref-id-header-accent {
+            transform: skewX(-32deg);
+        }
+
+        /* Tata Letak Gambar ID Card */
+        .ref-id-card.photo-layout-oval #card-photo-frame {
+            border-radius: 9999px;
+            width: 132px;
+            height: 148px;
+        }
+        .ref-id-card.photo-layout-oval #card-photo-frame > div,
+        .ref-id-card.photo-layout-oval #card-photo-frame > img {
+            border-radius: 9999px;
+        }
+
+        .ref-id-card.photo-layout-square #card-photo-frame {
+            border-radius: 14px;
+            width: 136px;
+            height: 136px;
+        }
+        .ref-id-card.photo-layout-square #card-photo-frame > div,
+        .ref-id-card.photo-layout-square #card-photo-frame > img {
+            border-radius: 10px;
+        }
+
+        .ref-id-card.photo-layout-banner #card-photo-frame {
+            border-radius: 18px;
+            width: 196px;
+            height: 124px;
+        }
+        .ref-id-card.photo-layout-banner #card-photo-frame > div,
+        .ref-id-card.photo-layout-banner #card-photo-frame > img {
+            border-radius: 14px;
+        }
+
         .signature-script {
             font-family: 'Brush Script MT', 'Segoe Script', cursive;
             font-size: 24px;
@@ -130,7 +193,11 @@
 
         @media print {
             body * { visibility: hidden !important; }
-            #print-area, #print-area * { visibility: visible !important; }
+            #print-area, #print-area * {
+                visibility: visible !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
             #print-area {
                 position: fixed !important; left: 0 !important; top: 0 !important; width: 100% !important;
                 background: white !important; padding: 0 !important; margin: 0 !important;
@@ -155,7 +222,7 @@
             <!-- Brand Logo Above Form Panel (Larger & Prominent) -->
             <div class="flex flex-col items-center text-center space-y-2.5">
                 <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white flex items-center justify-center shadow-xl shadow-brand-600/25 ring-4 ring-white overflow-hidden">
-                    <img data-app-logo-src="true" src="./assets/absen-kita-logo-transparent.png" alt="Logo Aplikasi Absen Kita" class="w-full h-full object-contain p-2 hidden bg-transparent">
+                    <img id="auth-app-logo-img" data-app-logo-src="true" src="./logo-absen-kita.png" alt="Logo Aplikasi Absen Kita" class="w-full h-full object-contain p-2 hidden bg-transparent">
                     <i data-lucide="scan-face" class="w-11 h-11 sm:w-12 sm:h-12 stroke-[2.2]" data-brand-logo-icon="true"></i>
                 </div>
                 <div>
@@ -371,7 +438,7 @@
             <div class="w-full grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <div class="bg-white/90 border border-slate-200/80 rounded-2xl p-3 flex items-center sm:flex-col sm:text-center gap-2.5">
                     <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0 overflow-hidden">
-                        <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon GPS" class="w-full h-full object-contain p-1 hidden bg-transparent">
+                        <img data-app-icon-src="true" src="./ikon-absen-kita.png" alt="Ikon GPS" class="w-full h-full object-contain p-1 hidden bg-transparent">
                         <i data-lucide="map-pin" class="w-4 h-4" data-app-icon-fallback="true"></i>
                     </div>
                     <div>
@@ -381,7 +448,7 @@
                 </div>
                 <div class="bg-white/90 border border-slate-200/80 rounded-2xl p-3 flex items-center sm:flex-col sm:text-center gap-2.5">
                     <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0 overflow-hidden">
-                        <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon ID Card" class="w-full h-full object-contain p-1 hidden bg-transparent">
+                        <img data-app-icon-src="true" src="./ikon-absen-kita.png" alt="Ikon ID Card" class="w-full h-full object-contain p-1 hidden bg-transparent">
                         <i data-lucide="id-card" class="w-4 h-4" data-app-icon-fallback="true"></i>
                     </div>
                     <div>
@@ -391,7 +458,7 @@
                 </div>
                 <div class="bg-white/90 border border-slate-200/80 rounded-2xl p-3 flex items-center sm:flex-col sm:text-center gap-2.5">
                     <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0 overflow-hidden">
-                        <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Laporan" class="w-full h-full object-contain p-1 hidden bg-transparent">
+                        <img data-app-icon-src="true" src="./ikon-absen-kita.png" alt="Ikon Laporan" class="w-full h-full object-contain p-1 hidden bg-transparent">
                         <i data-lucide="printer" class="w-4 h-4" data-app-icon-fallback="true"></i>
                     </div>
                     <div>
@@ -418,7 +485,7 @@
         <header class="lg:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center justify-between no-print">
             <div class="flex items-center gap-2.5">
                 <div id="mobile-brand-badge" class="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-sm overflow-hidden">
-                    <img data-app-logo-src="true" src="./assets/absen-kita-logo-transparent.png" alt="Logo Aplikasi Absen Kita" class="w-full h-full object-contain p-1 hidden bg-transparent">
+                    <img id="mobile-app-logo-img" data-app-logo-src="true" src="./logo-absen-kita.png" alt="Logo Aplikasi Absen Kita" class="w-full h-full object-contain p-1 hidden bg-transparent">
                     <i data-lucide="scan-face" class="w-5 h-5" data-brand-logo-icon="true"></i>
                 </div>
                 <div>
@@ -428,12 +495,12 @@
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="navigateTo('notifications')" class="relative p-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200">
-                    <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Notifikasi" class="w-5 h-5 object-contain hidden bg-transparent">
+                    <img data-app-icon-src="true" src="./ikon-absen-kita.png" alt="Ikon Notifikasi" class="w-5 h-5 object-contain hidden bg-transparent">
                     <i data-lucide="bell" class="w-5 h-5" data-app-icon-fallback="true"></i>
                     <span id="mobile-notif-badge" class="hidden absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-brand-600"></span>
                 </button>
                 <button onclick="toggleMobileSidebar()" class="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">
-                    <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Menu" class="w-5 h-5 object-contain hidden bg-transparent">
+                    <img data-app-icon-src="true" src="./ikon-absen-kita.png" alt="Ikon Menu" class="w-5 h-5 object-contain hidden bg-transparent">
                     <i data-lucide="menu" class="w-5 h-5" data-app-icon-fallback="true"></i>
                 </button>
             </div>
@@ -445,11 +512,11 @@
         <!-- Sidebar Navigation -->
         <aside id="app-sidebar" class="fixed lg:sticky top-0 left-0 z-50 h-screen w-72 bg-white border-r border-slate-200 flex flex-col justify-between transition-transform duration-300 -translate-x-full lg:translate-x-0 no-print">
             <div class="p-5 overflow-y-auto flex-1 space-y-6">
-                <!-- Brand -->
+                <!-- Brand (Logo Aplikasi Absen Kita di Sudut Kiri Atas) -->
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div id="sidebar-brand-badge" class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-md shadow-brand-600/20 overflow-hidden">
-                            <img data-app-logo-src="true" src="./assets/absen-kita-logo-transparent.png" alt="Logo Aplikasi Absen Kita" class="w-full h-full object-contain p-1 hidden bg-transparent">
+                            <img id="sidebar-app-logo-img" data-app-logo-src="true" src="./logo-absen-kita.png" alt="Logo Aplikasi Absen Kita" class="w-full h-full object-contain p-1 hidden bg-transparent">
                             <i data-lucide="scan-face" class="w-6 h-6" data-brand-logo-icon="true"></i>
                         </div>
                         <div>
@@ -481,7 +548,7 @@
                     
                     <button onclick="navigateTo('dashboard')" data-nav="dashboard" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold bg-brand-50 text-brand-600 transition">
                         <div class="flex items-center gap-3">
-                            <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Dashboard" class="w-4 h-4 object-contain hidden bg-transparent">
+                            <img data-app-icon-src="true" src="./ikon-absen-kita.png" alt="Ikon Dashboard" class="w-4 h-4 object-contain hidden bg-transparent">
                             <i data-lucide="layout-dashboard" class="w-4 h-4" data-app-icon-fallback="true"></i>
                             <span>Dashboard & Absensi</span>
                         </div>
@@ -489,7 +556,7 @@
 
                     <button onclick="navigateTo('history')" data-nav="history" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
                         <div class="flex items-center gap-3">
-                            <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Riwayat" class="w-4 h-4 object-contain hidden bg-transparent">
+                            <img data-app-icon-src="true" src="./ikon-absen-kita.png" alt="Ikon Riwayat" class="w-4 h-4 object-contain hidden bg-transparent">
                             <i data-lucide="calendar-check" class="w-4 h-4" data-app-icon-fallback="true"></i>
                             <span>Riwayat & Rekap A4</span>
                         </div>
@@ -497,7 +564,7 @@
 
                     <button onclick="navigateTo('leaves')" data-nav="leaves" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
                         <div class="flex items-center gap-3">
-                            <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Izin" class="w-4 h-4 object-contain hidden bg-transparent">
+                            <img data-app-icon-src="true" src="./ikon-absen-kita.png" alt="Ikon Izin" class="w-4 h-4 object-contain hidden bg-transparent">
                             <i data-lucide="file-text" class="w-4 h-4" data-app-icon-fallback="true"></i>
                             <span>Izin, Sakit & Cuti</span>
                         </div>
@@ -506,7 +573,7 @@
 
                     <button onclick="navigateTo('idcard')" data-nav="idcard" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
                         <div class="flex items-center gap-3">
-                            <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon ID Card" class="w-4 h-4 object-contain hidden bg-transparent">
+                            <img data-app-icon-src="true" src="./ikon-absen-kita.png" alt="Ikon ID Card" class="w-4 h-4 object-contain hidden bg-transparent">
                             <i data-lucide="id-card" class="w-4 h-4" data-app-icon-fallback="true"></i>
                             <span>ID Card Digital & QR</span>
                         </div>
@@ -514,7 +581,7 @@
 
                     <button onclick="navigateTo('profile')" data-nav="profile" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
                         <div class="flex items-center gap-3">
-                            <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Profil" class="w-4 h-4 object-contain hidden bg-transparent">
+                            <img data-app-icon-src="true" src="./ikon-absen-kita.png" alt="Ikon Profil" class="w-4 h-4 object-contain hidden bg-transparent">
                             <i data-lucide="user-circle-2" class="w-4 h-4" data-app-icon-fallback="true"></i>
                             <span>Profil & Data Karyawan</span>
                         </div>
@@ -522,7 +589,7 @@
 
                     <button onclick="navigateTo('chat')" data-nav="chat" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
                         <div class="flex items-center gap-3">
-                            <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Chat" class="w-4 h-4 object-contain hidden bg-transparent">
+                            <img data-app-icon-src="true" src="./ikon-absen-kita.png" alt="Ikon Chat" class="w-4 h-4 object-contain hidden bg-transparent">
                             <i data-lucide="bot" class="w-4 h-4" data-app-icon-fallback="true"></i>
                             <span>SENIA AI & Room Chat</span>
                         </div>
@@ -534,7 +601,7 @@
                         
                         <button onclick="navigateTo('employees')" data-nav="employees" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
                             <div class="flex items-center gap-3">
-                                <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Karyawan" class="w-4 h-4 object-contain hidden bg-transparent">
+                                <img data-app-icon-src="true" src="./ikon-absen-kita.png" alt="Ikon Karyawan" class="w-4 h-4 object-contain hidden bg-transparent">
                                 <i data-lucide="users" class="w-4 h-4" data-app-icon-fallback="true"></i>
                                 <span>Data Karyawan & Approval</span>
                             </div>
@@ -543,7 +610,7 @@
 
                         <button onclick="navigateTo('settings')" data-nav="settings" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
                             <div class="flex items-center gap-3">
-                                <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Pengaturan" class="w-4 h-4 object-contain hidden bg-transparent">
+                                <img data-app-icon-src="true" src="./ikon-absen-kita.png" alt="Ikon Pengaturan" class="w-4 h-4 object-contain hidden bg-transparent">
                                 <i data-lucide="settings" class="w-4 h-4" data-app-icon-fallback="true"></i>
                                 <span>Pengaturan Kantor</span>
                             </div>
@@ -571,7 +638,7 @@
 
                 <!-- Bottom-Most About Aplikasi Icon Button -->
                 <button onclick="navigateTo('about')" data-nav="about" class="nav-item w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs">
-                    <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Info" class="w-3.5 h-3.5 object-contain hidden bg-transparent">
+                    <img data-app-icon-src="true" src="./ikon-absen-kita.png" alt="Ikon Info" class="w-3.5 h-3.5 object-contain hidden bg-transparent">
                     <i data-lucide="info" class="w-3.5 h-3.5 text-brand-400" data-app-icon-fallback="true"></i>
                     <span>About Aplikasi</span>
                 </button>
@@ -583,9 +650,14 @@
             
             <!-- Top Bar Desktop -->
             <div class="hidden lg:flex items-center justify-between bg-white px-6 py-4 rounded-2xl border border-slate-200/80 shadow-xs no-print">
-                <div>
-                    <h1 id="page-title" class="text-lg font-extrabold text-slate-900">Dashboard & Absensi</h1>
-                    <p id="page-subtitle" class="text-xs text-slate-500">Pantau kehadiran harian dan status jam kerja Anda secara real-time.</p>
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="navigateTo('dashboard')" title="Beranda Kehadiran Karyawan" class="w-10 h-10 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-600 flex items-center justify-center transition shrink-0">
+                        <i data-lucide="home" class="w-5 h-5"></i>
+                    </button>
+                    <div>
+                        <h1 id="page-title" class="text-lg font-extrabold text-slate-900">Dashboard & Absensi</h1>
+                        <p id="page-subtitle" class="text-xs text-slate-500">Pantau kehadiran harian dan status jam kerja Anda secara real-time.</p>
+                    </div>
                 </div>
                 <div class="flex items-center gap-3">
                     <button type="button" onclick="syncFromSupabase(true)" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition" title="Sinkronkan data dengan cloud">
@@ -593,7 +665,7 @@
                         <span>Sinkron</span>
                     </button>
                     <button onclick="navigateTo('notifications')" class="relative p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
-                        <img data-app-icon-src="true" src="./assets/absen-kita-icon-transparent.png" alt="Ikon Notifikasi" class="w-4 h-4 object-contain hidden bg-transparent">
+                        <img data-app-icon-src="true" src="./ikon-absen-kita.png" alt="Ikon Notifikasi" class="w-4 h-4 object-contain hidden bg-transparent">
                         <i data-lucide="bell" class="w-4 h-4" data-app-icon-fallback="true"></i>
                         <span id="desktop-notif-badge" class="hidden absolute top-2 right-2 w-2 h-2 rounded-full bg-brand-600"></span>
                     </button>
@@ -609,7 +681,7 @@
                     <i data-lucide="shield-ban" class="w-6 h-6 shrink-0 mt-0.5"></i>
                     <div>
                         <h3 class="font-extrabold text-sm">Akun Anda Dibekukan Sementara</h3>
-                        <p class="text-xs text-red-100 mt-0.5">Sistem mendeteksi ketidakhadiran tanpa keterangan selama 25 hari kerja berturut-turut. Hubungi HRD/Admin untuk mengaktifkan kembali akun Anda.</p>
+                        <p class="text-xs text-red-100 mt-0.5">Sistem mendeteksi ketidakhadiran tanpa keterangan (mangkir) selama 25 hari kerja berturut-turut, di luar jadwal cuti, sakit, dan hari libur. Hubungi HRD/Admin untuk mengaktifkan kembali akun Anda.</p>
                     </div>
                 </div>
 
@@ -681,6 +753,33 @@
                                 </button>
                             </div>
                         </div>
+
+                        <!-- Foto Dokumentasi Karyawan (Tersimpan di Localbase Perangkat & Diteruskan ke Room Chat Tim) -->
+                        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                    <span class="text-xs font-extrabold text-slate-800 block">Foto Dokumentasi Karyawan</span>
+                                    <span class="text-[11px] text-slate-500">Unggah foto dokumentasi saat diminta (tersimpan di penyimpanan lokal perangkat ini & otomatis diteruskan ke Room Chat Internal Tim)</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold transition">
+                                        <i data-lucide="image-plus" class="w-3.5 h-3.5"></i>
+                                        <span>Upload Foto</span>
+                                        <input type="file" id="doc-photo-input" accept="image/*" onchange="handleDocumentationPhotoUpload(event)" class="hidden">
+                                    </label>
+                                    <button type="button" onclick="clearDocumentationPhoto()" class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 text-[11px] font-bold text-slate-600 transition">
+                                        Hapus
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="doc-photo-preview-box" class="hidden pt-1 flex items-center gap-3">
+                                <img id="doc-photo-preview-img" src="" alt="Foto Dokumentasi Karyawan" class="w-16 h-16 rounded-xl object-cover border border-slate-300 bg-white shrink-0">
+                                <div class="text-[11px] text-slate-600 min-w-0">
+                                    <div class="font-bold text-slate-800">Dokumentasi tersimpan di localbase perangkat & terkirim ke Room Chat Tim</div>
+                                    <div id="doc-photo-meta" class="text-[10px] text-slate-500 truncate">-</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Monthly Summary -->
@@ -710,12 +809,12 @@
                     </div>
                 </div>
 
-                <!-- Bottom Row: Recent Attendance Table -->
+                <!-- Bottom Row: Data Karyawan Terdaftar Perusahaan Yang Telah Absen -->
                 <div class="glass-card rounded-3xl p-5 sm:p-6">
                     <div class="flex items-center justify-between mb-4">
                         <div>
-                            <h3 class="font-extrabold text-base text-slate-900">Log Kehadiran Terbaru</h3>
-                            <p class="text-xs text-slate-500">Catatan masuk dan pulang terkini di workspace Anda.</p>
+                            <h3 class="font-extrabold text-base text-slate-900">Karyawan Perusahaan yang Telah Absen</h3>
+                            <p class="text-xs text-slate-500">Daftar karyawan terdaftar di perusahaan ini yang telah melakukan absensi atau memiliki keterangan izin/cuti disetujui.</p>
                         </div>
                         <button onclick="navigateTo('history')" class="text-xs font-bold text-brand-600 hover:underline">Riwayat Lengkap &rarr;</button>
                     </div>
@@ -732,7 +831,7 @@
                                 </tr>
                             </thead>
                             <tbody id="dashboard-recent-tbody" class="text-xs divide-y divide-slate-100">
-                                <tr><td colspan="6" class="py-6 text-center text-slate-400">Belum ada data absensi.</td></tr>
+                                <tr><td colspan="6" class="py-6 text-center text-slate-400">Belum ada karyawan terdaftar yang absen.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -844,25 +943,83 @@
                         </button>
                     </div>
 
-                    <!-- Custom Warna ID Card -->
-                    <div class="w-full max-w-md p-4 rounded-2xl bg-slate-50 border border-slate-200/90 mb-6 space-y-3.5">
+                    <!-- Custom Model & Warna ID Card (Khusus Admin Perusahaan) -->
+                    <div id="idcard-admin-customizer" class="hidden w-full max-w-md p-4 rounded-2xl bg-slate-50 border border-slate-200/90 mb-6 space-y-3.5">
                         <div class="flex flex-wrap items-center justify-between gap-2">
-                            <span class="text-xs font-extrabold text-slate-800">Custom Warna ID Card Perusahaan</span>
-                            <button type="button" onclick="resetIdCardColors()" class="text-[11px] font-bold text-slate-500 hover:text-slate-800">Reset Warna</button>
+                            <span class="text-xs font-extrabold text-slate-800">Model & Warna ID Card Perusahaan (Admin)</span>
+                            <button type="button" onclick="resetIdCardColors()" class="text-[11px] font-bold text-slate-500 hover:text-slate-800">Reset Bawaan</button>
                         </div>
-                        <div class="grid grid-cols-3 gap-2.5 text-[11px]">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Model Kartu</label>
+                                <select id="idcard-model-select" onchange="updateIdCardModel()" class="w-full px-3 py-2 text-xs font-bold rounded-xl border border-slate-300 bg-white outline-none">
+                                    <option value="classic">Model Klasik (Diagonal)</option>
+                                    <option value="modern">Model Modern (Lengkung)</option>
+                                    <option value="executive">Model Eksekutif (Chevron)</option>
+                                    <option value="minimal">Model Minimalis (Bersih)</option>
+                                    <option value="ribbon">Model Pita Dinamis (Ribbon)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Tata Letak Foto</label>
+                                <select id="idcard-photo-layout-select" onchange="updateIdCardPhotoLayout()" class="w-full px-3 py-2 text-xs font-bold rounded-xl border border-slate-300 bg-white outline-none">
+                                    <option value="portrait">Potret Tegak (Standar)</option>
+                                    <option value="oval">Bingkai Oval (Lengkung)</option>
+                                    <option value="square">Kotak Presisi (1:1)</option>
+                                    <option value="banner">Lebar Horizontal (Banner)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Model Gradasi Warna Siap Pakai</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                                <button type="button" onclick="applyIdCardGradientPreset('#0b2545','#0284c7','#0b2545','125deg')" class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-slate-400 text-[11px] font-bold text-slate-700 text-left">Biru Samudra</button>
+                                <button type="button" onclick="applyIdCardGradientPreset('#7f1d1d','#ef4444','#450a0a','135deg')" class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-slate-400 text-[11px] font-bold text-slate-700 text-left">Merah Marun</button>
+                                <button type="button" onclick="applyIdCardGradientPreset('#064e3b','#10b981','#022c22','120deg')" class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-slate-400 text-[11px] font-bold text-slate-700 text-left">Hijau Zamrud</button>
+                                <button type="button" onclick="applyIdCardGradientPreset('#312e81','#8b5cf6','#1e1b4b','140deg')" class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-slate-400 text-[11px] font-bold text-slate-700 text-left">Ungu Nebula</button>
+                                <button type="button" onclick="applyIdCardGradientPreset('#7c2d12','#f97316','#431407','115deg')" class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-slate-400 text-[11px] font-bold text-slate-700 text-left">Jingga Senja</button>
+                                <button type="button" onclick="applyIdCardGradientPreset('#0f172a','#64748b','#020617','135deg')" class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-slate-400 text-[11px] font-bold text-slate-700 text-left">Arang Eksekutif</button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-[11px]">
                             <label class="flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200 font-semibold text-slate-700 cursor-pointer">
-                                <span>Utama</span>
+                                <span>Warna Utama</span>
                                 <input type="color" id="idcard-color-primary" value="#0b2545" onchange="updateIdCardColors()" class="w-6 h-6 rounded border-0 bg-transparent cursor-pointer">
                             </label>
                             <label class="flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200 font-semibold text-slate-700 cursor-pointer">
-                                <span>Aksen</span>
+                                <span>Warna Aksen</span>
                                 <input type="color" id="idcard-color-secondary" value="#0284c7" onchange="updateIdCardColors()" class="w-6 h-6 rounded border-0 bg-transparent cursor-pointer">
                             </label>
                             <label class="flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200 font-semibold text-slate-700 cursor-pointer">
-                                <span>Footer</span>
+                                <span>Warna Footer</span>
                                 <input type="color" id="idcard-color-footer" value="#0b2545" onchange="updateIdCardColors()" class="w-6 h-6 rounded border-0 bg-transparent cursor-pointer">
                             </label>
+                            <label class="flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200 font-semibold text-slate-700">
+                                <span>Arah Gradasi</span>
+                                <select id="idcard-gradient-angle" onchange="updateIdCardColors()" class="px-2 py-1 rounded-lg border border-slate-200 bg-slate-50 font-bold text-[11px] outline-none">
+                                    <option value="125deg">Diagonal (125°)</option>
+                                    <option value="90deg">Horizontal (90°)</option>
+                                    <option value="180deg">Vertikal (180°)</option>
+                                    <option value="45deg">Naik (45°)</option>
+                                    <option value="160deg">Miring (160°)</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Pilihan Cepat Warna Utama</label>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button type="button" onclick="setQuickPrimaryColor('#0b2545')" title="Biru Tua" class="w-6 h-6 rounded-full bg-[#0b2545] border-2 border-white shadow"></button>
+                                <button type="button" onclick="setQuickPrimaryColor('#dc2626')" title="Merah" class="w-6 h-6 rounded-full bg-[#dc2626] border-2 border-white shadow"></button>
+                                <button type="button" onclick="setQuickPrimaryColor('#059669')" title="Hijau" class="w-6 h-6 rounded-full bg-[#059669] border-2 border-white shadow"></button>
+                                <button type="button" onclick="setQuickPrimaryColor('#7c3aed')" title="Ungu" class="w-6 h-6 rounded-full bg-[#7c3aed] border-2 border-white shadow"></button>
+                                <button type="button" onclick="setQuickPrimaryColor('#ea580c')" title="Oranye" class="w-6 h-6 rounded-full bg-[#ea580c] border-2 border-white shadow"></button>
+                                <button type="button" onclick="setQuickPrimaryColor('#0891b2')" title="Sian" class="w-6 h-6 rounded-full bg-[#0891b2] border-2 border-white shadow"></button>
+                                <button type="button" onclick="setQuickPrimaryColor('#db2777')" title="Merah Muda" class="w-6 h-6 rounded-full bg-[#db2777] border-2 border-white shadow"></button>
+                                <button type="button" onclick="setQuickPrimaryColor('#334155')" title="Abu Gelap" class="w-6 h-6 rounded-full bg-[#334155] border-2 border-white shadow"></button>
+                            </div>
                         </div>
                     </div>
 
@@ -1047,16 +1204,28 @@
                                 </div>
                                 <div>
                                     <h3 class="font-extrabold text-sm text-slate-900">Room Chat Internal Tim</h3>
-                                    <span class="text-[11px] text-slate-500">Diskusi khusus anggota perusahaan Anda</span>
+                                    <span class="text-[11px] text-slate-500">Diskusi & foto anggota perusahaan Anda (tersimpan di localbase)</span>
                                 </div>
                             </div>
                         </div>
 
                         <div id="team-chat-messages" class="flex-1 overflow-y-auto py-4 space-y-3 text-xs"></div>
 
-                        <form id="team-chat-form" class="pt-3 border-t border-slate-100 flex gap-2">
-                            <input type="text" id="team-chat-input" required placeholder="Tulis pesan untuk rekan kerja..." class="flex-1 px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:border-brand-600 outline-none">
-                            <button type="submit" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition">
+                        <div id="team-chat-photo-preview" class="hidden mb-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <img id="team-chat-photo-img" src="" alt="Preview Foto Chat" class="w-10 h-10 rounded-lg object-cover border border-slate-300 shrink-0">
+                                <span class="text-[11px] font-bold text-slate-700 truncate">Foto siap dikirim</span>
+                            </div>
+                            <button type="button" onclick="clearPendingTeamChatPhoto()" class="text-[11px] font-bold text-red-600 hover:underline shrink-0">Batal</button>
+                        </div>
+
+                        <form id="team-chat-form" class="pt-3 border-t border-slate-100 flex items-center gap-2">
+                            <label title="Kirim Foto ke Room Chat" class="cursor-pointer p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition shrink-0">
+                                <i data-lucide="image-plus" class="w-4 h-4"></i>
+                                <input type="file" id="team-chat-photo-input" accept="image/*" onchange="handleTeamChatPhotoSelect(event)" class="hidden">
+                            </label>
+                            <input type="text" id="team-chat-input" placeholder="Tulis pesan untuk rekan kerja..." class="flex-1 px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:border-brand-600 outline-none">
+                            <button type="submit" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition shrink-0">
                                 Kirim
                             </button>
                         </form>
@@ -1321,13 +1490,13 @@
     <!-- ========================================== -->
     <script>
         // ==========================================
-        // 0. PEMANGGILAN GAMBAR PNG LOGO & IKON APLIKASI ABSEN KITA (TANPA LATAR)
+        // 0. PEMANGGILAN GAMBAR PNG LOGO & IKON APLIKASI ABSEN KITA (SEJAJAR DENGAN index.html)
         // ==========================================
         const EXTERNAL_BRAND_LOGO_REF = {
             brandName: 'ABSEN KITA',
             tagline: 'Sistem Kehadiran, Shift & Administrasi Tim',
-            appLogoUrl: './assets/absen-kita-logo-transparent.png',
-            appIconUrl: './assets/absen-kita-icon-transparent.png',
+            appLogoUrl: './logo-absen-kita.png',
+            appIconUrl: './ikon-absen-kita.png',
             lucideIconName: 'scan-face',
             idCardSubTagline: 'Innovate • Create • Grow',
             idCardFooterTagline: 'TOGETHER FOR A BETTER DIGITAL FUTURE'
@@ -1377,17 +1546,15 @@
             lucide.createIcons();
         }
 
+        // Logo sudut kiri atas layar selalu logo aplikasi Absen Kita (.png sejajar index.html)
         function applyCompanyBrandingBadges() {
-            const logoUrl = currentCompany?.logo_url;
             const boxes = [
                 document.getElementById('sidebar-brand-badge'),
                 document.getElementById('mobile-brand-badge')
             ];
             boxes.forEach(box => {
                 if (!box) return;
-                if (isSafePhotoUrl(logoUrl)) {
-                    box.innerHTML = `<img src="${logoUrl}" alt="${escapeHtml(currentCompany.name)}" class="w-full h-full object-contain bg-white p-0.5">`;
-                } else if (EXTERNAL_BRAND_LOGO_REF.appLogoUrl) {
+                if (EXTERNAL_BRAND_LOGO_REF.appLogoUrl) {
                     box.innerHTML = `
                         <img src="${EXTERNAL_BRAND_LOGO_REF.appLogoUrl}" alt="${escapeHtml(EXTERNAL_BRAND_LOGO_REF.brandName)}" class="w-full h-full object-contain p-1 bg-transparent" onerror="this.classList.add('hidden'); if(this.nextElementSibling) this.nextElementSibling.classList.remove('hidden');">
                         <i data-lucide="${EXTERNAL_BRAND_LOGO_REF.lucideIconName}" class="w-5 h-5 hidden" data-brand-logo-icon="true"></i>
@@ -1426,6 +1593,7 @@
             BOT_CHATS: 'absenkita_senia_private_v3_9',
             FEEDBACKS: 'absenkita_feedbacks_v3',
             LOGIN_ATTEMPTS: 'absenkita_login_attempts_v3_9',
+            DOC_PHOTOS: 'absenkita_doc_photos_local_v3_9',
             SESSION: 'absenkita_session_v3'
         };
 
@@ -1433,6 +1601,38 @@
 
         function clearAllLocalAppData() {
             Object.values(STORAGE_KEYS).forEach(k => localStorage.removeItem(k));
+        }
+
+        async function purgeAllCompanyAndEmployeeData() {
+            clearAllLocalAppData();
+            localStorage.setItem(LAUNCH_PURGE_DONE_KEY, 'true');
+            currentUser = null;
+            currentCompany = null;
+            selectedWorkMode = 'Shift 1';
+            currentGPS = { lat: null, lng: null, distance: null };
+            generatedOTP = null;
+            pendingEmpDraft = null;
+            pendingTeamChatPhoto = null;
+
+            if (supabaseClient && navigator.onLine) {
+                const tables = [
+                    'attendance_logs',
+                    'leave_requests',
+                    'team_chats',
+                    'notifications',
+                    'app_feedbacks',
+                    'pending_registrations',
+                    'users',
+                    'companies'
+                ];
+                for (const table of tables) {
+                    try {
+                        await supabaseClient.from(table).delete().not('id', 'is', null);
+                    } catch (err) {
+                        console.warn(`Gagal menghapus data tabel ${table} di Supabase:`, err);
+                    }
+                }
+            }
         }
 
         function runProductionLaunchPurgeOnce() {
@@ -1654,6 +1854,7 @@
                     applyCompanyBrandingBadges();
                     renderAvatarContent(document.getElementById('sidebar-user-avatar'), currentUser.name, currentUser.photo_url);
                     updateDashboardUI();
+                    renderDocumentationPhotoPreview();
                     renderIDCard();
                     renderProfileSection();
                     renderLeavesList();
@@ -1715,6 +1916,7 @@
         let currentGPS = { lat: null, lng: null, distance: null };
         let generatedOTP = null;
         let pendingEmpDraft = null;
+        let pendingTeamChatPhoto = null;
 
         function hasLocationRestriction(company) {
             if (!company) return false;
@@ -1776,6 +1978,9 @@
                 radius: radRaw !== '' ? parseInt(radRaw, 10) : null,
                 logo_url: null,
                 stamp_url: null,
+                card_model: 'classic',
+                card_photo_layout: 'portrait',
+                card_gradient_angle: '125deg',
                 card_primary_color: '#0b2545',
                 card_secondary_color: '#0284c7',
                 card_footer_color: '#0b2545',
@@ -2001,6 +2206,7 @@
 
             refreshGeolocation(false);
             updateDashboardUI();
+            renderDocumentationPhotoPreview();
             renderIDCard();
             renderProfileSection();
             renderFeedbackList();
@@ -2050,11 +2256,16 @@
                 document.getElementById('page-subtitle').textContent = titles[sectionId][1];
             }
 
+            if (sectionId === 'dashboard') {
+                updateDashboardUI();
+                renderDocumentationPhotoPreview();
+            }
             if (sectionId === 'history') renderHistoryTable();
             if (sectionId === 'leaves') renderLeavesList();
             if (sectionId === 'employees') renderEmployeesAdmin();
             if (sectionId === 'idcard') renderIDCard();
             if (sectionId === 'profile') renderProfileSection();
+            if (sectionId === 'chat') renderChatMessages();
             if (sectionId === 'settings') {
                 loadCompanySettingsForm();
                 renderCompanyAssetPreviews();
@@ -2079,7 +2290,122 @@
         }
 
         // ==========================================
-        // 6. GEOLOCATION & ATTENDANCE ENGINE (NO. 2)
+        // 5B. FOTO DOKUMENTASI KARYAWAN (LOCALBASE PERANGKAT & TERUSKAN KE ROOM CHAT TIM)
+        // ==========================================
+        function getDocPhotoStorageKey() {
+            if (!currentCompany || !currentUser) return '';
+            return `${currentCompany.id}::${currentUser.id}`;
+        }
+
+        function getTodayAttendanceStatusInfo() {
+            if (!currentCompany || !currentUser) {
+                return { statusText: 'Belum Absen', isLate: false, modeText: selectedWorkMode };
+            }
+            const today = getTodayStr();
+            const logs = getStore(STORAGE_KEYS.LOGS).filter(
+                l => l.company_id === currentCompany.id && l.user_id === currentUser.id && l.date === today
+            );
+            const todayLog = logs.find(l => l.clock_in || l.clock_out) || logs[0];
+            if (!todayLog || !todayLog.clock_in) {
+                return { statusText: todayLog?.status || 'Belum Absen Masuk', isLate: false, modeText: todayLog?.mode || selectedWorkMode };
+            }
+            const isLate = Number(todayLog.late_minutes || 0) > 0;
+            const statusText = isLate
+                ? `Terlambat (${Number(todayLog.late_minutes)} mnt)`
+                : 'Tidak Terlambat (Tepat Waktu)';
+            return {
+                statusText,
+                isLate,
+                modeText: todayLog.mode || selectedWorkMode
+            };
+        }
+
+        function forwardDocPhotoToTeamChat(photoDataUrl) {
+            if (!currentCompany || !currentUser) return;
+            const attInfo = getTodayAttendanceStatusInfo();
+            const caption = `Dokumentasi Absensi — Nama: ${currentUser.name} | NIP: ${currentUser.nip} | Mode: ${attInfo.modeText} | Status Absen: ${attInfo.statusText}`;
+
+            const chats = getStore(STORAGE_KEYS.CHATS);
+            chats.push({
+                id: generateId('MSG'),
+                company_id: currentCompany.id,
+                sender_id: currentUser.id,
+                sender_name: currentUser.name,
+                sender_nip: currentUser.nip,
+                attendance_status: attInfo.statusText,
+                is_late: attInfo.isLate,
+                text: caption,
+                photo_url: photoDataUrl,
+                time: getCurrentTimeStr()
+            });
+            setStore(STORAGE_KEYS.CHATS, chats);
+            renderTeamChatMessages();
+        }
+
+        function renderDocumentationPhotoPreview() {
+            const box = document.getElementById('doc-photo-preview-box');
+            const img = document.getElementById('doc-photo-preview-img');
+            const meta = document.getElementById('doc-photo-meta');
+            if (!box || !img || !meta) return;
+
+            const key = getDocPhotoStorageKey();
+            const map = getStore(STORAGE_KEYS.DOC_PHOTOS, {});
+            const item = key ? map[key] : null;
+
+            if (item && isSafePhotoUrl(item.dataUrl)) {
+                img.src = item.dataUrl;
+                meta.textContent = `Diperbarui: ${item.updatedAt || '-'}`;
+                box.classList.remove('hidden');
+            } else {
+                img.src = '';
+                meta.textContent = '-';
+                box.classList.add('hidden');
+            }
+        }
+
+        async function handleDocumentationPhotoUpload(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                event.target.value = '';
+                return showToast('Pilih berkas gambar (JPG, PNG, WEBP).', 'error');
+            }
+            const key = getDocPhotoStorageKey();
+            if (!key) return;
+
+            try {
+                const compressed = await compressImageToDataUrl(file, 640, 0.8, false);
+                const map = getStore(STORAGE_KEYS.DOC_PHOTOS, {});
+                map[key] = {
+                    dataUrl: compressed,
+                    updatedAt: new Date().toLocaleString('id-ID')
+                };
+                setStore(STORAGE_KEYS.DOC_PHOTOS, map);
+                forwardDocPhotoToTeamChat(compressed);
+                renderDocumentationPhotoPreview();
+                showToast('Foto dokumentasi tersimpan di localbase & diteruskan ke Room Chat Tim!', 'success');
+            } catch (err) {
+                showToast(err.message || 'Gagal menyimpan foto dokumentasi.', 'error');
+            } finally {
+                event.target.value = '';
+            }
+        }
+
+        function clearDocumentationPhoto() {
+            const key = getDocPhotoStorageKey();
+            if (!key) return;
+            const map = getStore(STORAGE_KEYS.DOC_PHOTOS, {});
+            if (!map[key]) {
+                return showToast('Belum ada foto dokumentasi tersimpan di perangkat ini.', 'info');
+            }
+            delete map[key];
+            setStore(STORAGE_KEYS.DOC_PHOTOS, map);
+            renderDocumentationPhotoPreview();
+            showToast('Foto dokumentasi dihapus dari perangkat ini.', 'info');
+        }
+
+        // ==========================================
+        // 6. GEOLOCATION & ATTENDANCE ENGINE
         // ==========================================
         function calculateDistanceMeters(lat1, lon1, lat2, lon2) {
             const R = 6371e3;
@@ -2172,7 +2498,7 @@
             const logs = getStore(STORAGE_KEYS.LOGS).filter(
                 l => l.company_id === currentCompany.id && l.user_id === currentUser.id && l.date === getTodayStr()
             );
-            const todayLog = logs[0];
+            const todayLog = logs.find(l => l.clock_in || l.clock_out) || logs[0];
             const activeMode = todayLog?.mode || selectedWorkMode;
             const schedOut = getScheduledOutTimeStr(activeMode);
             const allowedByTime = canClockOutNow(activeMode);
@@ -2208,26 +2534,35 @@
                 const diffIn = timeToMinutes(nowTime) - timeToMinutes(schedIn);
                 const lateMinutes = diffIn > 0 ? diffIn : 0;
 
-                const newLog = {
-                    id: generateId('LOG'),
-                    company_id: currentCompany.id,
-                    user_id: currentUser.id,
-                    user_name: currentUser.name,
-                    user_nip: currentUser.nip,
-                    date: today,
-                    mode: selectedWorkMode,
-                    clock_in: nowTime,
-                    clock_out: null,
-                    late_minutes: lateMinutes,
-                    overtime_minutes: 0,
-                    status: lateMinutes > 0 ? 'Terlambat' : 'Hadir',
-                    lat: currentGPS.lat,
-                    lng: currentGPS.lng
-                };
+                if (todayLog) {
+                    todayLog.mode = selectedWorkMode;
+                    todayLog.clock_in = nowTime;
+                    todayLog.late_minutes = lateMinutes;
+                    todayLog.status = lateMinutes > 0 ? 'Terlambat' : 'Hadir';
+                    todayLog.lat = currentGPS.lat;
+                    todayLog.lng = currentGPS.lng;
+                } else {
+                    todayLog = {
+                        id: generateId('LOG'),
+                        company_id: currentCompany.id,
+                        user_id: currentUser.id,
+                        user_name: currentUser.name,
+                        user_nip: currentUser.nip,
+                        date: today,
+                        mode: selectedWorkMode,
+                        clock_in: nowTime,
+                        clock_out: null,
+                        late_minutes: lateMinutes,
+                        overtime_minutes: 0,
+                        status: lateMinutes > 0 ? 'Terlambat' : 'Hadir',
+                        lat: currentGPS.lat,
+                        lng: currentGPS.lng
+                    };
+                    logs.unshift(todayLog);
+                }
 
-                logs.unshift(newLog);
                 setStore(STORAGE_KEYS.LOGS, logs);
-                if (supabaseClient) await supabaseClient.from('attendance_logs').insert([newLog]);
+                if (supabaseClient) await supabaseClient.from('attendance_logs').upsert([todayLog]);
 
                 showToast(`Absen Masuk berhasil pukul ${nowTime}${lateMinutes > 0 ? ` (Terlambat ${lateMinutes} mnt)` : ''}`, 'success');
             } else {
@@ -2265,8 +2600,14 @@
         }
 
         function updateDashboardUI() {
-            const logs = getStore(STORAGE_KEYS.LOGS).filter(l => l.company_id === currentCompany.id);
-            const myLogs = logs.filter(l => l.user_id === currentUser.id);
+            const companyUsers = getStore(STORAGE_KEYS.USERS).filter(u => u.company_id === currentCompany.id);
+            const registeredUserMap = new Map(companyUsers.map(u => [u.id, u]));
+
+            const allCompanyLogs = getStore(STORAGE_KEYS.LOGS).filter(
+                l => l.company_id === currentCompany.id && registeredUserMap.has(l.user_id)
+            );
+            const attendedCompanyLogs = allCompanyLogs.filter(l => l.clock_in || l.clock_out);
+            const myLogs = attendedCompanyLogs.filter(l => l.user_id === currentUser.id);
             const today = getTodayStr();
             const todayLog = myLogs.find(l => l.date === today);
 
@@ -2289,30 +2630,43 @@
             document.getElementById('stat-overtime').innerHTML = `${totalOvertime} <span class="text-xs font-semibold">mnt</span>`;
             document.getElementById('stat-leave').innerHTML = `${leaves.length} <span class="text-xs font-semibold">hari</span>`;
 
-            const visibleLogs = (currentUser.role === 'admin' ? logs : myLogs).slice(0, 8);
+            const visibleLogs = allCompanyLogs.slice(0, 12);
             const tbody = document.getElementById('dashboard-recent-tbody');
             if (!visibleLogs.length) {
-                tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-slate-400">Belum ada data absensi tercatat.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-slate-400">Belum ada karyawan terdaftar yang absen.</td></tr>';
             } else {
-                tbody.innerHTML = visibleLogs.map(l => `
+                tbody.innerHTML = visibleLogs.map(l => {
+                    const regUser = registeredUserMap.get(l.user_id);
+                    const displayName = regUser?.name || l.user_name || '-';
+                    const displayNip = regUser?.nip || l.user_nip || '';
+                    const isLeaveMarked = !l.clock_in && !l.clock_out && typeof l.status === 'string' && l.status.startsWith('Disetujui');
+                    const statusBadgeClass = isLeaveMarked
+                        ? 'bg-purple-100 text-purple-800'
+                        : (l.late_minutes > 0 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800');
+                    const statusBadgeText = isLeaveMarked
+                        ? l.status
+                        : (l.late_minutes > 0 ? `TL ${Number(l.late_minutes)}m` : 'Tepat Waktu');
+
+                    return `
                     <tr class="hover:bg-slate-50/80">
                         <td class="py-3 px-3 font-semibold text-slate-700">${escapeHtml(l.date)}</td>
-                        <td class="py-3 px-3 font-bold text-slate-900">${escapeHtml(l.user_name || currentUser.name)}</td>
+                        <td class="py-3 px-3"><div class="font-bold text-slate-900">${escapeHtml(displayName)}</div><div class="text-[10px] text-slate-400 font-mono">${escapeHtml(displayNip)}</div></td>
                         <td class="py-3 px-3"><span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold text-[11px]">${escapeHtml(l.mode)}</span></td>
                         <td class="py-3 px-3 font-mono font-bold text-emerald-700">${escapeHtml(l.clock_in || '-')}</td>
                         <td class="py-3 px-3 font-mono font-bold text-slate-700">${escapeHtml(l.clock_out || '-')}</td>
                         <td class="py-3 px-3">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${l.late_minutes > 0 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">
-                                ${l.late_minutes > 0 ? `TL ${Number(l.late_minutes)}m` : 'Tepat Waktu'}
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${statusBadgeClass}">
+                                ${escapeHtml(statusBadgeText)}
                             </span>
                         </td>
                     </tr>
-                `).join('');
+                `;
+                }).join('');
             }
         }
 
         // ==========================================
-        // 7. HISTORY & A4 REPORT PRINTING (NO. 4)
+        // 7. HISTORY & A4 REPORT PRINTING
         // ==========================================
         function renderHistoryTable() {
             const monthFilter = document.getElementById('filter-history-month').value;
@@ -2419,7 +2773,7 @@
         }
 
         // ==========================================
-        // 8. LEAVE REQUESTS (IZIN / SAKIT / CUTI)
+        // 8. LEAVE REQUESTS (IZIN / SAKIT / CUTI) & PENANDAAN ABSEN OTOMATIS
         // ==========================================
         document.getElementById('leave-request-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -2503,6 +2857,68 @@
             }).join('');
         }
 
+        function enumerateDatesInclusive(startStr, endStr) {
+            const dates = [];
+            const start = new Date(`${startStr}T00:00:00`);
+            const end = new Date(`${endStr}T00:00:00`);
+            if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return dates;
+
+            const cursor = new Date(start);
+            let guard = 0;
+            while (cursor <= end && guard < 366) {
+                const yyyy = cursor.getFullYear();
+                const mm = String(cursor.getMonth() + 1).padStart(2, '0');
+                const dd = String(cursor.getDate()).padStart(2, '0');
+                dates.push(`${yyyy}-${mm}-${dd}`);
+                cursor.setDate(cursor.getDate() + 1);
+                guard += 1;
+            }
+            return dates;
+        }
+
+        async function markAttendanceLogsForApprovedLeave(leaveItem) {
+            const logs = getStore(STORAGE_KEYS.LOGS);
+            const dateList = enumerateDatesInclusive(leaveItem.start_date, leaveItem.end_date);
+            const upsertedLogs = [];
+
+            dateList.forEach(dateStr => {
+                const existing = logs.find(l => l.user_id === leaveItem.user_id && l.date === dateStr);
+                if (existing) {
+                    if (!existing.clock_in && !existing.clock_out) {
+                        existing.mode = leaveItem.type;
+                        existing.status = `Disetujui (${leaveItem.type})`;
+                        existing.leave_id = leaveItem.id;
+                        upsertedLogs.push(existing);
+                    }
+                } else {
+                    const entry = {
+                        id: generateId('LOG'),
+                        company_id: leaveItem.company_id,
+                        user_id: leaveItem.user_id,
+                        user_name: leaveItem.user_name,
+                        user_nip: leaveItem.user_nip,
+                        date: dateStr,
+                        mode: leaveItem.type,
+                        clock_in: null,
+                        clock_out: null,
+                        late_minutes: 0,
+                        overtime_minutes: 0,
+                        status: `Disetujui (${leaveItem.type})`,
+                        leave_id: leaveItem.id,
+                        lat: null,
+                        lng: null
+                    };
+                    logs.unshift(entry);
+                    upsertedLogs.push(entry);
+                }
+            });
+
+            setStore(STORAGE_KEYS.LOGS, logs);
+            if (supabaseClient && upsertedLogs.length > 0) {
+                await supabaseClient.from('attendance_logs').upsert(upsertedLogs);
+            }
+        }
+
         async function updateLeaveStatus(leaveId, status) {
             const leaves = getStore(STORAGE_KEYS.LEAVES);
             const item = leaves.find(l => l.id === leaveId);
@@ -2512,27 +2928,67 @@
 
             if (supabaseClient) await supabaseClient.from('leave_requests').update({ status }).eq('id', leaveId);
 
-            addNotification(currentCompany.id, item.user_id, `Status Pengajuan ${item.type}`, `Pengajuan ${item.type} Anda (${item.start_date}) telah ${status === 'approved' ? 'DISETUJUI' : 'DITOLAK'}.`);
+            if (status === 'approved') {
+                await markAttendanceLogsForApprovedLeave(item);
+            }
+
+            addNotification(
+                currentCompany.id,
+                item.user_id,
+                `Status Pengajuan ${item.type}`,
+                `Pengajuan ${item.type} Anda (${item.start_date} s/d ${item.end_date}) telah ${status === 'approved' ? 'DISETUJUI dan otomatis ditandai pada absen' : 'DITOLAK'}.`
+            );
             renderLeavesList();
             updateDashboardUI();
-            showToast(`Pengajuan berhasil ${status === 'approved' ? 'disetujui' : 'ditolak'}.`, 'success');
+            renderHistoryTable();
+            renderProfileSection();
+            showToast(`Pengajuan berhasil ${status === 'approved' ? 'disetujui & ditandai di absen' : 'ditolak'}.`, 'success');
         }
 
         // ==========================================
-        // 9. ID CARD (CUSTOM COLOR, QR STANDAR & STEMPEL CETAK NO. 1 & 4)
+        // 9. ID CARD (CUSTOM MODEL, GRADASI, TATA LETAK & COLOR ADMIN ONLY)
         // ==========================================
+        function getValidCardModel(model) {
+            return ['classic', 'modern', 'executive', 'minimal', 'ribbon'].includes(model) ? model : 'classic';
+        }
+
+        function getValidPhotoLayout(layout) {
+            return ['portrait', 'oval', 'square', 'banner'].includes(layout) ? layout : 'portrait';
+        }
+
+        function getValidGradientAngle(angle) {
+            return ['125deg', '90deg', '180deg', '45deg', '160deg'].includes(angle) ? angle : '125deg';
+        }
+
         function applyIdCardCustomColors() {
+            const isAdmin = currentUser?.role === 'admin';
+            const customizerEl = document.getElementById('idcard-admin-customizer');
+            if (customizerEl) {
+                customizerEl.classList.toggle('hidden', !isAdmin);
+            }
+
+            const model = getValidCardModel(currentCompany?.card_model);
+            const photoLayout = getValidPhotoLayout(currentCompany?.card_photo_layout);
+            const angle = getValidGradientAngle(currentCompany?.card_gradient_angle);
             const primary = isValidHexColor(currentCompany?.card_primary_color) ? currentCompany.card_primary_color : '#0b2545';
             const secondary = isValidHexColor(currentCompany?.card_secondary_color) ? currentCompany.card_secondary_color : '#0284c7';
             const footer = isValidHexColor(currentCompany?.card_footer_color) ? currentCompany.card_footer_color : '#0b2545';
 
+            const cardEl = document.getElementById('id-card-visual');
             const headerBg = document.getElementById('card-header-bg');
             const headerAccent = document.getElementById('card-header-accent');
             const accentDivider = document.getElementById('card-accent-divider');
             const footerBar = document.getElementById('card-footer-tagline');
 
+            if (cardEl) {
+                cardEl.classList.remove(
+                    'model-classic', 'model-modern', 'model-executive', 'model-minimal', 'model-ribbon',
+                    'photo-layout-portrait', 'photo-layout-oval', 'photo-layout-square', 'photo-layout-banner'
+                );
+                cardEl.classList.add(`model-${model}`, `photo-layout-${photoLayout}`);
+            }
             if (headerBg) {
-                headerBg.style.background = `linear-gradient(125deg, ${primary} 0%, ${primary} 55%, ${secondary} 100%)`;
+                headerBg.style.background = `linear-gradient(${angle}, ${primary} 0%, ${primary} 55%, ${secondary} 100%)`;
             }
             if (headerAccent) {
                 headerAccent.style.background = `linear-gradient(180deg, ${secondary}88, ${primary}55)`;
@@ -2544,37 +3000,82 @@
                 footerBar.style.backgroundColor = footer;
             }
 
-            const pInput = document.getElementById('idcard-color-primary');
-            const sInput = document.getElementById('idcard-color-secondary');
-            const fInput = document.getElementById('idcard-color-footer');
-            if (pInput) pInput.value = primary;
-            if (sInput) sInput.value = secondary;
-            if (fInput) fInput.value = footer;
+            if (isAdmin) {
+                const mSelect = document.getElementById('idcard-model-select');
+                const lSelect = document.getElementById('idcard-photo-layout-select');
+                const aSelect = document.getElementById('idcard-gradient-angle');
+                const pInput = document.getElementById('idcard-color-primary');
+                const sInput = document.getElementById('idcard-color-secondary');
+                const fInput = document.getElementById('idcard-color-footer');
+                if (mSelect) mSelect.value = model;
+                if (lSelect) lSelect.value = photoLayout;
+                if (aSelect) aSelect.value = angle;
+                if (pInput) pInput.value = primary;
+                if (sInput) sInput.value = secondary;
+                if (fInput) fInput.value = footer;
+            }
+        }
+
+        async function updateIdCardModel() {
+            if (!currentCompany || currentUser?.role !== 'admin') return;
+            const model = getValidCardModel(document.getElementById('idcard-model-select')?.value || 'classic');
+            await persistCompanyUpdate({ card_model: model });
+            renderIDCard();
+        }
+
+        async function updateIdCardPhotoLayout() {
+            if (!currentCompany || currentUser?.role !== 'admin') return;
+            const layout = getValidPhotoLayout(document.getElementById('idcard-photo-layout-select')?.value || 'portrait');
+            await persistCompanyUpdate({ card_photo_layout: layout });
+            renderIDCard();
+        }
+
+        async function applyIdCardGradientPreset(primary, secondary, footer, angle = '125deg') {
+            if (!currentCompany || currentUser?.role !== 'admin') return;
+            await persistCompanyUpdate({
+                card_primary_color: primary,
+                card_secondary_color: secondary,
+                card_footer_color: footer,
+                card_gradient_angle: getValidGradientAngle(angle)
+            });
+            renderIDCard();
+            showToast('Gradasi warna ID Card diterapkan.', 'success');
+        }
+
+        async function setQuickPrimaryColor(hex) {
+            if (!currentCompany || currentUser?.role !== 'admin' || !isValidHexColor(hex)) return;
+            await persistCompanyUpdate({ card_primary_color: hex });
+            renderIDCard();
         }
 
         async function updateIdCardColors() {
-            if (!currentCompany) return;
+            if (!currentCompany || currentUser?.role !== 'admin') return;
             const primary = document.getElementById('idcard-color-primary')?.value || '#0b2545';
             const secondary = document.getElementById('idcard-color-secondary')?.value || '#0284c7';
             const footer = document.getElementById('idcard-color-footer')?.value || '#0b2545';
+            const angle = getValidGradientAngle(document.getElementById('idcard-gradient-angle')?.value || '125deg');
 
             await persistCompanyUpdate({
                 card_primary_color: primary,
                 card_secondary_color: secondary,
-                card_footer_color: footer
+                card_footer_color: footer,
+                card_gradient_angle: angle
             });
-            applyIdCardCustomColors();
+            renderIDCard();
         }
 
         async function resetIdCardColors() {
-            if (!currentCompany) return;
+            if (!currentCompany || currentUser?.role !== 'admin') return;
             await persistCompanyUpdate({
+                card_model: 'classic',
+                card_photo_layout: 'portrait',
+                card_gradient_angle: '125deg',
                 card_primary_color: '#0b2545',
                 card_secondary_color: '#0284c7',
                 card_footer_color: '#0b2545'
             });
-            applyIdCardCustomColors();
-            showToast('Warna ID Card dikembalikan ke bawaan.', 'info');
+            renderIDCard();
+            showToast('Model, tata letak & warna ID Card dikembalikan ke bawaan.', 'info');
         }
 
         function renderStandardQRCode(canvas, payload, darkColor = '#0b2545') {
@@ -2642,6 +3143,16 @@
             const firstNameOnly = currentUser.name.split(' ')[0] || 'HRD';
             const photoFrame = document.getElementById('card-photo-frame');
             const logoBox = document.getElementById('card-company-logo-box');
+            const photoLayout = getValidPhotoLayout(currentCompany?.card_photo_layout);
+            const innerShapeClass = photoLayout === 'oval'
+                ? 'rounded-full'
+                : photoLayout === 'banner'
+                    ? 'rounded-[14px]'
+                    : photoLayout === 'square'
+                        ? 'rounded-[10px]'
+                        : 'rounded-lg';
+            const primary = isValidHexColor(currentCompany?.card_primary_color) ? currentCompany.card_primary_color : '#0b2545';
+            const secondary = isValidHexColor(currentCompany?.card_secondary_color) ? currentCompany.card_secondary_color : '#0284c7';
 
             if (isSafePhotoUrl(currentCompany.logo_url)) {
                 logoBox.innerHTML = `<img src="${currentCompany.logo_url}" alt="${escapeHtml(currentCompany.name)}" class="w-full h-full object-contain bg-white p-0.5">`;
@@ -2655,13 +3166,17 @@
             }
             document.getElementById('card-company-name').textContent = currentCompany.name;
 
+            if (photoFrame) {
+                photoFrame.style.background = `linear-gradient(135deg, ${secondary}, ${primary})`;
+            }
+
             if (isSafePhotoUrl(currentUser.photo_url)) {
-                photoFrame.innerHTML = `<img src="${currentUser.photo_url}" alt="${escapeHtml(currentUser.name)}" class="w-full h-full object-cover rounded-lg">`;
+                photoFrame.innerHTML = `<img src="${currentUser.photo_url}" alt="${escapeHtml(currentUser.name)}" class="w-full h-full object-cover ${innerShapeClass}">`;
             } else {
                 photoFrame.innerHTML = `
-                    <div class="w-full h-full rounded-lg bg-gradient-to-b from-sky-400 to-blue-700 flex flex-col items-center justify-center text-white">
+                    <div class="w-full h-full ${innerShapeClass} flex flex-col items-center justify-center text-white" style="background: linear-gradient(180deg, ${secondary}, ${primary});">
                         <span id="card-avatar-initials" class="text-3xl font-black tracking-tight">${escapeHtml(initials)}</span>
-                        <span class="text-[9px] font-bold uppercase tracking-widest text-blue-100 mt-1">VERIFIED STAFF</span>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-white/90 mt-1">VERIFIED STAFF</span>
                     </div>
                 `;
             }
@@ -2680,8 +3195,7 @@
                 name: currentUser.name,
                 id: currentUser.id
             });
-            const qrDark = isValidHexColor(currentCompany?.card_primary_color) ? currentCompany.card_primary_color : '#0b2545';
-            renderStandardQRCode(canvas, payload, qrDark);
+            renderStandardQRCode(canvas, payload, primary);
         }
 
         function printEmployeeIDCard() {
@@ -2691,6 +3205,51 @@
             if (srcCanvas && clonedCanvas) {
                 const cCtx = clonedCanvas.getContext('2d');
                 cCtx.drawImage(srcCanvas, 0, 0);
+            }
+
+            const primary = isValidHexColor(currentCompany?.card_primary_color) ? currentCompany.card_primary_color : '#0b2545';
+            const secondary = isValidHexColor(currentCompany?.card_secondary_color) ? currentCompany.card_secondary_color : '#0284c7';
+            const footer = isValidHexColor(currentCompany?.card_footer_color) ? currentCompany.card_footer_color : '#0b2545';
+            const model = getValidCardModel(currentCompany?.card_model);
+            const angle = getValidGradientAngle(currentCompany?.card_gradient_angle);
+
+            const headerBgClone = cardEl.querySelector('#card-header-bg');
+            const headerAccentClone = cardEl.querySelector('#card-header-accent');
+            const accentDividerClone = cardEl.querySelector('#card-accent-divider');
+            const footerBarClone = cardEl.querySelector('#card-footer-tagline');
+            const photoFrameClone = cardEl.querySelector('#card-photo-frame');
+
+            if (headerBgClone) {
+                headerBgClone.style.background = `linear-gradient(${angle}, ${primary} 0%, ${primary} 55%, ${secondary} 100%)`;
+                if (model === 'modern') {
+                    headerBgClone.style.clipPath = 'ellipse(115% 82% at 50% 10%)';
+                } else if (model === 'executive') {
+                    headerBgClone.style.clipPath = 'polygon(0 0, 100% 0, 100% 78%, 50% 98%, 0 78%)';
+                } else if (model === 'minimal') {
+                    headerBgClone.style.height = '132px';
+                    headerBgClone.style.clipPath = 'polygon(0 0, 100% 0, 100% 85%, 0 100%)';
+                } else if (model === 'ribbon') {
+                    headerBgClone.style.height = '170px';
+                    headerBgClone.style.clipPath = 'polygon(0 0, 100% 0, 100% 55%, 68% 92%, 0 72%)';
+                } else {
+                    headerBgClone.style.clipPath = 'polygon(0 0, 100% 0, 100% 62%, 0 96%)';
+                }
+            }
+            if (headerAccentClone) {
+                if (model === 'minimal') {
+                    headerAccentClone.style.display = 'none';
+                } else {
+                    headerAccentClone.style.background = `linear-gradient(180deg, ${secondary}88, ${primary}55)`;
+                }
+            }
+            if (accentDividerClone) {
+                accentDividerClone.style.backgroundColor = secondary;
+            }
+            if (footerBarClone) {
+                footerBarClone.style.backgroundColor = footer;
+            }
+            if (photoFrameClone) {
+                photoFrameClone.style.background = `linear-gradient(135deg, ${secondary}, ${primary})`;
             }
 
             const stampHtml = isSafePhotoUrl(currentCompany?.stamp_url)
@@ -2809,7 +3368,7 @@
             }
 
             grid.innerHTML = filtered.map(u => {
-                const empLogs = logs.filter(l => l.user_id === u.id);
+                const empLogs = logs.filter(l => l.user_id === u.id && (l.clock_in || l.clock_out));
                 const lateSum = empLogs.reduce((a, b) => a + (b.late_minutes || 0), 0);
                 const otSum = empLogs.reduce((a, b) => a + (b.overtime_minutes || 0), 0);
                 const uInitials = u.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
@@ -2852,7 +3411,7 @@
         }
 
         // ==========================================
-        // 10. SENIA AI (PRIVAT PER USER) & INTERNAL TEAM CHAT (NO. 3)
+        // 10. SENIA AI (PRIVAT PER USER) & INTERNAL TEAM CHAT
         // ==========================================
         function getPrivateBotChatKey() {
             if (!currentUser || !currentCompany) return '';
@@ -2924,7 +3483,7 @@
         });
 
         function generateSeniaReply(q) {
-            const myLogs = getStore(STORAGE_KEYS.LOGS).filter(l => l.user_id === currentUser.id);
+            const myLogs = getStore(STORAGE_KEYS.LOGS).filter(l => l.user_id === currentUser.id && (l.clock_in || l.clock_out));
             const totalLate = myLogs.reduce((a, b) => a + (b.late_minutes || 0), 0);
             const totalOT = myLogs.reduce((a, b) => a + (b.overtime_minutes || 0), 0);
             const safeName = escapeHtml(currentUser.name);
@@ -2940,19 +3499,51 @@
                 return `Jadwal kerja di <strong>${safeComp}</strong>:<br>• Shift 1: <strong>${escapeHtml(currentCompany.shift1_in)} - ${escapeHtml(currentCompany.shift1_out)}</strong><br>• Shift 2: <strong>${escapeHtml(currentCompany.shift2_in)} - ${escapeHtml(currentCompany.shift2_out)}</strong><br>• ${locText}`;
             }
             if (q.includes('cuti') || q.includes('izin') || q.includes('sakit')) {
-                return `Untuk mengajukan Izin, Sakit, atau Cuti, buka menu <strong>Izin, Sakit & Cuti</strong> di bilah navigasi. Pengajuan Anda akan langsung masuk ke dashboard Admin HRD untuk disetujui.`;
+                return `Untuk mengajukan Izin, Sakit, atau Cuti, buka menu <strong>Izin, Sakit & Cuti</strong> di bilah navigasi. Setelah disetujui Admin HRD, keterangan akan otomatis menandai absen hingga tanggal yang ditentukan.`;
             }
-            if (q.includes('beku') || q.includes('alpa')) {
-                return `Sistem secara otomatis membekukan akun apabila pegawai tidak hadir tanpa keterangan (di luar hari libur/cuti/izin yang disetujui) selama <strong>25 hari kerja berturut-turut</strong>. Hubungi Admin HRD jika memerlukan aktivasi ulang.`;
+            if (q.includes('beku') || q.includes('alpa') || q.includes('mangkir')) {
+                return `Sistem secara otomatis membekukan akun apabila pegawai mangkir (tidak hadir tanpa absensi) selama <strong>25 hari kerja berturut-turut</strong>, di luar jadwal cuti, sakit, dan hari libur.`;
             }
             return `Terima kasih atas pertanyaannya! Anda dapat menanyakan tentang <em>"rekap hadir saya"</em>, <em>"jam shift kantor"</em>, <em>"cara ajukan cuti"</em>, atau <em>"aturan pembekuan akun"</em>.`;
         }
 
+        async function handleTeamChatPhotoSelect(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                event.target.value = '';
+                return showToast('Pilih berkas gambar (JPG, PNG, WEBP).', 'error');
+            }
+            try {
+                const compressed = await compressImageToDataUrl(file, 640, 0.8, false);
+                pendingTeamChatPhoto = compressed;
+                const previewBox = document.getElementById('team-chat-photo-preview');
+                const previewImg = document.getElementById('team-chat-photo-img');
+                if (previewBox && previewImg) {
+                    previewImg.src = compressed;
+                    previewBox.classList.remove('hidden');
+                }
+            } catch (err) {
+                showToast(err.message || 'Gagal memproses foto.', 'error');
+            } finally {
+                event.target.value = '';
+            }
+        }
+
+        function clearPendingTeamChatPhoto() {
+            pendingTeamChatPhoto = null;
+            const previewBox = document.getElementById('team-chat-photo-preview');
+            const previewImg = document.getElementById('team-chat-photo-img');
+            if (previewImg) previewImg.src = '';
+            if (previewBox) previewBox.classList.add('hidden');
+        }
+
         document.getElementById('team-chat-form').addEventListener('submit', (e) => {
             e.preventDefault();
+            if (!currentUser || !currentCompany) return;
             const input = document.getElementById('team-chat-input');
             const text = input.value.trim();
-            if (!text) return;
+            if (!text && !pendingTeamChatPhoto) return;
 
             const chats = getStore(STORAGE_KEYS.CHATS);
             chats.push({
@@ -2960,11 +3551,14 @@
                 company_id: currentCompany.id,
                 sender_id: currentUser.id,
                 sender_name: currentUser.name,
+                sender_nip: currentUser.nip,
                 text,
+                photo_url: pendingTeamChatPhoto || null,
                 time: getCurrentTimeStr()
             });
             setStore(STORAGE_KEYS.CHATS, chats);
             input.value = '';
+            clearPendingTeamChatPhoto();
             renderTeamChatMessages();
         });
 
@@ -2977,11 +3571,16 @@
             }
             box.innerHTML = chats.map(c => {
                 const isMe = c.sender_id === currentUser.id;
+                const photoHtml = isSafePhotoUrl(c.photo_url)
+                    ? `<img src="${c.photo_url}" alt="Foto Room Chat" class="w-full max-w-[220px] rounded-xl object-cover border border-black/10 ${c.text ? 'mb-2' : ''}">`
+                    : '';
+                const textHtml = c.text ? `<div class="leading-relaxed">${escapeHtml(c.text)}</div>` : '';
                 return `
                     <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
                         <span class="text-[10px] font-bold text-slate-400 mb-0.5 px-1">${isMe ? 'Anda' : escapeHtml(c.sender_name)} • ${escapeHtml(c.time)}</span>
-                        <div class="px-3.5 py-2.5 rounded-2xl max-w-[82%] ${isMe ? 'bg-slate-900 text-white rounded-tr-none' : 'bg-slate-100 text-slate-800 rounded-tl-none'}">
-                            ${escapeHtml(c.text)}
+                        <div class="px-3.5 py-2.5 rounded-2xl max-w-[85%] ${isMe ? 'bg-slate-900 text-white rounded-tr-none' : 'bg-slate-100 text-slate-800 rounded-tl-none'}">
+                            ${photoHtml}
+                            ${textHtml}
                         </div>
                     </div>
                 `;
@@ -2995,7 +3594,7 @@
         }
 
         // ==========================================
-        // 11. NOTIFICATIONS & 25-DAY WORKDAY AUTO FREEZE
+        // 11. NOTIFICATIONS & 25-DAY MANGKIR AUTO FREEZE
         // ==========================================
         function addNotification(companyId, userId, title, message) {
             const notifs = getStore(STORAGE_KEYS.NOTIFS);
@@ -3049,41 +3648,58 @@
             showToast('Semua notifikasi ditandai sudah dibaca.', 'info');
         }
 
-        function isDateCoveredByApprovedLeave(dateStr, approvedLeaves) {
-            return approvedLeaves.some(lv => lv.start_date <= dateStr && dateStr <= lv.end_date);
+        function isDateCoveredByLeaveOrSakit(dateStr, leaves) {
+            return leaves.some(lv => {
+                const t = (lv.type || '').toLowerCase();
+                const isExemptType = t.includes('cuti') || t.includes('sakit') || t.includes('izin');
+                if (!isExemptType) return false;
+                return lv.start_date <= dateStr && dateStr <= lv.end_date;
+            });
         }
 
+        function isWeekendHoliday(dateObj) {
+            const day = dateObj.getDay();
+            return day === 0 || day === 6;
+        }
+
+        // Dihitung per tanggal mangkir dalam absensi (di luar cuti, sakit, dan hari libur), bukan per tanggal 1
         async function checkAutoFreeze25Days() {
             if (!currentUser || currentUser.role === 'admin') return;
 
-            const logs = getStore(STORAGE_KEYS.LOGS).filter(l => l.user_id === currentUser.id);
-            const approvedLeaves = getStore(STORAGE_KEYS.LEAVES).filter(
-                lv => lv.user_id === currentUser.id && lv.status === 'approved'
-            );
+            const logs = getStore(STORAGE_KEYS.LOGS).filter(l => l.user_id === currentUser.id && (l.clock_in || l.clock_out));
+            const leaves = getStore(STORAGE_KEYS.LEAVES).filter(lv => lv.user_id === currentUser.id && lv.status !== 'rejected');
 
             const attendedDates = new Set(logs.map(l => l.date));
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            let consecutiveAbsentWorkdays = 0;
+            const sortedDates = Array.from(attendedDates).sort();
+            const anchorDate = sortedDates.length > 0
+                ? new Date(`${sortedDates[sortedDates.length - 1]}T00:00:00`)
+                : new Date(`${(currentUser.created_at || getTodayStr()).slice(0, 10)}T00:00:00`);
+
+            let consecutiveMangkirDays = 0;
             const cursor = new Date(today);
 
-            for (let i = 0; i < 90; i++) {
-                const dayOfWeek = cursor.getDay();
-                const dateStr = cursor.toISOString().split('T')[0];
+            for (let i = 0; i < 180; i++) {
+                if (cursor < anchorDate) break;
+                const yyyy = cursor.getFullYear();
+                const mm = String(cursor.getMonth() + 1).padStart(2, '0');
+                const dd = String(cursor.getDate()).padStart(2, '0');
+                const dateStr = `${yyyy}-${mm}-${dd}`;
 
-                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-                    if (attendedDates.has(dateStr)) {
-                        break;
-                    }
-                    if (!isDateCoveredByApprovedLeave(dateStr, approvedLeaves)) {
-                        consecutiveAbsentWorkdays += 1;
-                    }
+                if (attendedDates.has(dateStr)) {
+                    break;
                 }
+
+                if (!isWeekendHoliday(cursor) && !isDateCoveredByLeaveOrSakit(dateStr, leaves)) {
+                    consecutiveMangkirDays += 1;
+                }
+
                 cursor.setDate(cursor.getDate() - 1);
             }
 
-            if (consecutiveAbsentWorkdays >= 25 && currentUser.status !== 'frozen') {
+            if (consecutiveMangkirDays >= 25 && currentUser.status !== 'frozen') {
                 currentUser.status = 'frozen';
                 const users = getStore(STORAGE_KEYS.USERS);
                 const idx = users.findIndex(u => u.id === currentUser.id);
@@ -3098,7 +3714,7 @@
                     currentCompany.id,
                     currentUser.id,
                     'Akun Dibekukan Otomatis',
-                    'Akun dibekukan karena tidak hadir tanpa keterangan selama 25 hari kerja berturut-turut.'
+                    'Akun dibekukan karena mangkir dalam absensi selama 25 hari berturut-turut di luar jadwal cuti, sakit, dan hari libur.'
                 );
             }
         }
@@ -3181,7 +3797,8 @@
                 password_hash: p.password_hash,
                 role: 'employee',
                 division: p.division,
-                status: 'active'
+                status: 'active',
+                created_at: new Date().toISOString()
             };
 
             const users = getStore(STORAGE_KEYS.USERS);
@@ -3437,24 +4054,14 @@
         window.addEventListener('offline', updateConnectionStatus);
 
         document.addEventListener('DOMContentLoaded', async () => {
-            runProductionLaunchPurgeOnce();
+            await purgeAllCompanyAndEmployeeData();
             applyExternalLogoReferences();
             startLiveClock();
             updateConnectionStatus();
             lucide.createIcons();
-
-            await syncFromSupabase(false);
-
-            const savedSession = getStore(STORAGE_KEYS.SESSION, null);
-            if (savedSession && savedSession.userId && savedSession.companyId) {
-                const users = getStore(STORAGE_KEYS.USERS);
-                const companies = getStore(STORAGE_KEYS.COMPANIES);
-                const u = users.find(x => x.id === savedSession.userId);
-                const c = companies.find(x => x.id === savedSession.companyId);
-                if (u && c) {
-                    loginSession(u, c);
-                }
-            }
+            document.getElementById('app-shell').classList.add('hidden');
+            document.getElementById('auth-view').classList.remove('hidden');
+            showToast('Semua data perusahaan dan karyawan telah dihapus.', 'info');
         });
     </script>
 </body>

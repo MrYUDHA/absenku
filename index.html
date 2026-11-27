@@ -2216,6 +2216,133 @@
 
         function setStore(key, value) {
             localStorage.setItem(key, JSON.stringify(value));
+            broadcastLocalSync();
+        }
+
+        const AUTO_SYNC_CHANNEL_NAME = 'absenkita_realtime_sync_v3_9';
+        let autoSyncChannel = null;
+        let isAutoSyncRunning = false;
+        let autoSyncIntervalId = null;
+        let realtimeSubscribed = false;
+
+        function broadcastLocalSync() {
+            try {
+                if (autoSyncChannel) {
+                    autoSyncChannel.postMessage({ type: 'state-updated', ts: Date.now() });
+                }
+            } catch (_) {}
+        }
+
+        function refreshActiveViewsFromLocalStore() {
+            checkConnectionIndicator();
+            if (!currentUser || !currentCompany) return;
+
+            const latestComp = getStore(STORAGE_KEYS.COMPANIES).find(c => c.id === currentCompany.id);
+            const latestUser = getStore(STORAGE_KEYS.USERS).find(u => u.id === currentUser.id);
+            if (latestComp) currentCompany = latestComp;
+            if (latestUser) currentUser = latestUser;
+
+            checkAutoFreeze25Days();
+            applyCompanyBrandingBadges();
+            renderAvatarContent(document.getElementById('sidebar-user-avatar'), currentUser.name, currentUser.photo_url);
+            document.getElementById('sidebar-user-name').textContent = currentUser.name;
+            const isSuperOwner = isSuperOwnerUser(currentUser);
+            const isAdmin = currentUser.role === 'admin' || isSuperOwner;
+            document.getElementById('sidebar-user-role').textContent = `${currentUser.nip} • ${isSuperOwner ? 'Super Owner' : (currentUser.role === 'admin' ? 'Admin HRD' : currentUser.division)}`;
+            document.getElementById('sidebar-company-name').textContent = currentCompany.name;
+            document.getElementById('mobile-header-company').textContent = currentCompany.name;
+            document.getElementById('sidebar-company-code').textContent = currentCompany.code;
+
+            document.getElementById('label-shift1-time').textContent = `${currentCompany.shift1_in} - ${currentCompany.shift1_out}`;
+            document.getElementById('label-shift2-time').textContent = `${currentCompany.shift2_in} - ${currentCompany.shift2_out}`;
+
+            updateDashboardUI();
+            renderDocumentationPhotoPreview();
+            renderIDCard();
+            renderProfileSection();
+            renderLeavesList();
+            renderChatMessages();
+            renderNotifications();
+            renderFeedbackList();
+
+            const historySection = document.getElementById('view-history');
+            if (historySection && !historySection.classList.contains('hidden')) {
+                renderHistoryTable();
+            }
+            if (isAdmin) {
+                renderEmployeesAdmin();
+                renderCompanyAssetPreviews();
+            }
+            if (isSuperOwner) {
+                refreshSuperOwnerPanel();
+            }
+            lucide.createIcons();
+        }
+
+        function subscribeSupabaseRealtime() {
+            if (!supabaseClient || realtimeSubscribed) return;
+            realtimeSubscribed = true;
+            try {
+                supabaseClient
+                    .channel('absenkita-db-autosync')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'companies' }, () => triggerAutoSync(false))
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, () => triggerAutoSync(false))
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'pending_registrations' }, () => triggerAutoSync(false))
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance_logs' }, () => triggerAutoSync(false))
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'leave_requests' }, () => triggerAutoSync(false))
+                    .subscribe();
+            } catch (err) {
+                logSupabaseError('subscribeSupabaseRealtime', err);
+            }
+        }
+
+        async function triggerAutoSync(showFeedback = false) {
+            if (isAutoSyncRunning) return;
+            isAutoSyncRunning = true;
+            try {
+                await syncFromSupabase(showFeedback);
+                refreshActiveViewsFromLocalStore();
+            } finally {
+                isAutoSyncRunning = false;
+            }
+        }
+
+        function startAutomaticSyncEverywhere() {
+            if (!autoSyncChannel && typeof BroadcastChannel !== 'undefined') {
+                try {
+                    autoSyncChannel = new BroadcastChannel(AUTO_SYNC_CHANNEL_NAME);
+                    autoSyncChannel.onmessage = () => {
+                        refreshActiveViewsFromLocalStore();
+                    };
+                } catch (_) {}
+            }
+
+            window.addEventListener('storage', (ev) => {
+                if (!ev.key || Object.values(STORAGE_KEYS).includes(ev.key)) {
+                    refreshActiveViewsFromLocalStore();
+                }
+            });
+
+            window.addEventListener('online', () => {
+                triggerAutoSync(false);
+            });
+
+            window.addEventListener('offline', () => {
+                checkConnectionIndicator();
+            });
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    triggerAutoSync(false);
+                }
+            });
+
+            subscribeSupabaseRealtime();
+
+            if (autoSyncIntervalId) clearInterval(autoSyncIntervalId);
+            autoSyncIntervalId = setInterval(() => {
+                triggerAutoSync(false);
+            }, 5000);
         }
 
         function mergeById(localArr, remoteArr) {
@@ -4017,39 +4144,38 @@
                 const empLogs = logs.filter(l => l.user_id === u.id && (l.clock_in || l.clock_out));
                 const lateSum = empLogs.reduce((a, b) => a + (b.late_minutes || 0), 0);
                 const otSum = empLogs.reduce((a, b) => a + (b.overtime_minutes || 0), 0);
-                const uInitials = u.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
-                const active = u.status === 'active';
-                const avatarHtml = isSafePhotoUrl(u.photo_url)
+                const initials = (u.name || 'US').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+                const avatarInner = isSafePhotoUrl(u.photo_url)
                     ? `<img src="${u.photo_url}" alt="${escapeHtml(u.name)}" class="w-full h-full object-cover">`
-                    : escapeHtml(uInitials);
+                    : `<span>${escapeHtml(initials)}</span>`;
+                const isActive = u.status === 'active';
+                const uRoleText = isSuperOwnerUser(u) ? 'Super Owner' : (u.role === 'admin' ? 'Admin HRD' : 'Karyawan');
 
                 return `
-                    <div class="p-4 rounded-2xl border border-slate-200 bg-white space-y-3">
-                        <div class="flex items-start justify-between gap-2">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-11 h-11 rounded-xl bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center shrink-0 overflow-hidden">
-                                    ${avatarHtml}
-                                </div>
-                                <div class="min-w-0">
-                                    <div class="font-extrabold text-xs text-slate-900 truncate">${escapeHtml(u.name)}</div>
-                                    <div class="text-[11px] font-semibold text-brand-600 truncate">${escapeHtml(u.division || '-')} • ${escapeHtml(isSuperOwnerUser(u) ? 'Super Owner' : (u.role === 'admin' ? 'Admin HRD' : 'Staff'))}</div>
-                                </div>
+                    <div class="p-4 rounded-2xl border border-slate-200 bg-white flex flex-col justify-between gap-3">
+                        <div class="flex items-start gap-3.5">
+                            <div class="w-12 h-12 rounded-xl bg-brand-600 text-white font-extrabold text-xs flex items-center justify-center overflow-hidden shrink-0">
+                                ${avatarInner}
                             </div>
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 ${active ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
-                                ${active ? 'Aktif' : 'Dibekukan'}
-                            </span>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <span class="font-extrabold text-sm text-slate-900 truncate">${escapeHtml(u.name)}</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">${isActive ? 'Aktif' : 'Beku'}</span>
+                                </div>
+                                <div class="text-[11px] font-semibold text-slate-600 mt-0.5">${escapeHtml(u.division || '-')} • <span class="text-brand-600 font-bold">${escapeHtml(uRoleText)}</span></div>
+                                <div class="text-[10px] font-mono text-slate-400 mt-0.5">NIP: ${escapeHtml(u.nip)}</div>
+                            </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] text-slate-600 bg-slate-50 p-3 rounded-xl">
-                            <div><span class="font-bold text-slate-800">NIP:</span> <span class="font-mono">${escapeHtml(u.nip)}</span></div>
-                            <div><span class="font-bold text-slate-800">HP:</span> ${escapeHtml(u.phone || '-')}</div>
-                            <div class="sm:col-span-2 truncate"><span class="font-bold text-slate-800">Email:</span> ${escapeHtml(u.email || '-')}</div>
+                        <div class="grid grid-cols-2 gap-2 text-[11px] bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                            <div class="truncate"><span class="text-slate-400">Email:</span> <strong class="text-slate-700">${escapeHtml(u.email || '-')}</strong></div>
+                            <div class="truncate"><span class="text-slate-400">HP:</span> <strong class="text-slate-700">${escapeHtml(u.phone || '-')}</strong></div>
                         </div>
 
-                        <div class="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100 text-slate-500">
-                            <span>Hadir: <strong class="text-slate-800">${empLogs.length}</strong> hari</span>
-                            <span>TL: <strong class="text-amber-700">${lateSum}</strong> mnt</span>
-                            <span>Lembur: <strong class="text-blue-700">${otSum}</strong> mnt</span>
+                        <div class="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100 text-slate-600">
+                            <span>Hadir: <strong class="text-emerald-700">${empLogs.length} hari</strong></span>
+                            <span>TL: <strong class="text-amber-700">${lateSum} mnt</strong></span>
+                            <span>Lembur: <strong class="text-blue-700">${otSum} mnt</strong></span>
                         </div>
                     </div>
                 `;
@@ -4057,136 +4183,103 @@
         }
 
         // ==========================================
-        // 10. SENIA AI & INTERNAL TEAM CHAT
+        // 10. SENIA AI & TEAM ROOM CHAT
         // ==========================================
-        function getPrivateBotChatKey() {
-            if (!currentUser || !currentCompany) return '';
-            return `${currentCompany.id}::${currentUser.id}`;
+        function getPrivateSeniaHistory() {
+            if (!currentUser || !currentCompany) return [];
+            const allPrivate = getStore(STORAGE_KEYS.BOT_CHATS, {});
+            const key = `${currentCompany.id}::${currentUser.id}`;
+            return Array.isArray(allPrivate[key]) ? allPrivate[key] : [];
         }
 
-        function getUserPrivateBotHistory() {
-            const key = getPrivateBotChatKey();
-            if (!key) return [];
-            const storeMap = getStore(STORAGE_KEYS.BOT_CHATS, {});
-            return Array.isArray(storeMap[key]) ? storeMap[key] : [];
+        function savePrivateSeniaHistory(messages) {
+            if (!currentUser || !currentCompany) return;
+            const allPrivate = getStore(STORAGE_KEYS.BOT_CHATS, {});
+            const key = `${currentCompany.id}::${currentUser.id}`;
+            allPrivate[key] = messages.slice(-60);
+            setStore(STORAGE_KEYS.BOT_CHATS, allPrivate);
         }
 
-        function appendUserPrivateBotMessage(role, htmlOrText, isHtml = false) {
-            const key = getPrivateBotChatKey();
-            if (!key) return;
-            const storeMap = getStore(STORAGE_KEYS.BOT_CHATS, {});
-            if (!Array.isArray(storeMap[key])) storeMap[key] = [];
-            storeMap[key].push({
-                id: generateId('BOT'),
-                role,
-                content: htmlOrText,
-                isHtml,
-                time: getCurrentTimeStr()
-            });
-            setStore(STORAGE_KEYS.BOT_CHATS, storeMap);
-        }
+        function renderChatMessages() {
+            const seniaContainer = document.getElementById('senia-messages');
+            let botChats = getPrivateSeniaHistory();
 
-        function renderPrivateBotMessages() {
-            const box = document.getElementById('senia-messages');
-            if (!box || !currentUser) return;
-            const history = getUserPrivateBotHistory();
-
-            if (!history.length) {
-                box.innerHTML = `
-                    <div class="p-3.5 rounded-2xl bg-brand-50 border border-brand-100 text-slate-800 space-y-1">
-                        <div class="font-extrabold text-brand-700">SENIA (Privat untuk ${escapeHtml(currentUser.name)})</div>
-                        <p>Halo ${escapeHtml(currentUser.name)}! Riwayat chat SENIA ini bersifat privat khusus akun Anda. Tanyakan tentang rekap hadir, keterlambatan, jam shift, atau aturan pembekuan akun.</p>
-                    </div>
-                `;
-                return;
+            if (!botChats.length) {
+                botChats = [{
+                    sender: 'SENIA',
+                    text: `Halo ${currentUser.name}! Sesi asisten SENIA ini bersifat privat khusus untuk akun Anda. Tanyakan tentang "rekap hadir saya", "status terlambat", "jam shift", atau "aturan cuti".`,
+                    time: getCurrentTimeStr()
+                }];
+                savePrivateSeniaHistory(botChats);
             }
 
-            box.innerHTML = history.map(item => {
-                if (item.role === 'user') {
+            seniaContainer.innerHTML = botChats.map(m => {
+                const isBot = m.sender === 'SENIA';
+                return `
+                    <div class="flex ${isBot ? 'justify-start' : 'justify-end'}">
+                        <div class="max-w-[82%] px-3.5 py-2.5 rounded-2xl ${isBot ? 'bg-slate-100 text-slate-800 rounded-tl-xs' : 'bg-brand-600 text-white rounded-tr-xs'}">
+                            <div class="text-[10px] font-extrabold opacity-75 mb-0.5">${escapeHtml(m.sender)} • ${escapeHtml(m.time)}</div>
+                            <div class="leading-relaxed">${escapeHtml(m.text)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            seniaContainer.scrollTop = seniaContainer.scrollHeight;
+
+            renderTeamChatMessages();
+        }
+
+        function renderTeamChatMessages() {
+            if (!currentCompany) return;
+            const teamContainer = document.getElementById('team-chat-messages');
+            if (!teamContainer) return;
+            const teamChats = getStore(STORAGE_KEYS.CHATS).filter(c => c.company_id === currentCompany.id);
+
+            if (!teamChats.length) {
+                teamContainer.innerHTML = '<div class="text-center text-slate-400 py-8">Belum ada pesan di room chat tim. Mulai percakapan pertama!</div>';
+            } else {
+                teamContainer.innerHTML = teamChats.map(c => {
+                    const isMe = c.sender_id === currentUser.id;
+                    const photoHtml = isSafePhotoUrl(c.photo_url)
+                        ? `<img src="${c.photo_url}" alt="Foto Room Chat" class="mt-2 max-h-48 w-auto rounded-xl border border-black/10 object-contain bg-white">`
+                        : '';
                     return `
-                        <div class="flex justify-end">
-                            <div class="max-w-[82%] px-3.5 py-2.5 rounded-2xl bg-brand-600 text-white font-semibold">
-                                ${escapeHtml(item.content)}
+                        <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
+                            <div class="max-w-[82%] px-3.5 py-2.5 rounded-2xl ${isMe ? 'bg-slate-900 text-white rounded-tr-xs' : 'bg-slate-100 text-slate-800 rounded-tl-xs'}">
+                                <div class="text-[10px] font-extrabold opacity-75 mb-0.5">${escapeHtml(c.sender_name)} (${escapeHtml(c.sender_nip)}) • ${escapeHtml(c.time)}</div>
+                                ${c.text ? `<div class="leading-relaxed">${escapeHtml(c.text)}</div>` : ''}
+                                ${photoHtml}
                             </div>
                         </div>
                     `;
-                }
-                const body = item.isHtml ? item.content : escapeHtml(item.content);
-                return `
-                    <div class="p-3.5 rounded-2xl bg-slate-100 text-slate-800 space-y-1">
-                        <div class="font-extrabold text-brand-700">SENIA</div>
-                        <div>${body}</div>
-                    </div>
-                `;
-            }).join('');
-            box.scrollTop = box.scrollHeight;
+                }).join('');
+                teamContainer.scrollTop = teamContainer.scrollHeight;
+            }
         }
 
-        function clearPendingTeamChatPhoto() {
-            pendingTeamChatPhoto = null;
-            const input = document.getElementById('team-chat-photo-input');
-            const preview = document.getElementById('team-chat-photo-preview');
-            const img = document.getElementById('team-chat-photo-img');
-            if (input) input.value = '';
-            if (img) img.src = '';
-            if (preview) preview.classList.add('hidden');
-        }
-
-        async function handleTeamChatPhotoSelect(event) {
+        function handleTeamChatPhotoSelect(event) {
             const file = event.target.files?.[0];
             if (!file) return;
             if (!file.type.startsWith('image/')) {
                 event.target.value = '';
                 return showToast('Pilih berkas gambar (JPG, PNG, WEBP).', 'error');
             }
-            try {
-                const compressed = await compressImageToDataUrl(file, 640, 0.8, false);
-                pendingTeamChatPhoto = compressed;
-                const preview = document.getElementById('team-chat-photo-preview');
-                const img = document.getElementById('team-chat-photo-img');
-                if (img) img.src = compressed;
-                if (preview) preview.classList.remove('hidden');
-                showToast('Foto siap dikirim ke Room Chat Tim.', 'info');
-            } catch (err) {
-                showToast(err.message || 'Gagal memproses foto.', 'error');
-            } finally {
-                event.target.value = '';
-            }
+            compressImageToDataUrl(file, 640, 0.8, false)
+                .then(dataUrl => {
+                    pendingTeamChatPhoto = dataUrl;
+                    document.getElementById('team-chat-photo-img').src = dataUrl;
+                    document.getElementById('team-chat-photo-preview').classList.remove('hidden');
+                })
+                .catch(err => showToast(err.message || 'Gagal memuat foto.', 'error'))
+                .finally(() => { event.target.value = ''; });
         }
 
-        function renderChatMessages() {
-            renderPrivateBotMessages();
-            renderTeamChatMessages();
-        }
-
-        function renderTeamChatMessages() {
-            const box = document.getElementById('team-chat-messages');
-            const chats = getStore(STORAGE_KEYS.CHATS).filter(c => c.company_id === currentCompany.id);
-            if (!chats.length) {
-                box.innerHTML = '<div class="text-center text-slate-400 py-10">Belum ada pesan di ruang obrolan tim.</div>';
-                return;
-            }
-            box.innerHTML = chats.map(c => {
-                const mine = c.sender_id === currentUser.id;
-                const photoHtml = isSafePhotoUrl(c.photo_url)
-                    ? `<img src="${c.photo_url}" alt="Foto Room Chat" class="mt-2 max-h-48 w-auto rounded-xl border border-black/10 object-cover">`
-                    : '';
-                const statusBadgeHtml = c.attendance_status
-                    ? `<span class="inline-block mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold ${c.is_late ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">${escapeHtml(c.attendance_status)}</span>`
-                    : '';
-
-                return `
-                    <div class="flex flex-col ${mine ? 'items-end' : 'items-start'}">
-                        <div class="text-[10px] text-slate-400 mb-0.5 px-1">${escapeHtml(c.sender_name)}${c.sender_nip ? ` (${escapeHtml(c.sender_nip)})` : ''} • ${escapeHtml(c.time)}</div>
-                        <div class="max-w-[82%] px-3.5 py-2.5 rounded-2xl ${mine ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-800'}">
-                            ${c.text ? `<div>${escapeHtml(c.text)}</div>` : ''}
-                            ${statusBadgeHtml}
-                            ${photoHtml}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            box.scrollTop = box.scrollHeight;
+        function clearPendingTeamChatPhoto() {
+            pendingTeamChatPhoto = null;
+            const img = document.getElementById('team-chat-photo-img');
+            const box = document.getElementById('team-chat-photo-preview');
+            if (img) img.src = '';
+            if (box) box.classList.add('hidden');
         }
 
         document.getElementById('senia-form').addEventListener('submit', (e) => {
@@ -4195,34 +4288,36 @@
             const q = input.value.trim();
             if (!q) return;
 
-            appendUserPrivateBotMessage('user', q, false);
+            const botChats = getPrivateSeniaHistory();
+            const nowTime = getCurrentTimeStr();
+            botChats.push({ sender: currentUser.name, text: q, time: nowTime });
 
-            const ql = q.toLowerCase();
-            let replyHtml = '';
-            if (ql.includes('rekap') || ql.includes('hadir') || ql.includes('absen')) {
-                const logs = getStore(STORAGE_KEYS.LOGS).filter(l => l.user_id === currentUser.id && (l.clock_in || l.clock_out));
-                const lateTotal = logs.reduce((a, b) => a + (b.late_minutes || 0), 0);
-                replyHtml = `Anda tercatat hadir <strong>${logs.length} hari</strong> dengan total keterlambatan <strong>${lateTotal} menit</strong>. Buka menu <em>Riwayat & Rekap A4</em> untuk mencetak laporan lengkap.`;
-            } else if (ql.includes('shift') || ql.includes('jam') || ql.includes('masuk') || ql.includes('pulang')) {
-                replyHtml = `Jadwal kantor saat ini: <strong>Shift 1</strong> (${escapeHtml(currentCompany.shift1_in)} - ${escapeHtml(currentCompany.shift1_out)}) dan <strong>Shift 2</strong> (${escapeHtml(currentCompany.shift2_in)} - ${escapeHtml(currentCompany.shift2_out)}). Mode <strong>WFH</strong> bebas radius lokasi.`;
-            } else if (ql.includes('beku') || ql.includes('25') || ql.includes('mangkir')) {
-                replyHtml = `Akun dibekukan otomatis jika tidak absen (mangkir) selama <strong>25 hari kerja berturut-turut</strong> di luar cuti, sakit, dan hari libur.`;
-            } else {
-                replyHtml = `Saya siap membantu informasi kehadiran, jadwal shift, izin/cuti, maupun cetak ID Card & laporan A4. Silakan ajukan pertanyaan spesifik Anda.`;
+            const lower = q.toLowerCase();
+            const myLogs = getStore(STORAGE_KEYS.LOGS).filter(l => l.user_id === currentUser.id && (l.clock_in || l.clock_out));
+            const lateSum = myLogs.reduce((a, b) => a + (b.late_minutes || 0), 0);
+            const otSum = myLogs.reduce((a, b) => a + (b.overtime_minutes || 0), 0);
+
+            let reply = `Saya SENIA (privat untuk akun ${currentUser.name}). Saat ini Anda tercatat hadir ${myLogs.length} hari, total keterlambatan ${lateSum} menit, dan lembur ${otSum} menit.`;
+            if (lower.includes('shift') || lower.includes('jam')) {
+                reply = `Jadwal kantor ${currentCompany.name}: Shift 1 (${currentCompany.shift1_in} - ${currentCompany.shift1_out}), Shift 2 (${currentCompany.shift2_in} - ${currentCompany.shift2_out}), serta Mode WFH.`;
+            } else if (lower.includes('cuti') || lower.includes('izin') || lower.includes('sakit')) {
+                reply = `Anda dapat mengajukan Izin, Sakit, atau Cuti Tahunan melalui menu "Izin, Sakit & Cuti" di sidebar kiri untuk diproses Admin/HRD.`;
+            } else if (lower.includes('beku') || lower.includes('25')) {
+                reply = `Kebijakan sistem: Akun akan dibekukan otomatis jika tidak hadir tanpa keterangan (mangkir) selama 25 hari kerja berturut-turut di luar cuti, sakit, dan hari libur.`;
             }
 
-            appendUserPrivateBotMessage('assistant', replyHtml, true);
-            renderPrivateBotMessages();
+            botChats.push({ sender: 'SENIA', text: reply, time: getCurrentTimeStr() });
+            savePrivateSeniaHistory(botChats);
             input.value = '';
+            renderChatMessages();
         });
 
         document.getElementById('team-chat-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const input = document.getElementById('team-chat-input');
-            const txt = input.value.trim();
-            if (!txt && !pendingTeamChatPhoto) return;
+            const text = input.value.trim();
+            if (!text && !pendingTeamChatPhoto) return;
 
-            const attInfo = getTodayAttendanceStatusInfo();
             const chats = getStore(STORAGE_KEYS.CHATS);
             chats.push({
                 id: generateId('MSG'),
@@ -4230,9 +4325,7 @@
                 sender_id: currentUser.id,
                 sender_name: currentUser.name,
                 sender_nip: currentUser.nip,
-                attendance_status: attInfo.statusText,
-                is_late: attInfo.isLate,
-                text: txt,
+                text,
                 photo_url: pendingTeamChatPhoto || null,
                 time: getCurrentTimeStr()
             });
@@ -4243,47 +4336,47 @@
         });
 
         // ==========================================
-        // 11. NOTIFICATIONS & 25-DAY FREEZE RULE
+        // 11. NOTIFICATIONS
         // ==========================================
-        function addNotification(companyId, userId, title, message) {
+        function addNotification(companyId, targetUserId, title, body) {
             const notifs = getStore(STORAGE_KEYS.NOTIFS);
             notifs.unshift({
                 id: generateId('NTF'),
                 company_id: companyId,
-                user_id: userId,
+                target_user_id: targetUserId,
                 title,
-                message,
+                body,
                 read: false,
-                created_at: new Date().toLocaleString('id-ID')
+                time: new Date().toLocaleString('id-ID')
             });
             setStore(STORAGE_KEYS.NOTIFS, notifs);
             renderNotifications();
         }
 
         function renderNotifications() {
-            if (!currentUser || !currentCompany) return;
-            const notifs = getStore(STORAGE_KEYS.NOTIFS).filter(n =>
-                n.company_id === currentCompany.id && (!n.user_id || n.user_id === currentUser.id)
+            if (!currentCompany || !currentUser) return;
+            const list = getStore(STORAGE_KEYS.NOTIFS).filter(n =>
+                n.company_id === currentCompany.id && (!n.target_user_id || n.target_user_id === currentUser.id)
             );
-            const unread = notifs.filter(n => !n.read).length;
+            const unread = list.filter(n => !n.read).length;
 
             document.getElementById('mobile-notif-badge').classList.toggle('hidden', unread === 0);
             document.getElementById('desktop-notif-badge').classList.toggle('hidden', unread === 0);
 
             const container = document.getElementById('notifications-list');
-            if (!notifs.length) {
-                container.innerHTML = '<div class="text-center text-xs text-slate-400 py-8">Tidak ada notifikasi.</div>';
+            if (!list.length) {
+                container.innerHTML = '<div class="p-6 text-center text-xs text-slate-400">Belum ada notifikasi.</div>';
                 return;
             }
 
-            container.innerHTML = notifs.map(n => `
-                <div class="p-3.5 rounded-2xl border ${n.read ? 'bg-white border-slate-100' : 'bg-brand-50/50 border-brand-200'} flex items-start justify-between gap-3">
+            container.innerHTML = list.map(n => `
+                <div class="p-3.5 rounded-2xl border ${n.read ? 'bg-white border-slate-100' : 'bg-brand-50/40 border-brand-200'} flex items-start justify-between gap-3">
                     <div>
                         <div class="text-xs font-extrabold text-slate-900">${escapeHtml(n.title)}</div>
-                        <p class="text-xs text-slate-600 mt-0.5">${escapeHtml(n.message)}</p>
-                        <span class="text-[10px] text-slate-400 mt-1 block">${escapeHtml(n.created_at)}</span>
+                        <div class="text-xs text-slate-600 mt-0.5">${escapeHtml(n.body)}</div>
+                        <div class="text-[10px] text-slate-400 mt-1">${escapeHtml(n.time)}</div>
                     </div>
-                    ${!n.read ? `<span class="w-2 h-2 rounded-full bg-brand-600 mt-1.5 shrink-0"></span>` : ''}
+                    ${!n.read ? '<span class="w-2 h-2 rounded-full bg-brand-600 mt-1.5 shrink-0"></span>' : ''}
                 </div>
             `).join('');
         }
@@ -4291,7 +4384,7 @@
         function markAllNotificationsRead() {
             const notifs = getStore(STORAGE_KEYS.NOTIFS);
             notifs.forEach(n => {
-                if (n.company_id === currentCompany.id && (!n.user_id || n.user_id === currentUser.id)) {
+                if (n.company_id === currentCompany.id && (!n.target_user_id || n.target_user_id === currentUser.id)) {
                     n.read = true;
                 }
             });
@@ -4299,79 +4392,60 @@
             renderNotifications();
         }
 
-        function isDateCoveredByApprovedLeaveOrHoliday(dateObj, leaves, holidays) {
-            const yyyy = dateObj.getFullYear();
-            const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-            const dd = String(dateObj.getDate()).padStart(2, '0');
-            const ymd = `${yyyy}-${mm}-${dd}`;
-
-            if (holidays.some(h => h === ymd)) return true;
-
-            return leaves.some(lv =>
-                lv.status === 'approved' &&
-                (lv.type === 'Cuti Tahunan' || lv.type === 'Sakit' || lv.type === 'Izin') &&
-                ymd >= lv.start_date &&
-                ymd <= lv.end_date
-            );
-        }
-
+        // ==========================================
+        // 12. ADMIN: EMPLOYEES APPROVAL & 25-DAY FREEZE
+        // ==========================================
         function checkAutoFreeze25Days() {
-            if (!currentUser || isSuperOwnerUser(currentUser) || currentUser.role === 'admin' || currentUser.status === 'frozen') return;
+            if (!currentUser || !currentCompany) return;
+            if (currentUser.role === 'admin' || isSuperOwnerUser(currentUser)) return;
+            if (currentUser.status === 'frozen') return;
 
-            const logs = getStore(STORAGE_KEYS.LOGS).filter(l => l.user_id === currentUser.id);
-            const attendedDates = new Set(
-                logs.filter(l => l.clock_in || l.clock_out).map(l => l.date)
-            );
-            const leaves = getStore(STORAGE_KEYS.LEAVES).filter(l => l.user_id === currentUser.id);
-            const holidays = getStore(`absenkita_holidays_${currentCompany.id}`, []);
+            const logs = getStore(STORAGE_KEYS.LOGS).filter(l => l.user_id === currentUser.id && (l.clock_in || l.clock_out));
+            const leaves = getStore(STORAGE_KEYS.LEAVES).filter(l => l.user_id === currentUser.id && l.status === 'approved');
+            const attendedDates = new Set(logs.map(l => l.date));
+
+            const leaveDates = new Set();
+            leaves.forEach(lv => {
+                enumerateDatesInclusive(lv.start_date, lv.end_date).forEach(d => leaveDates.add(d));
+            });
 
             let consecutiveAbsentWorkdays = 0;
             const cursor = new Date();
-            cursor.setDate(cursor.getDate() - 1);
+            for (let i = 0; i < 60; i++) {
+                const dayOfWeek = cursor.getDay();
+                const dStr = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`;
 
-            for (let i = 0; i < 90; i++) {
-                const day = cursor.getDay();
-                const isWeekend = (day === 0 || day === 6);
-                if (!isWeekend) {
-                    const ymd = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`;
-                    const coveredByLeaveOrHoliday = isDateCoveredByApprovedLeaveOrHoliday(cursor, leaves, holidays);
-                    const hasAttendance = attendedDates.has(ymd);
+                const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+                const isApprovedLeave = leaveDates.has(dStr);
+                const isAttended = attendedDates.has(dStr);
 
-                    if (!hasAttendance && !coveredByLeaveOrHoliday) {
-                        consecutiveAbsentWorkdays += 1;
+                if (!isWeekend && !isApprovedLeave) {
+                    if (!isAttended) {
+                        consecutiveAbsentWorkdays++;
                         if (consecutiveAbsentWorkdays >= 25) {
+                            currentUser.status = 'frozen';
+                            const users = getStore(STORAGE_KEYS.USERS);
+                            const idx = users.findIndex(u => u.id === currentUser.id);
+                            if (idx !== -1) {
+                                users[idx].status = 'frozen';
+                                setStore(STORAGE_KEYS.USERS, users);
+                            }
+                            addNotification(
+                                currentCompany.id,
+                                currentUser.id,
+                                'Akun Dibekukan Otomatis (25 Hari Mangkir)',
+                                'Akun Anda dibekukan karena tidak hadir tanpa keterangan selama 25 hari kerja berturut-turut (di luar cuti, sakit, dan hari libur).'
+                            );
                             break;
                         }
-                    } else if (hasAttendance) {
-                        break;
+                    } else {
+                        consecutiveAbsentWorkdays = 0;
                     }
                 }
                 cursor.setDate(cursor.getDate() - 1);
             }
-
-            if (consecutiveAbsentWorkdays >= 25) {
-                currentUser.status = 'frozen';
-                const users = getStore(STORAGE_KEYS.USERS);
-                const idx = users.findIndex(u => u.id === currentUser.id);
-                if (idx !== -1) {
-                    users[idx].status = 'frozen';
-                    setStore(STORAGE_KEYS.USERS, users);
-                }
-                if (supabaseClient) {
-                    supabaseClient.from('users').update({ status: 'frozen' }).eq('id', currentUser.id);
-                }
-                addNotification(
-                    currentCompany.id,
-                    currentUser.id,
-                    'Akun Dibekukan Otomatis (25 Hari Kerja)',
-                    'Akun Anda dibekukan karena tidak hadir tanpa keterangan selama 25 hari kerja berturut-turut di luar cuti, sakit, dan hari libur.'
-                );
-            }
         }
 
-        // ==========================================
-        // 12. ADMIN EMPLOYEE APPROVAL & MANAGEMENT
-        // ==========================================
         function renderEmployeesAdmin() {
             const pendings = getStore(STORAGE_KEYS.PENDING).filter(p => p.company_id === currentCompany.id);
             const badge = document.getElementById('nav-pending-badge');
@@ -4380,59 +4454,48 @@
 
             const pendContainer = document.getElementById('pending-registrations-list');
             if (!pendings.length) {
-                pendContainer.innerHTML = '<div class="p-4 text-xs text-slate-400 border border-dashed border-slate-200 rounded-2xl text-center">Tidak ada pendaftaran karyawan baru yang menunggu persetujuan.</div>';
+                pendContainer.innerHTML = '<div class="p-4 text-xs text-slate-400 border border-dashed border-slate-200 rounded-2xl text-center">Tidak ada pendaftar baru yang menunggu persetujuan.</div>';
             } else {
-                pendContainer.innerHTML = pendings.map(p => `
-                    <div class="p-4 rounded-2xl border border-amber-200 bg-amber-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div>
-                            <div class="font-extrabold text-xs text-slate-900">${escapeHtml(p.name)} <span class="text-slate-500 font-semibold">• ${escapeHtml(p.division)}</span></div>
-                            <div class="text-[11px] text-slate-600 mt-0.5">${escapeHtml(p.email)} • ${escapeHtml(p.phone)}</div>
+                pendContainer.innerHTML = pendings.map((p, idx) => {
+                    const suggestedNip = `EMP-${String(idx + 101).padStart(3, '0')}`;
+                    return `
+                        <div class="p-4 rounded-2xl border border-amber-200 bg-amber-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                                <div class="text-xs font-extrabold text-slate-900">${escapeHtml(p.name)} <span class="text-slate-500 font-normal">(${escapeHtml(p.division)})</span></div>
+                                <div class="text-[11px] text-slate-600 mt-0.5">${escapeHtml(p.email)} • ${escapeHtml(p.phone)}</div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="text" id="nip-input-${escapeHtml(p.id)}" value="${escapeHtml(suggestedNip)}" placeholder="NIP Resmi" class="w-28 px-2.5 py-1.5 text-xs font-mono font-bold rounded-xl border border-slate-300 bg-white outline-none">
+                                <button onclick="approvePendingEmployee('${escapeHtml(p.id)}')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">Setujui</button>
+                                <button onclick="rejectPendingEmployee('${escapeHtml(p.id)}')" class="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold">Tolak</button>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <input type="text" id="nip-input-${escapeHtml(p.id)}" placeholder="NIP (opsional)" class="px-2.5 py-1.5 text-xs font-mono rounded-xl border border-slate-300 bg-white w-28 outline-none">
-                            <button onclick="approvePendingEmployee('${escapeHtml(p.id)}')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">Setujui</button>
-                            <button onclick="rejectPendingEmployee('${escapeHtml(p.id)}')" class="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold">Tolak</button>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
 
             const users = getStore(STORAGE_KEYS.USERS).filter(u => u.company_id === currentCompany.id);
             const tbody = document.getElementById('employees-tbody');
             tbody.innerHTML = users.map(u => {
                 const isFrozen = u.status === 'frozen';
-                const isOwnerRow = isSuperOwnerUser(u);
-                const uInitials = u.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
-                const avatarSmallHtml = isSafePhotoUrl(u.photo_url)
-                    ? `<img src="${u.photo_url}" alt="${escapeHtml(u.name)}" class="w-full h-full object-cover">`
-                    : escapeHtml(uInitials);
-
+                const uIsSuper = isSuperOwnerUser(u);
+                const roleBadge = uIsSuper ? 'Super Owner' : (u.role === 'admin' ? 'Admin HRD' : 'Karyawan');
                 return `
                     <tr class="hover:bg-slate-50">
                         <td class="py-3 px-3 font-mono font-bold text-slate-800">${escapeHtml(u.nip)}</td>
-                        <td class="py-3 px-3">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-full bg-slate-800 text-white font-extrabold text-[10px] flex items-center justify-center shrink-0 overflow-hidden">
-                                    ${avatarSmallHtml}
-                                </div>
-                                <div>
-                                    <div class="font-bold text-slate-900">${escapeHtml(u.name)}</div>
-                                    <div class="text-[11px] text-slate-500">${escapeHtml(u.email)} • ${escapeHtml(u.phone)}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="py-3 px-3"><span class="font-semibold text-slate-700">${escapeHtml(u.division)}</span> <span class="text-[10px] uppercase font-bold text-brand-600 ml-1">${escapeHtml(isOwnerRow ? 'SUPER OWNER' : u.role)}</span></td>
+                        <td class="py-3 px-3"><div class="font-bold text-slate-900">${escapeHtml(u.name)}</div><div class="text-[10px] text-slate-400">${escapeHtml(u.email)} • ${escapeHtml(u.phone)}</div></td>
+                        <td class="py-3 px-3"><div class="font-semibold text-slate-700">${escapeHtml(u.division)}</div><div class="text-[10px] text-brand-600 font-bold">${escapeHtml(roleBadge)}</div></td>
                         <td class="py-3 px-3">
                             <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${isFrozen ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">
                                 ${isFrozen ? 'Dibekukan' : 'Aktif'}
                             </span>
                         </td>
                         <td class="py-3 px-3 text-right">
-                            ${u.id !== currentUser.id && !isOwnerRow ? `
-                                <button onclick="toggleFreezeUser('${escapeHtml(u.id)}')" class="px-3 py-1 rounded-lg text-[11px] font-bold ${isFrozen ? 'bg-emerald-600 text-white' : 'bg-amber-100 text-amber-900 hover:bg-amber-200'}">
-                                    ${isFrozen ? 'Aktifkan Kembali' : 'Bekukan'}
+                            ${u.id !== currentUser.id ? `
+                                <button onclick="toggleFreezeEmployee('${escapeHtml(u.id)}')" class="px-3 py-1 rounded-lg text-[11px] font-bold ${isFrozen ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-amber-100 text-amber-800 hover:bg-amber-200'}">
+                                    ${isFrozen ? 'Aktifkan Kembali' : 'Bekukan Akun'}
                                 </button>
-                            ` : '<span class="text-[11px] text-slate-400">-</span>'}
+                            ` : '<span class="text-[10px] text-slate-400">Akun Anda</span>'}
                         </td>
                     </tr>
                 `;
@@ -4441,19 +4504,17 @@
 
         async function approvePendingEmployee(pendingId) {
             const pendings = getStore(STORAGE_KEYS.PENDING);
-            const idx = pendings.findIndex(p => p.id === pendingId);
-            if (idx === -1) return;
-            const p = pendings[idx];
+            const p = pendings.find(item => item.id === pendingId);
+            if (!p) return;
 
-            const customNip = document.getElementById(`nip-input-${pendingId}`)?.value.trim();
+            const nipInput = document.getElementById(`nip-input-${pendingId}`);
+            const nip = (nipInput?.value || '').trim() || `EMP-${Math.floor(100 + Math.random() * 900)}`;
+
             const users = getStore(STORAGE_KEYS.USERS);
-            const empCount = users.filter(u => u.company_id === currentCompany.id).length + 1;
-            const assignedNip = customNip || `EMP-${String(empCount).padStart(3, '0')}`;
-
             const newUser = {
                 id: generateId('USR'),
                 company_id: p.company_id,
-                nip: assignedNip,
+                nip,
                 name: p.name,
                 email: p.email,
                 phone: p.phone,
@@ -4461,69 +4522,70 @@
                 auth_salt: p.auth_salt || generateUserSalt(),
                 password_hash: p.password_hash,
                 role: 'employee',
+                is_super_owner: false,
                 division: p.division,
                 status: 'active',
                 created_at: new Date().toISOString()
             };
 
             users.push(newUser);
-            pendings.splice(idx, 1);
-
             setStore(STORAGE_KEYS.USERS, users);
-            setStore(STORAGE_KEYS.PENDING, pendings);
+            setStore(STORAGE_KEYS.PENDING, pendings.filter(item => item.id !== pendingId));
 
             if (supabaseClient) {
                 const { error: uErr } = await supabaseClient.from('users').upsert([newUser]);
                 const { error: dErr } = await supabaseClient.from('pending_registrations').delete().eq('id', pendingId);
-                if (uErr) logSupabaseError('approvePendingEmployee users', uErr);
+                if (uErr) logSupabaseError('approvePendingEmployee insert users', uErr);
                 if (dErr) logSupabaseError('approvePendingEmployee delete pending', dErr);
             }
 
-            addNotification(currentCompany.id, null, 'Karyawan Baru Bergabung', `${newUser.name} (${assignedNip}) telah disetujui.`);
+            addNotification(currentCompany.id, null, 'Karyawan Baru Disetujui', `${p.name} resmi bergabung dengan NIP ${nip}.`);
             renderEmployeesAdmin();
             renderProfileSection();
-            showToast(`${newUser.name} disetujui dengan NIP ${assignedNip}!`, 'success');
+            showToast(`${p.name} disetujui dengan NIP ${nip}!`, 'success');
         }
 
         async function rejectPendingEmployee(pendingId) {
-            const pendings = getStore(STORAGE_KEYS.PENDING).filter(p => p.id !== pendingId);
-            setStore(STORAGE_KEYS.PENDING, pendings);
+            const pendings = getStore(STORAGE_KEYS.PENDING);
+            setStore(STORAGE_KEYS.PENDING, pendings.filter(item => item.id !== pendingId));
             if (supabaseClient) {
-                const { error: rErr } = await supabaseClient.from('pending_registrations').delete().eq('id', pendingId);
-                if (rErr) logSupabaseError('rejectPendingEmployee', rErr);
+                const { error: dErr } = await supabaseClient.from('pending_registrations').delete().eq('id', pendingId);
+                if (dErr) logSupabaseError('rejectPendingEmployee delete pending', dErr);
             }
             renderEmployeesAdmin();
-            showToast('Pendaftaran ditolak dan dihapus.', 'info');
+            showToast('Pendaftaran ditolak.', 'info');
         }
 
-        async function toggleFreezeUser(userId) {
+        async function toggleFreezeEmployee(userId) {
             const users = getStore(STORAGE_KEYS.USERS);
-            const target = users.find(u => u.id === userId);
-            if (!target) return;
-            target.status = target.status === 'frozen' ? 'active' : 'frozen';
+            const u = users.find(item => item.id === userId);
+            if (!u) return;
+            u.status = u.status === 'frozen' ? 'active' : 'frozen';
             setStore(STORAGE_KEYS.USERS, users);
 
             if (supabaseClient) {
-                const { error: fErr } = await supabaseClient.from('users').update({ status: target.status }).eq('id', userId);
-                if (fErr) logSupabaseError('toggleFreezeUser', fErr);
+                const { error: fErr } = await supabaseClient.from('users').update({ status: u.status }).eq('id', userId);
+                if (fErr) logSupabaseError('toggleFreezeEmployee update status', fErr);
             }
 
             addNotification(
                 currentCompany.id,
-                target.id,
-                target.status === 'frozen' ? 'Akun Dibekukan' : 'Akun Diaktifkan Kembali',
-                target.status === 'frozen' ? 'Akun Anda telah dibekukan oleh Admin.' : 'Akun Anda telah aktif kembali dan dapat digunakan untuk absensi.'
+                u.id,
+                u.status === 'frozen' ? 'Pemberitahuan Pembekuan Akun' : 'Akun Diaktifkan Kembali',
+                u.status === 'frozen'
+                    ? 'Akun Anda telah dibekukan oleh Admin/HRD.'
+                    : 'Akun Anda telah diaktifkan kembali oleh Admin/HRD. Anda dapat absen seperti biasa.'
             );
+
             renderEmployeesAdmin();
             renderProfileSection();
-            showToast(`Status akun ${target.name} diperbarui.`, 'success');
+            showToast(`Status ${u.name} diubah menjadi ${u.status === 'frozen' ? 'Dibekukan' : 'Aktif'}.`, 'success');
         }
 
         // ==========================================
-        // 13. COMPANY SETTINGS & ASET PERUSAHAAN
+        // 13. ADMIN: COMPANY SETTINGS & ASSETS
         // ==========================================
         function loadCompanySettingsForm() {
-            if (!currentCompany) return;
             document.getElementById('set-comp-name').value = currentCompany.name || '';
             document.getElementById('set-comp-address').value = currentCompany.address || '';
             document.getElementById('set-comp-lat').value = (currentCompany.lat !== null && currentCompany.lat !== undefined && currentCompany.lat !== '') ? currentCompany.lat : '';
@@ -4539,39 +4601,48 @@
             document.getElementById('set-comp-lat').value = '';
             document.getElementById('set-comp-lng').value = '';
             document.getElementById('set-comp-radius').value = '';
-            showToast('Koordinat & radius dikosongkan. Klik "Simpan Perubahan Pengaturan" untuk menerapkan.', 'info');
+            showToast('Kolom koordinat & radius dikosongkan. Klik "Simpan Perubahan Pengaturan" untuk menerapkan.', 'info');
         }
 
         function useCurrentLocationForOffice() {
-            if (!navigator.geolocation) return showToast('Geolocation tidak tersedia di perangkat ini.', 'error');
-            navigator.geolocation.getCurrentPosition((pos) => {
+            if (!navigator.geolocation) return showToast('Geolocation tidak didukung browser.', 'error');
+            navigator.geolocation.getCurrentPosition(pos => {
                 document.getElementById('set-comp-lat').value = pos.coords.latitude.toFixed(6);
                 document.getElementById('set-comp-lng').value = pos.coords.longitude.toFixed(6);
-                if (!document.getElementById('set-comp-radius').value.trim()) {
+                if (!document.getElementById('set-comp-radius').value) {
                     document.getElementById('set-comp-radius').value = '100';
                 }
-                showToast('Koordinat GPS saat ini berhasil diambil!', 'success');
+                showToast('Koordinat GPS saat ini berhasil diisi!', 'success');
             }, () => showToast('Gagal mengambil lokasi GPS.', 'error'));
         }
 
-        async function persistCompanyUpdate(patchObj) {
+        async function persistCompanyUpdate(patchFields) {
             if (!currentCompany) return;
-            currentCompany = { ...currentCompany, ...patchObj };
+            Object.assign(currentCompany, patchFields);
             const companies = getStore(STORAGE_KEYS.COMPANIES);
             const idx = companies.findIndex(c => c.id === currentCompany.id);
             if (idx !== -1) {
-                companies[idx] = currentCompany;
+                companies[idx] = { ...companies[idx], ...patchFields };
                 setStore(STORAGE_KEYS.COMPANIES, companies);
             }
             if (supabaseClient) {
                 const { error } = await supabaseClient
                     .from('companies')
-                    .update(patchObj)
+                    .update(patchFields)
                     .eq('id', currentCompany.id);
                 if (error) {
                     logSupabaseError('update companies', error);
                 }
             }
+            applyCompanyBrandingBadges();
+            document.getElementById('sidebar-company-name').textContent = currentCompany.name;
+            document.getElementById('mobile-header-company').textContent = currentCompany.name;
+            document.getElementById('label-shift1-time').textContent = `${currentCompany.shift1_in} - ${currentCompany.shift1_out}`;
+            document.getElementById('label-shift2-time').textContent = `${currentCompany.shift2_in} - ${currentCompany.shift2_out}`;
+            renderCompanyAssetPreviews();
+            renderIDCard();
+            refreshGeolocation(false);
+            updateClockOutAvailability();
         }
 
         function renderCompanyAssetPreviews() {
@@ -4579,37 +4650,34 @@
             const stampBox = document.getElementById('company-stamp-preview');
             if (logoBox) {
                 if (isSafePhotoUrl(currentCompany?.logo_url)) {
-                    logoBox.innerHTML = `<img src="${currentCompany.logo_url}" alt="Foto Profil Perusahaan" class="w-full h-full object-contain">`;
+                    logoBox.innerHTML = `<img src="${currentCompany.logo_url}" alt="Foto Profil Perusahaan" class="w-full h-full object-contain p-1">`;
                 } else {
                     logoBox.innerHTML = '<span>Belum ada foto</span>';
                 }
             }
             if (stampBox) {
                 if (isSafePhotoUrl(currentCompany?.stamp_url)) {
-                    stampBox.innerHTML = `<img src="${currentCompany.stamp_url}" alt="Stempel Perusahaan" class="w-full h-full object-contain">`;
+                    stampBox.innerHTML = `<img src="${currentCompany.stamp_url}" alt="Stempel Perusahaan" class="w-full h-full object-contain p-1">`;
                 } else {
                     stampBox.innerHTML = '<span>Belum ada stempel</span>';
                 }
             }
         }
 
-        async function handleCompanyAssetUpload(event, assetKind) {
+        async function handleCompanyAssetUpload(event, kind) {
             const file = event.target.files?.[0];
-            if (!file) return;
+            if (!file || !currentCompany) return;
             if (!file.type.startsWith('image/')) {
                 event.target.value = '';
-                return showToast('Pilih berkas gambar (PNG transparan disarankan).', 'error');
+                return showToast('Pilih berkas gambar (disarankan PNG transparan).', 'error');
             }
             try {
-                const folder = assetKind === 'stamp' ? 'stamps' : 'company-logos';
-                const path = `${folder}/${currentCompany.id}.png`;
-                const savedUrl = await uploadImageAssetToStorage(file, path, 420, 0.9, true);
-                const patch = assetKind === 'stamp' ? { stamp_url: savedUrl } : { logo_url: savedUrl };
-                await persistCompanyUpdate(patch);
-                renderCompanyAssetPreviews();
-                applyCompanyBrandingBadges();
-                renderIDCard();
-                showToast(assetKind === 'stamp' ? 'Stempel perusahaan berhasil disimpan!' : 'Foto profil perusahaan berhasil disimpan!', 'success');
+                const isStamp = kind === 'stamp';
+                const path = `companies/${currentCompany.id}/${kind}.png`;
+                const savedUrl = await uploadImageAssetToStorage(file, path, isStamp ? 300 : 320, 0.9, true);
+                const field = isStamp ? 'stamp_url' : 'logo_url';
+                await persistCompanyUpdate({ [field]: savedUrl });
+                showToast(isStamp ? 'Stempel perusahaan (tanpa latar) tersimpan!' : 'Foto profil perusahaan (tanpa latar) tersimpan!', 'success');
             } catch (err) {
                 showToast(err.message || 'Gagal mengunggah gambar perusahaan.', 'error');
             } finally {
@@ -4617,16 +4685,11 @@
             }
         }
 
-        async function removeCompanyAsset(assetKind) {
-            const isStamp = assetKind === 'stamp';
-            if (isStamp && !currentCompany?.stamp_url) return showToast('Belum ada stempel tersimpan.', 'info');
-            if (!isStamp && !currentCompany?.logo_url) return showToast('Belum ada foto profil perusahaan tersimpan.', 'info');
-
-            await persistCompanyUpdate(isStamp ? { stamp_url: null } : { logo_url: null });
-            renderCompanyAssetPreviews();
-            applyCompanyBrandingBadges();
-            renderIDCard();
-            showToast(isStamp ? 'Stempel perusahaan dihapus.' : 'Foto profil perusahaan dihapus.', 'info');
+        async function removeCompanyAsset(kind) {
+            if (!currentCompany) return;
+            const field = kind === 'stamp' ? 'stamp_url' : 'logo_url';
+            await persistCompanyUpdate({ [field]: null });
+            showToast(kind === 'stamp' ? 'Stempel perusahaan dihapus.' : 'Foto profil perusahaan dihapus.', 'info');
         }
 
         document.getElementById('company-settings-form').addEventListener('submit', async (e) => {
@@ -4635,7 +4698,7 @@
             const lngRaw = document.getElementById('set-comp-lng').value.trim();
             const radRaw = document.getElementById('set-comp-radius').value.trim();
 
-            await persistCompanyUpdate({
+            const patch = {
                 name: document.getElementById('set-comp-name').value.trim(),
                 address: document.getElementById('set-comp-address').value.trim(),
                 lat: latRaw !== '' ? parseFloat(latRaw) : null,
@@ -4645,82 +4708,64 @@
                 shift1_out: document.getElementById('set-s1-out').value,
                 shift2_in: document.getElementById('set-s2-in').value,
                 shift2_out: document.getElementById('set-s2-out').value
-            });
+            };
 
-            document.getElementById('sidebar-company-name').textContent = currentCompany.name;
-            document.getElementById('mobile-header-company').textContent = currentCompany.name;
-            document.getElementById('label-shift1-time').textContent = `${currentCompany.shift1_in} - ${currentCompany.shift1_out}`;
-            document.getElementById('label-shift2-time').textContent = `${currentCompany.shift2_in} - ${currentCompany.shift2_out}`;
-
-            refreshGeolocation(false);
-            updateClockOutAvailability();
-            renderIDCard();
-            showToast('Pengaturan kantor & shift berhasil disimpan!', 'success');
+            await persistCompanyUpdate(patch);
+            showToast('Pengaturan kantor & jam shift berhasil disimpan!', 'success');
         });
 
         // ==========================================
-        // 13B. SUPER OWNER PANEL
+        // 13B. PANEL SUPER OWNER (PEMILIK APLIKASI)
         // ==========================================
-        function switchSuperOwnerSubTab(subTab) {
-            const isSystem = subTab === 'system';
-            document.getElementById('so-subview-system')?.classList.toggle('hidden', !isSystem);
-            document.getElementById('so-subview-aggregate')?.classList.toggle('hidden', isSystem);
-
-            const sysBtn = document.getElementById('so-subtab-system');
-            const aggBtn = document.getElementById('so-subtab-aggregate');
-            if (sysBtn) {
-                sysBtn.className = isSystem
-                    ? 'px-3.5 py-2 rounded-xl text-xs font-extrabold bg-amber-600 text-white shadow-xs transition'
-                    : 'px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition';
-            }
-            if (aggBtn) {
-                aggBtn.className = !isSystem
-                    ? 'px-3.5 py-2 rounded-xl text-xs font-extrabold bg-indigo-600 text-white shadow-xs transition'
-                    : 'px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition';
-            }
-
-            if (!isSystem) {
-                renderOwnerAggregateSection();
-            }
+        function formatRupiah(num) {
+            const val = Number(num || 0);
+            return 'Rp ' + val.toLocaleString('id-ID');
         }
 
-        function formatBytesToReadable(bytes) {
-            if (!bytes || bytes <= 0) return '0 KB';
+        function computeLocalStorageBytes() {
+            let totalBytes = 0;
+            const breakdown = [];
+            Object.entries(STORAGE_KEYS).forEach(([label, key]) => {
+                const raw = localStorage.getItem(key) || '';
+                const bytes = new Blob([raw]).size;
+                totalBytes += bytes;
+                breakdown.push({ label, key, bytes });
+            });
+            breakdown.sort((a, b) => b.bytes - a.bytes);
+            return { totalBytes, breakdown };
+        }
+
+        function formatBytesLabel(bytes) {
+            if (!bytes || bytes <= 0) return '0 B';
+            if (bytes < 1024) return `${bytes} B`;
             if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
             return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
         }
 
-        function formatRupiah(num) {
-            return 'Rp ' + Number(num || 0).toLocaleString('id-ID');
-        }
-
-        function refreshSuperOwnerPanel() {
-            if (!isSuperOwnerUser(currentUser)) return;
+        async function refreshSuperOwnerPanel() {
+            if (!currentUser || !isSuperOwnerUser(currentUser)) return;
 
             const companies = getStore(STORAGE_KEYS.COMPANIES);
             const users = getStore(STORAGE_KEYS.USERS);
             const logs = getStore(STORAGE_KEYS.LOGS);
             const leaves = getStore(STORAGE_KEYS.LEAVES);
-            const chats = getStore(STORAGE_KEYS.CHATS);
-            const docPhotosMap = getStore(STORAGE_KEYS.DOC_PHOTOS, {});
+            const pendings = getStore(STORAGE_KEYS.PENDING);
             const payments = getStore(STORAGE_KEYS.PAYMENTS);
+            const docPhotosMap = getStore(STORAGE_KEYS.DOC_PHOTOS, {});
 
-            const totalLateMins = logs.reduce((a, b) => a + Number(b.late_minutes || 0), 0);
+            const totalLateMin = logs.reduce((acc, l) => acc + Number(l.late_minutes || 0), 0);
+            const totalOtMin = logs.reduce((acc, l) => acc + Number(l.overtime_minutes || 0), 0);
             document.getElementById('so-stat-analytics').textContent = `${companies.length} Perusahaan • ${users.length} Akun`;
-            document.getElementById('so-stat-attendance-detail').textContent = `${logs.length} Log Absen • ${totalLateMins} Menit TL`;
+            document.getElementById('so-stat-attendance-detail').textContent = `${logs.length} Log Absen • ${totalLateMin}m TL • ${totalOtMin}m TJ`;
 
-            let totalLocalBytes = 0;
-            Object.values(STORAGE_KEYS).forEach(k => {
-                const raw = localStorage.getItem(k);
-                if (raw) totalLocalBytes += new Blob([raw]).size;
-            });
-            const avatarCount = users.filter(u => isSafePhotoUrl(u.photo_url)).length;
-            const docPhotoCount = Object.values(docPhotosMap).filter(v => v && isSafePhotoUrl(v.dataUrl)).length;
+            const { totalBytes, breakdown } = computeLocalStorageBytes();
+            const profilePhotoCount = users.filter(u => isSafePhotoUrl(u.photo_url)).length;
+            const docPhotoCount = Object.keys(docPhotosMap).length;
+            document.getElementById('so-stat-storage').textContent = formatBytesLabel(totalBytes);
+            document.getElementById('so-stat-media').textContent = `${profilePhotoCount} Foto Profil • ${docPhotoCount} Dok Foto`;
 
-            document.getElementById('so-stat-storage').textContent = formatBytesToReadable(totalLocalBytes);
-            document.getElementById('so-stat-media').textContent = `${avatarCount} Foto Profil • ${docPhotoCount} Dok Foto`;
-
-            const totalRows = companies.length + users.length + logs.length + leaves.length + chats.length + payments.length;
+            const totalRows = companies.length + users.length + logs.length + leaves.length + pendings.length + payments.length;
+            document.getElementById('so-stat-db-rows').textContent = `${totalRows} Total Baris Data`;
             const dbStatusEl = document.getElementById('so-stat-db');
             if (supabaseClient && navigator.onLine) {
                 dbStatusEl.textContent = 'Lokal + Cloud Aktif';
@@ -4729,17 +4774,16 @@
                 dbStatusEl.textContent = 'Lokal Saja';
                 dbStatusEl.className = 'text-lg font-extrabold text-amber-700 mt-1';
             }
-            document.getElementById('so-stat-db-rows').textContent = `${totalRows} Total Baris Data`;
 
             const paidPayments = payments.filter(p => p.status === 'Lunas');
-            const totalPaid = paidPayments.reduce((a, b) => a + Number(b.amount || 0), 0);
+            const totalPaid = paidPayments.reduce((acc, p) => acc + Number(p.amount || 0), 0);
             document.getElementById('so-stat-revenue').textContent = formatRupiah(totalPaid);
-            document.getElementById('so-stat-payment-count').textContent = `${paidPayments.length} Transaksi Lunas`;
+            document.getElementById('so-stat-payment-count').textContent = `${paidPayments.length} Lunas dari ${payments.length} Transaksi`;
 
             renderSuperOwnerUsersTable(users, companies);
-            renderSuperOwnerStorageBreakdown(users, logs, chats, docPhotosMap);
-            renderSuperOwnerDatabaseTables({ companies, users, logs, leaves, chats, payments });
-            renderSuperOwnerPayments(companies, payments);
+            renderSuperOwnerStorageBreakdown(breakdown);
+            renderSuperOwnerDatabaseTables({ companies, users, logs, leaves, pendings, payments });
+            renderSuperOwnerPaymentsSection(companies, payments);
             renderOwnerAggregateSection();
             lucide.createIcons();
         }
@@ -4748,266 +4792,174 @@
             const compMap = new Map(companies.map(c => [c.id, c.name]));
             const tbody = document.getElementById('so-users-tbody');
             if (!users.length) {
-                tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-400">Belum ada akun terdaftar.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="py-5 text-center text-slate-400">Tidak ada akun terdaftar.</td></tr>';
                 return;
             }
 
             tbody.innerHTML = users.map(u => {
                 const isSelf = u.id === currentUser.id;
-                const isOwner = isSuperOwnerUser(u);
-                const active = u.status === 'active';
+                const isFrozen = u.status === 'frozen';
+                const uRole = isSuperOwnerUser(u) ? 'super_owner' : (u.role || 'employee');
                 return `
-                    <tr class="hover:bg-slate-50/80">
+                    <tr class="hover:bg-slate-50">
                         <td class="py-2.5 px-3">
                             <div class="font-bold text-slate-900">${escapeHtml(u.name)}</div>
-                            <div class="text-[11px] text-slate-500">${escapeHtml(u.email)} • ${escapeHtml(compMap.get(u.company_id) || '-')}</div>
+                            <div class="text-[10px] text-slate-500">${escapeHtml(u.email || '-')} • ${escapeHtml(compMap.get(u.company_id) || 'Workspace')}</div>
                         </td>
                         <td class="py-2.5 px-3">
-                            <div class="font-mono font-bold text-slate-800">${escapeHtml(u.nip)}</div>
-                            <div class="text-[11px] text-slate-500">${escapeHtml(u.division || '-')}</div>
+                            <div class="font-mono font-bold text-slate-800">${escapeHtml(u.nip || '-')}</div>
+                            <div class="text-[10px] text-slate-500">${escapeHtml(u.division || '-')}</div>
                         </td>
                         <td class="py-2.5 px-3">
-                            <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase ${isOwner ? 'bg-amber-100 text-amber-900' : (u.role === 'admin' ? 'bg-brand-100 text-brand-700' : 'bg-slate-100 text-slate-700')}">
-                                ${escapeHtml(isOwner ? 'super_owner' : u.role)}
+                            <select onchange="superOwnerChangeUserRole('${escapeHtml(u.id)}', this.value)" ${isSelf ? 'disabled' : ''} class="px-2 py-1 rounded-lg border border-slate-300 bg-white text-[11px] font-bold outline-none">
+                                <option value="employee" ${uRole === 'employee' ? 'selected' : ''}>Karyawan</option>
+                                <option value="admin" ${uRole === 'admin' ? 'selected' : ''}>Admin HRD</option>
+                                <option value="super_owner" ${uRole === 'super_owner' ? 'selected' : ''}>Super Owner</option>
+                            </select>
+                        </td>
+                        <td class="py-2.5 px-3">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${isFrozen ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">
+                                ${isFrozen ? 'Dibekukan' : 'Aktif'}
                             </span>
                         </td>
-                        <td class="py-2.5 px-3">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${active ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
-                                ${active ? 'Aktif' : 'Dibekukan'}
-                            </span>
-                        </td>
-                        <td class="py-2.5 px-3 text-right space-x-1 whitespace-nowrap">
+                        <td class="py-2.5 px-3 text-right whitespace-nowrap space-x-1">
+                            <button type="button" onclick="superOwnerEditUserInfo('${escapeHtml(u.id)}')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold">
+                                Ubah
+                            </button>
                             ${!isSelf ? `
-                                <button type="button" onclick="superOwnerEditUser('${escapeHtml(u.id)}')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold">Ubah</button>
-                                <button type="button" onclick="superOwnerToggleRole('${escapeHtml(u.id)}')" class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-[11px] font-bold">${u.role === 'admin' ? 'Jadikan Staf' : 'Jadikan Admin'}</button>
-                                <button type="button" onclick="toggleFreezeUser('${escapeHtml(u.id)}'); refreshSuperOwnerPanel();" class="px-2.5 py-1 rounded-lg ${active ? 'bg-amber-100 text-amber-900 hover:bg-amber-200' : 'bg-emerald-600 text-white hover:bg-emerald-700'} text-[11px] font-bold">${active ? 'Bekukan' : 'Aktifkan'}</button>
-                                <button type="button" onclick="superOwnerDeleteUser('${escapeHtml(u.id)}')" class="px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold">Hapus</button>
-                            ` : '<span class="text-[11px] text-slate-400">Akun Aktif</span>'}
+                                <button type="button" onclick="superOwnerToggleFreeze('${escapeHtml(u.id)}')" class="px-2.5 py-1 rounded-lg ${isFrozen ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-amber-100 text-amber-900 hover:bg-amber-200'} text-[11px] font-bold">
+                                    ${isFrozen ? 'Aktifkan' : 'Bekukan'}
+                                </button>
+                                <button type="button" onclick="superOwnerDeleteUser('${escapeHtml(u.id)}')" class="px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold">
+                                    Hapus
+                                </button>
+                            ` : '<span class="text-[10px] text-slate-400">Anda</span>'}
                         </td>
                     </tr>
                 `;
             }).join('');
         }
 
-        async function superOwnerEditUser(userId) {
+        async function superOwnerChangeUserRole(userId, newRole) {
             const users = getStore(STORAGE_KEYS.USERS);
-            const user = users.find(u => u.id === userId);
-            if (!user) return;
-
-            const newName = prompt('Ubah Nama Lengkap Akun:', user.name);
-            if (newName === null) return;
-            const newNip = prompt('Ubah NIP Akun:', user.nip);
-            if (newNip === null) return;
-            const newDivision = prompt('Ubah Divisi / Jabatan:', user.division || '');
-            if (newDivision === null) return;
-
-            user.name = newName.trim() || user.name;
-            user.nip = newNip.trim() || user.nip;
-            user.division = newDivision.trim() || user.division;
+            const u = users.find(item => item.id === userId);
+            if (!u) return;
+            u.role = newRole;
+            u.is_super_owner = newRole === 'super_owner';
             setStore(STORAGE_KEYS.USERS, users);
-
             if (supabaseClient) {
-                const { error } = await supabaseClient
-                    .from('users')
-                    .update({ name: user.name, nip: user.nip, division: user.division })
-                    .eq('id', userId);
-                if (error) logSupabaseError('superOwnerEditUser', error);
+                const { error } = await supabaseClient.from('users').update({ role: u.role, is_super_owner: u.is_super_owner }).eq('id', userId);
+                if (error) logSupabaseError('superOwnerChangeUserRole', error);
             }
-
+            showToast(`Role ${u.name} diperbarui menjadi ${newRole}.`, 'success');
             refreshSuperOwnerPanel();
-            renderProfileSection();
-            showToast('Data akun berhasil diperbarui.', 'success');
         }
 
-        async function superOwnerToggleRole(userId) {
+        async function superOwnerEditUserInfo(userId) {
             const users = getStore(STORAGE_KEYS.USERS);
-            const user = users.find(u => u.id === userId);
-            if (!user || isSuperOwnerUser(user)) return;
+            const u = users.find(item => item.id === userId);
+            if (!u) return;
 
-            user.role = user.role === 'admin' ? 'employee' : 'admin';
+            const nextName = prompt('Ubah Nama Akun:', u.name);
+            if (nextName === null) return;
+            const trimmedName = nextName.trim();
+            if (!trimmedName) return showToast('Nama akun tidak boleh kosong.', 'warning');
+
+            const nextNip = prompt('Ubah NIP Akun:', u.nip || '');
+            if (nextNip === null) return;
+
+            const nextDivision = prompt('Ubah Divisi / Jabatan:', u.division || '');
+            if (nextDivision === null) return;
+
+            u.name = trimmedName;
+            u.nip = nextNip.trim() || u.nip;
+            u.division = nextDivision.trim() || u.division;
+
             setStore(STORAGE_KEYS.USERS, users);
-
-            if (supabaseClient) {
-                const { error } = await supabaseClient.from('users').update({ role: user.role }).eq('id', userId);
-                if (error) logSupabaseError('superOwnerToggleRole', error);
+            if (u.id === currentUser.id) {
+                currentUser = { ...currentUser, ...u };
             }
-
+            if (supabaseClient) {
+                const { error } = await supabaseClient.from('users').update({
+                    name: u.name,
+                    nip: u.nip,
+                    division: u.division
+                }).eq('id', userId);
+                if (error) logSupabaseError('superOwnerEditUserInfo', error);
+            }
+            showToast(`Data akun ${u.name} berhasil diubah.`, 'success');
             refreshSuperOwnerPanel();
-            showToast(`Role ${user.name} diubah menjadi ${user.role}.`, 'success');
+        }
+
+        async function superOwnerToggleFreeze(userId) {
+            await toggleFreezeEmployee(userId);
+            refreshSuperOwnerPanel();
         }
 
         async function superOwnerDeleteUser(userId) {
+            if (userId === currentUser.id) return showToast('Tidak dapat menghapus akun Super Owner yang sedang aktif.', 'error');
             const users = getStore(STORAGE_KEYS.USERS);
             const target = users.find(u => u.id === userId);
-            if (!target || target.id === currentUser.id) return;
-            if (!confirm(`Hapus permanen akun "${target.name}" (${target.email}) beserta log absensinya?`)) return;
+            if (!target) return;
+            if (!confirm(`Hapus permanen akun "${target.name}" (${target.email})?`)) return;
 
-            const nextUsers = users.filter(u => u.id !== userId);
-            const nextLogs = getStore(STORAGE_KEYS.LOGS).filter(l => l.user_id !== userId);
-            const nextLeaves = getStore(STORAGE_KEYS.LEAVES).filter(lv => lv.user_id !== userId);
-            const docPhotos = getStore(STORAGE_KEYS.DOC_PHOTOS, {});
-            Object.keys(docPhotos).forEach(k => {
-                if (k.endsWith(`::${userId}`)) delete docPhotos[k];
-            });
-
-            setStore(STORAGE_KEYS.USERS, nextUsers);
-            setStore(STORAGE_KEYS.LOGS, nextLogs);
-            setStore(STORAGE_KEYS.LEAVES, nextLeaves);
-            setStore(STORAGE_KEYS.DOC_PHOTOS, docPhotos);
-
+            setStore(STORAGE_KEYS.USERS, users.filter(u => u.id !== userId));
             if (supabaseClient) {
-                await supabaseClient.from('attendance_logs').delete().eq('user_id', userId);
-                await supabaseClient.from('leave_requests').delete().eq('user_id', userId);
                 const { error } = await supabaseClient.from('users').delete().eq('id', userId);
                 if (error) logSupabaseError('superOwnerDeleteUser', error);
             }
-
+            showToast(`Akun ${target.name} telah dihapus.`, 'info');
             refreshSuperOwnerPanel();
-            updateDashboardUI();
-            renderProfileSection();
-            showToast(`Akun ${target.name} berhasil dihapus.`, 'success');
         }
 
-        function renderSuperOwnerStorageBreakdown(users, logs, chats, docPhotosMap) {
+        function renderSuperOwnerStorageBreakdown(breakdown) {
             const container = document.getElementById('so-storage-breakdown');
-            const items = [
-                {
-                    label: 'Foto Profil Pengguna',
-                    bytes: users.reduce((sum, u) => sum + (isSafePhotoUrl(u.photo_url) ? new Blob([u.photo_url]).size : 0), 0),
-                    detail: `${users.filter(u => isSafePhotoUrl(u.photo_url)).length} foto aktif`
-                },
-                {
-                    label: 'Foto Dokumentasi Lokal Perangkat',
-                    bytes: Object.values(docPhotosMap).reduce((sum, v) => sum + (v && isSafePhotoUrl(v.dataUrl) ? new Blob([v.dataUrl]).size : 0), 0),
-                    detail: `${Object.keys(docPhotosMap).length} entri lokal`
-                },
-                {
-                    label: 'Riwayat Chat & Lampiran Tim',
-                    bytes: new Blob([JSON.stringify(chats)]).size,
-                    detail: `${chats.length} pesan`
-                },
-                {
-                    label: 'Log Kehadiran & Rekap',
-                    bytes: new Blob([JSON.stringify(logs)]).size,
-                    detail: `${logs.length} catatan`
-                }
-            ];
-
-            container.innerHTML = items.map(it => `
-                <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center justify-between gap-2">
-                    <div>
-                        <div class="font-bold text-slate-900">${escapeHtml(it.label)}</div>
-                        <div class="text-[11px] text-slate-500">${escapeHtml(it.detail)}</div>
-                    </div>
-                    <span class="font-mono font-extrabold text-xs text-slate-800">${formatBytesToReadable(it.bytes)}</span>
+            if (!container) return;
+            const topItems = breakdown.slice(0, 8);
+            container.innerHTML = topItems.map(item => `
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                    <span class="font-bold text-slate-700">${escapeHtml(item.label)}</span>
+                    <span class="font-mono font-extrabold text-slate-900">${formatBytesLabel(item.bytes)}</span>
                 </div>
             `).join('');
         }
 
-        function renderSuperOwnerDatabaseTables(dataObj) {
+        function renderSuperOwnerDatabaseTables(counts) {
             const container = document.getElementById('so-database-tables');
-            const tables = [
-                { key: 'companies', label: 'Perusahaan (companies)', count: dataObj.companies.length },
-                { key: 'users', label: 'Pengguna (users)', count: dataObj.users.length },
-                { key: 'logs', label: 'Log Absensi (attendance_logs)', count: dataObj.logs.length },
-                { key: 'leaves', label: 'Izin & Cuti (leave_requests)', count: dataObj.leaves.length },
-                { key: 'chats', label: 'Room Chat Lokal', count: dataObj.chats.length },
-                { key: 'payments', label: 'Pembayaran Aplikasi Lokal', count: dataObj.payments.length }
+            if (!container) return;
+            const rows = [
+                { key: 'COMPANIES', label: 'Perusahaan (companies)', count: counts.companies.length },
+                { key: 'USERS', label: 'Pengguna & Staf (users)', count: counts.users.length },
+                { key: 'LOGS', label: 'Log Absensi (attendance_logs)', count: counts.logs.length },
+                { key: 'LEAVES', label: 'Izin & Cuti (leave_requests)', count: counts.leaves.length },
+                { key: 'PENDING', label: 'Antrean Daftar (pending_registrations)', count: counts.pendings.length },
+                { key: 'PAYMENTS', label: 'Pembayaran Aplikasi (payments)', count: counts.payments.length }
             ];
-
-            container.innerHTML = tables.map(t => `
-                <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center justify-between gap-2">
+            container.innerHTML = rows.map(r => `
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                     <div>
-                        <div class="font-bold text-slate-900">${escapeHtml(t.label)}</div>
-                        <div class="text-[11px] text-slate-500">${t.count} baris tersimpan</div>
+                        <span class="font-bold text-slate-800">${escapeHtml(r.label)}</span>
+                        <span class="ml-2 px-2 py-0.5 rounded-full bg-white border border-slate-200 font-mono text-[10px] font-bold">${r.count} baris</span>
                     </div>
-                    ${t.key === 'chats' ? `
-                        <button type="button" onclick="superOwnerPurgeTable('${t.key}')" class="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 text-[11px] font-bold">Bersihkan</button>
-                    ` : '<span class="text-[11px] font-semibold text-emerald-700">Terhubung</span>'}
+                    ${r.key === 'LOGS' || r.key === 'PENDING' ? `
+                        <button type="button" onclick="superOwnerClearStoreTable('${r.key}')" class="text-[11px] font-bold text-red-600 hover:underline">
+                            Bersihkan
+                        </button>
+                    ` : ''}
                 </div>
             `).join('');
         }
 
-        function superOwnerPurgeTable(tableKey) {
-            if (tableKey === 'chats') {
-                if (!confirm('Bersihkan seluruh riwayat Room Chat internal tim?')) return;
-                setStore(STORAGE_KEYS.CHATS, []);
-                refreshSuperOwnerPanel();
-                renderChatMessages();
-                showToast('Riwayat Room Chat dibersihkan.', 'success');
-            }
+        function superOwnerClearStoreTable(storeKeyConst) {
+            const storageKey = STORAGE_KEYS[storeKeyConst];
+            if (!storageKey) return;
+            if (!confirm(`Bersihkan semua data pada tabel ${storeKeyConst}?`)) return;
+            setStore(storageKey, []);
+            showToast(`Tabel ${storeKeyConst} berhasil dibersihkan.`, 'info');
+            refreshSuperOwnerPanel();
         }
 
-        async function repairCorruptedSystemData() {
-            const users = getStore(STORAGE_KEYS.USERS);
-            const companies = getStore(STORAGE_KEYS.COMPANIES);
-            const defaultCompId = companies[0]?.id || null;
-            let fixedCount = 0;
-
-            users.forEach((u, idx) => {
-                if (!u.name || !u.name.trim()) {
-                    u.name = `Pengguna ${idx + 1}`;
-                    fixedCount += 1;
-                }
-                if (!u.nip || !u.nip.trim()) {
-                    u.nip = `EMP-${String(idx + 1).padStart(3, '0')}`;
-                    fixedCount += 1;
-                }
-                if (!u.status || !['active', 'frozen'].includes(u.status)) {
-                    u.status = 'active';
-                    fixedCount += 1;
-                }
-                if (defaultCompId && !u.company_id) {
-                    u.company_id = defaultCompId;
-                    fixedCount += 1;
-                }
-                if (isSuperOwnerUser(u) && u.role !== 'super_owner') {
-                    u.role = 'super_owner';
-                    u.is_super_owner = true;
-                    fixedCount += 1;
-                }
-            });
-
-            setStore(STORAGE_KEYS.USERS, users);
-            if (supabaseClient && users.length > 0) {
-                const { error } = await supabaseClient.from('users').upsert(users);
-                if (error) logSupabaseError('repairCorruptedSystemData', error);
-            }
-
-            refreshSuperOwnerPanel();
-            showToast(fixedCount > 0 ? `${fixedCount} anomali data akun berhasil diperbaiki!` : 'Integritas data akun sudah bersih (0 anomali).', 'success');
-        }
-
-        document.getElementById('so-payment-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            if (!isSuperOwnerUser(currentUser)) return;
-
-            const companies = getStore(STORAGE_KEYS.COMPANIES);
-            const compId = document.getElementById('so-pay-company').value;
-            const comp = companies.find(c => c.id === compId) || companies[0];
-            const plan = document.getElementById('so-pay-plan').value.trim();
-            const amount = Math.max(0, Number(document.getElementById('so-pay-amount').value || 0));
-            const status = document.getElementById('so-pay-status').value;
-
-            const payments = getStore(STORAGE_KEYS.PAYMENTS);
-            payments.unshift({
-                id: generateId('PAY'),
-                company_id: comp?.id || '',
-                company_name: comp?.name || 'Perusahaan',
-                plan,
-                amount,
-                status,
-                date: getTodayStr()
-            });
-            setStore(STORAGE_KEYS.PAYMENTS, payments);
-
-            document.getElementById('so-pay-plan').value = '';
-            document.getElementById('so-pay-amount').value = '';
-            refreshSuperOwnerPanel();
-            showToast('Catatan pembayaran aplikasi tersimpan.', 'success');
-        });
-
-        function renderSuperOwnerPayments(companies, payments) {
+        function renderSuperOwnerPaymentsSection(companies, payments) {
             const selectEl = document.getElementById('so-pay-company');
             if (selectEl) {
                 const prev = selectEl.value;
@@ -5015,626 +4967,366 @@
                 if (prev && companies.some(c => c.id === prev)) selectEl.value = prev;
             }
 
-            const paid = payments.filter(p => p.status === 'Lunas');
-            const pending = payments.filter(p => p.status === 'Menunggu');
-            const overdue = payments.filter(p => p.status === 'Tertunggak');
-            const sumPaid = paid.reduce((a, b) => a + Number(b.amount || 0), 0);
-            const sumPending = pending.reduce((a, b) => a + Number(b.amount || 0), 0);
-            const sumOverdue = overdue.reduce((a, b) => a + Number(b.amount || 0), 0);
+            const paidItems = payments.filter(p => p.status === 'Lunas');
+            const pendingItems = payments.filter(p => p.status === 'Menunggu');
+            const overdueItems = payments.filter(p => p.status === 'Tertunggak');
+
+            const paidSum = paidItems.reduce((a, b) => a + Number(b.amount || 0), 0);
+            const pendingSum = pendingItems.reduce((a, b) => a + Number(b.amount || 0), 0);
+            const overdueSum = overdueItems.reduce((a, b) => a + Number(b.amount || 0), 0);
 
             const analysisEl = document.getElementById('so-payment-analysis');
             if (analysisEl) {
                 analysisEl.innerHTML = `
                     <strong>Ringkasan Analisa Pembayaran:</strong>
-                    Lunas: <span class="text-emerald-800 font-extrabold">${formatRupiah(sumPaid)}</span> (${paid.length} trx) •
-                    Menunggu: <span class="text-amber-800 font-extrabold">${formatRupiah(sumPending)}</span> (${pending.length} trx) •
-                    Tertunggak: <span class="text-red-700 font-extrabold">${formatRupiah(sumOverdue)}</span> (${overdue.length} trx)
+                    Pendapatan Diterima (Lunas): <strong class="text-emerald-700">${formatRupiah(paidSum)}</strong> (${paidItems.length} transaksi) •
+                    Menunggu Konfirmasi: <strong class="text-amber-700">${formatRupiah(pendingSum)}</strong> (${pendingItems.length}) •
+                    Tertunggak: <strong class="text-red-700">${formatRupiah(overdueSum)}</strong> (${overdueItems.length}).
                 `;
             }
 
+            const compMap = new Map(companies.map(c => [c.id, c.name]));
             const tbody = document.getElementById('so-payments-tbody');
+            if (!tbody) return;
             if (!payments.length) {
-                tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-slate-400">Belum ada catatan pembayaran ke aplikasi.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="py-5 text-center text-slate-400">Belum ada catatan pembayaran aplikasi.</td></tr>';
                 return;
             }
 
             tbody.innerHTML = payments.map(p => {
                 const badgeClass = p.status === 'Lunas'
                     ? 'bg-emerald-100 text-emerald-800'
-                    : (p.status === 'Menunggu' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800');
+                    : p.status === 'Tertunggak'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-amber-100 text-amber-800';
                 return `
-                    <tr class="hover:bg-slate-50/80">
-                        <td class="py-2.5 px-3 font-semibold">${escapeHtml(p.date)}</td>
-                        <td class="py-2.5 px-3 font-bold text-slate-900">${escapeHtml(p.company_name)}</td>
-                        <td class="py-2.5 px-3">${escapeHtml(p.plan)}</td>
-                        <td class="py-2.5 px-3 font-mono font-extrabold">${formatRupiah(p.amount)}</td>
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-2.5 px-3 font-mono text-[11px] text-slate-600">${escapeHtml(p.date || '-')}</td>
+                        <td class="py-2.5 px-3 font-bold text-slate-900">${escapeHtml(compMap.get(p.company_id) || p.company_name || 'Perusahaan')}</td>
+                        <td class="py-2.5 px-3 text-slate-700">${escapeHtml(p.plan || '-')}</td>
+                        <td class="py-2.5 px-3 font-mono font-extrabold text-slate-900">${formatRupiah(p.amount)}</td>
                         <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${badgeClass}">${escapeHtml(p.status)}</span></td>
-                        <td class="py-2.5 px-3 text-right space-x-1 whitespace-nowrap">
-                            <button type="button" onclick="cyclePaymentStatus('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold">Ubah Status</button>
-                            <button type="button" onclick="deleteAppPayment('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold">Hapus</button>
+                        <td class="py-2.5 px-3 text-right whitespace-nowrap space-x-1">
+                            <button type="button" onclick="cycleSuperOwnerPaymentStatus('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold">
+                                Ubah Status
+                            </button>
+                            <button type="button" onclick="deleteSuperOwnerPayment('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold">
+                                Hapus
+                            </button>
                         </td>
                     </tr>
                 `;
             }).join('');
         }
 
-        function cyclePaymentStatus(paymentId) {
+        document.getElementById('so-payment-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const companyId = document.getElementById('so-pay-company').value;
+            const plan = document.getElementById('so-pay-plan').value.trim();
+            const amount = Number(document.getElementById('so-pay-amount').value || 0);
+            const status = document.getElementById('so-pay-status').value;
+            if (!plan || amount < 0) return showToast('Isi paket dan nominal pembayaran dengan benar.', 'warning');
+
+            const companies = getStore(STORAGE_KEYS.COMPANIES);
+            const comp = companies.find(c => c.id === companyId);
+            const payments = getStore(STORAGE_KEYS.PAYMENTS);
+            payments.unshift({
+                id: generateId('PAY'),
+                company_id: companyId,
+                company_name: comp?.name || 'Perusahaan',
+                plan,
+                amount,
+                status,
+                date: getTodayStr()
+            });
+            setStore(STORAGE_KEYS.PAYMENTS, payments);
+            e.target.reset();
+            showToast('Catatan pembayaran berhasil disimpan.', 'success');
+            refreshSuperOwnerPanel();
+        });
+
+        function cycleSuperOwnerPaymentStatus(paymentId) {
+            const order = ['Lunas', 'Menunggu', 'Tertunggak'];
             const payments = getStore(STORAGE_KEYS.PAYMENTS);
             const item = payments.find(p => p.id === paymentId);
             if (!item) return;
-            const order = ['Lunas', 'Menunggu', 'Tertunggak'];
             const nextIdx = (order.indexOf(item.status) + 1) % order.length;
             item.status = order[nextIdx];
             setStore(STORAGE_KEYS.PAYMENTS, payments);
+            showToast(`Status pembayaran diubah menjadi ${item.status}.`, 'success');
             refreshSuperOwnerPanel();
-            showToast(`Status pembayaran diubah menjadi ${item.status}.`, 'info');
         }
 
-        function deleteAppPayment(paymentId) {
+        function deleteSuperOwnerPayment(paymentId) {
+            if (!confirm('Hapus catatan pembayaran ini?')) return;
             const payments = getStore(STORAGE_KEYS.PAYMENTS).filter(p => p.id !== paymentId);
             setStore(STORAGE_KEYS.PAYMENTS, payments);
-            refreshSuperOwnerPanel();
             showToast('Catatan pembayaran dihapus.', 'info');
+            refreshSuperOwnerPanel();
         }
 
-        // ==========================================
-        // 13C. SUPER OWNER AGREGAT PERUSAHAAN, PAKET, STORAGE & CHART.JS
-        // ==========================================
-        const aggChartInstances = {};
+        function repairCorruptedSystemData() {
+            const companies = getStore(STORAGE_KEYS.COMPANIES).filter(c => c && c.id);
+            const validCompIds = new Set(companies.map(c => c.id));
+            const fallbackCompId = companies[0]?.id || null;
 
-        function addDaysToToday(days) {
-            const d = new Date();
-            d.setDate(d.getDate() + days);
-            const yyyy = d.getFullYear();
-            const mm = String(d.getMonth() + 1).padStart(2, '0');
-            const dd = String(d.getDate()).padStart(2, '0');
-            return `${yyyy}-${mm}-${dd}`;
-        }
-
-        function getInitialAggregateCompanies() {
-            const registeredCompanies = getStore(STORAGE_KEYS.COMPANIES);
-            const users = getStore(STORAGE_KEYS.USERS);
-            if (registeredCompanies.length > 0) {
-                return registeredCompanies.map((c, idx) => {
-                    const empCount = users.filter(u => u.company_id === c.id).length;
-                    const usedGb = Number((0.4 + empCount * 0.25 + idx * 0.3).toFixed(1));
-                    const quotaGb = empCount > 25 ? 50 : 15;
-                    return {
-                        id: c.id,
-                        code: c.code || `CMP-${1000 + idx}`,
-                        name: c.name || `Perusahaan ${idx + 1}`,
-                        legalType: c.legal_type || 'PT',
-                        employeeCount: empCount,
-                        packageTier: empCount > 25 ? 'Business' : 'Growth',
-                        packageStatus: 'Aktif',
-                        packageExpiry: addDaysToToday(45 + idx * 20),
-                        activeStatus: 'Aktif',
-                        storageUsedGb: usedGb,
-                        storageQuotaGb: quotaGb,
-                        deletedAt: null
-                    };
-                });
-            }
-            return [
-                {
-                    id: generateId('AGG'),
-                    code: 'CMP-1001',
-                    name: 'Nusantara Logistik',
-                    legalType: 'PT',
-                    employeeCount: 48,
-                    packageTier: 'Business',
-                    packageStatus: 'Aktif',
-                    packageExpiry: addDaysToToday(65),
-                    activeStatus: 'Aktif',
-                    storageUsedGb: 18.4,
-                    storageQuotaGb: 50,
-                    deletedAt: null
-                },
-                {
-                    id: generateId('AGG'),
-                    code: 'CMP-1002',
-                    name: 'Karya Mandiri Teknik',
-                    legalType: 'CV',
-                    employeeCount: 19,
-                    packageTier: 'Growth',
-                    packageStatus: 'Segera Habis',
-                    packageExpiry: addDaysToToday(8),
-                    activeStatus: 'Aktif',
-                    storageUsedGb: 8.6,
-                    storageQuotaGb: 15,
-                    deletedAt: null
-                },
-                {
-                    id: generateId('AGG'),
-                    code: 'CMP-1003',
-                    name: 'Sinar Jaya Makmur',
-                    legalType: 'UD',
-                    employeeCount: 9,
-                    packageTier: 'Starter',
-                    packageStatus: 'Aktif',
-                    packageExpiry: addDaysToToday(120),
-                    activeStatus: 'Aktif',
-                    storageUsedGb: 2.1,
-                    storageQuotaGb: 10,
-                    deletedAt: null
-                },
-                {
-                    id: generateId('AGG'),
-                    code: 'CMP-1004',
-                    name: 'Mitra Sejahtera Bersama',
-                    legalType: 'Koperasi',
-                    employeeCount: 31,
-                    packageTier: 'Business',
-                    packageStatus: 'Masa Tenggang',
-                    packageExpiry: addDaysToToday(-3),
-                    activeStatus: 'Aktif',
-                    storageUsedGb: 27.5,
-                    storageQuotaGb: 30,
-                    deletedAt: null
+            const users = getStore(STORAGE_KEYS.USERS).filter(u => u && u.id).map(u => {
+                const fixed = { ...u };
+                if (!validCompIds.has(fixed.company_id) && fallbackCompId) {
+                    fixed.company_id = fallbackCompId;
                 }
-            ];
-        }
+                if (!fixed.status || !['active', 'frozen'].includes(fixed.status)) {
+                    fixed.status = 'active';
+                }
+                if (!fixed.nip) {
+                    fixed.nip = `EMP-${Math.floor(100 + Math.random() * 900)}`;
+                }
+                if (isSuperOwnerUser(fixed)) {
+                    fixed.role = 'super_owner';
+                    fixed.is_super_owner = true;
+                }
+                return fixed;
+            });
 
-        function ensureAggregateStoreInitialized() {
-            let list = getStore(STORAGE_KEYS.AGG_COMPANIES, null);
-            if (!Array.isArray(list)) {
-                list = getInitialAggregateCompanies();
-                setStore(STORAGE_KEYS.AGG_COMPANIES, list);
+            const validUserIds = new Set(users.map(u => u.id));
+            const logs = getStore(STORAGE_KEYS.LOGS).filter(l => l && l.id && validUserIds.has(l.user_id));
+            const leaves = getStore(STORAGE_KEYS.LEAVES).filter(lv => lv && lv.id && validUserIds.has(lv.user_id));
+
+            setStore(STORAGE_KEYS.COMPANIES, companies);
+            setStore(STORAGE_KEYS.USERS, users);
+            setStore(STORAGE_KEYS.LOGS, logs);
+            setStore(STORAGE_KEYS.LEAVES, leaves);
+
+            if (currentUser) {
+                const updatedSelf = users.find(u => u.id === currentUser.id);
+                if (updatedSelf) currentUser = updatedSelf;
             }
-            return list;
+            if (currentCompany) {
+                const updatedComp = companies.find(c => c.id === currentCompany.id);
+                if (updatedComp) currentCompany = updatedComp;
+            }
+
+            showToast('Pemeriksaan & perbaikan integritas data selesai!', 'success');
+            refreshSuperOwnerPanel();
+            updateDashboardUI();
+            renderProfileSection();
         }
 
-        function appendAggAudit(action, targetName, detail) {
-            const logs = getStore(STORAGE_KEYS.AGG_AUDIT, []);
-            logs.unshift({
+        // ==========================================
+        // 13C. SUPER OWNER: AGREGAT PERUSAHAAN, PAKET, CLOUD STORAGE & CHART.JS
+        // ==========================================
+        let aggCharts = {
+            storageBar: null,
+            employeeBar: null,
+            legalDonut: null,
+            packageDonut: null,
+            activeDonut: null
+        };
+
+        function switchSuperOwnerSubTab(tab) {
+            const isAgg = tab === 'aggregate';
+            document.getElementById('so-subtab-system').className = !isAgg
+                ? 'px-3.5 py-2 rounded-xl text-xs font-extrabold bg-amber-600 text-white shadow-xs transition'
+                : 'px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition';
+            document.getElementById('so-subtab-aggregate').className = isAgg
+                ? 'px-3.5 py-2 rounded-xl text-xs font-extrabold bg-indigo-600 text-white shadow-xs transition'
+                : 'px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition';
+
+            document.getElementById('so-subview-system').classList.toggle('hidden', isAgg);
+            document.getElementById('so-subview-aggregate').classList.toggle('hidden', !isAgg);
+
+            if (isAgg) {
+                renderOwnerAggregateSection();
+            }
+        }
+
+        function getSyncedOwnerAggregateCompanies() {
+            const companies = getStore(STORAGE_KEYS.COMPANIES, []);
+            const users = getStore(STORAGE_KEYS.USERS, []);
+            const aggStore = getStore(STORAGE_KEYS.AGG_COMPANIES, []);
+            const aggMap = new Map(aggStore.map(item => [item.source_company_id || item.id, item]));
+
+            const defaultExpiry = () => {
+                const d = new Date();
+                d.setMonth(d.getMonth() + 6);
+                return d.toISOString().slice(0, 10);
+            };
+
+            const synced = [];
+            companies.forEach((comp, idx) => {
+                const empCount = users.filter(u => u.company_id === comp.id).length;
+                const existing = aggMap.get(comp.id);
+                if (existing) {
+                    synced.push({
+                        ...existing,
+                        name: comp.name || existing.name,
+                        code: comp.code || existing.code,
+                        employee_count: existing.employee_count ?? empCount
+                    });
+                } else {
+                    synced.push({
+                        id: generateId('AGG'),
+                        source_company_id: comp.id,
+                        name: comp.name,
+                        code: comp.code || `CMP-${1000 + idx}`,
+                        legal_entity: 'PT',
+                        employee_count: empCount,
+                        package_tier: 'Growth',
+                        package_status: 'Aktif',
+                        package_expiry: defaultExpiry(),
+                        active_status: 'Aktif',
+                        storage_used_gb: 0.4,
+                        storage_quota_gb: 25,
+                        deleted_at: null
+                    });
+                }
+            });
+
+            aggStore.forEach(item => {
+                if (!item.source_company_id && !synced.some(s => s.id === item.id)) {
+                    synced.push(item);
+                }
+            });
+
+            setStore(STORAGE_KEYS.AGG_COMPANIES, synced);
+            return synced;
+        }
+
+        function appendAggAuditLog(action, targetName, detail) {
+            const audits = getStore(STORAGE_KEYS.AGG_AUDIT, []);
+            audits.unshift({
                 id: generateId('AUD'),
                 time: new Date().toLocaleString('id-ID'),
                 actor: currentUser?.name || 'Super Owner',
                 action,
-                targetName,
+                target: targetName,
                 detail
             });
-            setStore(STORAGE_KEYS.AGG_AUDIT, logs.slice(0, 60));
+            setStore(STORAGE_KEYS.AGG_AUDIT, audits.slice(0, 60));
         }
 
-        function computeAggStoragePct(item) {
-            const used = Number(item.storageUsedGb || 0);
-            const quota = Math.max(1, Number(item.storageQuotaGb || 1));
-            return Math.min(999, Math.round((used / quota) * 1000) / 10);
-        }
-
-        function getAggStorageBadge(pct) {
-            if (pct >= 90) return { text: 'Kritis', cls: 'bg-rose-100 text-rose-800', bar: 'bg-rose-600' };
-            if (pct >= 75) return { text: 'Waspada', cls: 'bg-amber-100 text-amber-800', bar: 'bg-amber-500' };
-            return { text: 'Aman', cls: 'bg-emerald-100 text-emerald-800', bar: 'bg-emerald-600' };
-        }
-
-        function getAggPkgBadgeClass(status) {
-            if (status === 'Aktif') return 'bg-emerald-100 text-emerald-800';
-            if (status === 'Segera Habis') return 'bg-amber-100 text-amber-800';
-            if (status === 'Masa Tenggang') return 'bg-orange-100 text-orange-800';
-            return 'bg-rose-100 text-rose-800';
-        }
-
-        function getFilteredAggregateCompanies(allList) {
-            const activeItems = allList.filter(i => !i.deletedAt);
-            const search = (document.getElementById('agg-filter-search')?.value || '').trim().toLowerCase();
-            const legal = document.getElementById('agg-filter-legal')?.value || 'ALL';
-            const pkg = document.getElementById('agg-filter-pkg')?.value || 'ALL';
-            const act = document.getElementById('agg-filter-active')?.value || 'ALL';
-
-            return activeItems.filter(item => {
-                const matchSearch = !search ||
-                    (item.name || '').toLowerCase().includes(search) ||
-                    (item.code || '').toLowerCase().includes(search);
-                const matchLegal = legal === 'ALL' || item.legalType === legal;
-                const matchPkg = pkg === 'ALL' || item.packageStatus === pkg;
-                const matchAct = act === 'ALL' || item.activeStatus === act;
-                return matchSearch && matchLegal && matchPkg && matchAct;
-            });
-        }
-
-        function renderOwnerAggregateSection() {
-            if (!isSuperOwnerUser(currentUser)) return;
-            const allList = ensureAggregateStoreInitialized();
-            const activeAll = allList.filter(i => !i.deletedAt);
-            const deletedAll = allList.filter(i => Boolean(i.deletedAt));
-            const filtered = getFilteredAggregateCompanies(allList);
-
-            const totalEmp = activeAll.reduce((s, i) => s + Number(i.employeeCount || 0), 0);
-            const activeCount = activeAll.filter(i => i.activeStatus === 'Aktif').length;
-            const expiringCount = activeAll.filter(i => i.packageStatus === 'Segera Habis' || i.packageStatus === 'Masa Tenggang').length;
-            const totalUsedGb = activeAll.reduce((s, i) => s + Number(i.storageUsedGb || 0), 0);
-            const totalQuotaGb = activeAll.reduce((s, i) => s + Number(i.storageQuotaGb || 0), 0);
-
-            document.getElementById('agg-kpi-companies').textContent = String(activeAll.length);
-            document.getElementById('agg-kpi-employees').textContent = String(totalEmp);
-            document.getElementById('agg-kpi-active').textContent = String(activeCount);
-            document.getElementById('agg-kpi-expiring').textContent = String(expiringCount);
-            document.getElementById('agg-kpi-storage').textContent = `${totalUsedGb.toFixed(1)} / ${totalQuotaGb.toFixed(0)} GB`;
-
-            renderOwnerAggregateCharts(filtered.length ? filtered : activeAll);
-            renderOwnerAggregateTable(filtered);
-            renderOwnerAggregateStorageCards(filtered.length ? filtered : activeAll);
-            renderOwnerAggregateDeletedAndAudit(deletedAll, getStore(STORAGE_KEYS.AGG_AUDIT, []));
-            lucide.createIcons();
-        }
-
-        function renderOwnerAggregateCharts(items) {
-            if (typeof Chart === 'undefined') return;
-            const labels = items.map(i => i.name);
-
-            const destroyAndCreate = (key, canvasId, config) => {
-                if (aggChartInstances[key]) {
-                    aggChartInstances[key].destroy();
-                }
-                const canvas = document.getElementById(canvasId);
-                if (!canvas) return;
-                aggChartInstances[key] = new Chart(canvas.getContext('2d'), config);
-            };
-
-            destroyAndCreate('storageBar', 'aggStorageBarChart', {
-                type: 'bar',
-                data: {
-                    labels,
-                    datasets: [
-                        {
-                            label: 'Terpakai (GB)',
-                            data: items.map(i => Number(i.storageUsedGb || 0)),
-                            backgroundColor: '#4f46e5',
-                            borderRadius: 6
-                        },
-                        {
-                            label: 'Kuota (GB)',
-                            data: items.map(i => Number(i.storageQuotaGb || 0)),
-                            backgroundColor: '#e2e8f0',
-                            borderRadius: 6
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } },
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
-
-            destroyAndCreate('empBar', 'aggEmployeeBarChart', {
-                type: 'bar',
-                data: {
-                    labels,
-                    datasets: [{
-                        label: 'Jumlah Karyawan',
-                        data: items.map(i => Number(i.employeeCount || 0)),
-                        backgroundColor: '#0284c7',
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-                }
-            });
-
-            const legalTypes = ['PT', 'CV', 'UD', 'Firma', 'Koperasi', 'Lainnya'];
-            destroyAndCreate('legalDonut', 'aggLegalDonutChart', {
-                type: 'doughnut',
-                data: {
-                    labels: legalTypes,
-                    datasets: [{
-                        data: legalTypes.map(t => items.filter(i => i.legalType === t).length),
-                        backgroundColor: ['#1e293b', '#0284c7', '#10b981', '#8b5cf6', '#f59e0b', '#94a3b8']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '62%',
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
-                }
-            });
-
-            const pkgStatuses = ['Aktif', 'Segera Habis', 'Masa Tenggang', 'Berakhir'];
-            destroyAndCreate('pkgDonut', 'aggPackageDonutChart', {
-                type: 'doughnut',
-                data: {
-                    labels: pkgStatuses,
-                    datasets: [{
-                        data: pkgStatuses.map(s => items.filter(i => i.packageStatus === s).length),
-                        backgroundColor: ['#10b981', '#f59e0b', '#f97316', '#ef4444']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '62%',
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
-                }
-            });
-
-            const activeStatuses = ['Aktif', 'Nonaktif'];
-            destroyAndCreate('activeDonut', 'aggActiveDonutChart', {
-                type: 'doughnut',
-                data: {
-                    labels: activeStatuses,
-                    datasets: [{
-                        data: activeStatuses.map(s => items.filter(i => i.activeStatus === s).length),
-                        backgroundColor: ['#10b981', '#94a3b8']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '62%',
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
-                }
-            });
-        }
-
-        function renderOwnerAggregateTable(items) {
-            const container = document.getElementById('agg-table-container');
-            if (!items.length) {
-                container.innerHTML = '<div class="py-6 text-center text-xs text-slate-400">Tidak ada data perusahaan agregat sesuai filter.</div>';
-                return;
-            }
-
-            container.innerHTML = `
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-200 text-[11px] font-bold uppercase text-slate-400">
-                            <th class="py-2.5 px-3">Perusahaan &amp; ID</th>
-                            <th class="py-2.5 px-3">Badan Hukum</th>
-                            <th class="py-2.5 px-3">Karyawan</th>
-                            <th class="py-2.5 px-3">Paket &amp; Masa Berlaku</th>
-                            <th class="py-2.5 px-3">Cloud Storage</th>
-                            <th class="py-2.5 px-3">Status Aktif</th>
-                            <th class="py-2.5 px-3 text-right">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 text-xs">
-                        ${items.map(it => {
-                            const pct = computeAggStoragePct(it);
-                            const stBadge = getAggStorageBadge(pct);
-                            const pkgBadge = getAggPkgBadgeClass(it.packageStatus);
-                            const isActive = it.activeStatus === 'Aktif';
-                            return `
-                                <tr class="hover:bg-slate-50/80">
-                                    <td class="py-2.5 px-3">
-                                        <div class="font-bold text-slate-900">${escapeHtml(it.name)}</div>
-                                        <div class="text-[11px] font-mono text-slate-400">${escapeHtml(it.code)}</div>
-                                    </td>
-                                    <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 font-bold text-[11px]">${escapeHtml(it.legalType)}</span></td>
-                                    <td class="py-2.5 px-3 font-extrabold text-slate-900">${Number(it.employeeCount || 0)}</td>
-                                    <td class="py-2.5 px-3">
-                                        <div class="flex items-center gap-1.5">
-                                            <span class="font-bold text-slate-800">${escapeHtml(it.packageTier)}</span>
-                                            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${pkgBadge}">${escapeHtml(it.packageStatus)}</span>
-                                        </div>
-                                        <div class="text-[11px] text-slate-400 mt-0.5">s/d ${escapeHtml(it.packageExpiry || '-')}</div>
-                                    </td>
-                                    <td class="py-2.5 px-3">
-                                        <div class="font-mono font-bold text-slate-800">${Number(it.storageUsedGb || 0).toFixed(1)} / ${Number(it.storageQuotaGb || 0).toFixed(0)} GB (${pct}%)</div>
-                                        <span class="inline-block mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold ${stBadge.cls}">${stBadge.text}</span>
-                                    </td>
-                                    <td class="py-2.5 px-3">
-                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}">${escapeHtml(it.activeStatus)}</span>
-                                    </td>
-                                    <td class="py-2.5 px-3 text-right space-x-1 whitespace-nowrap">
-                                        <button type="button" onclick="openOwnerCompanyModal('${escapeHtml(it.id)}')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold">Ubah</button>
-                                        <button type="button" onclick="openOwnerPackageModal('${escapeHtml(it.id)}')" class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-[11px] font-bold">Paket</button>
-                                        <button type="button" onclick="toggleAggCompanyActive('${escapeHtml(it.id)}')" class="px-2.5 py-1 rounded-lg ${isActive ? 'bg-amber-100 text-amber-900 hover:bg-amber-200' : 'bg-emerald-600 text-white hover:bg-emerald-700'} text-[11px] font-bold">${isActive ? 'Nonaktifkan' : 'Aktifkan'}</button>
-                                        <button type="button" onclick="openOwnerDeleteModal('${escapeHtml(it.id)}')" class="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold">Hapus</button>
-                                    </td>
-                                </tr>
-                            `;
-                        }).join('')}
-                    </tbody>
-                </table>
-            `;
-        }
-
-        function renderOwnerAggregateStorageCards(items) {
-            const container = document.getElementById('agg-storage-cards');
-            container.innerHTML = items.map(it => {
-                const pct = computeAggStoragePct(it);
-                const badge = getAggStorageBadge(pct);
-                const barWidth = Math.min(100, pct);
-                return `
-                    <div class="p-4 rounded-2xl border border-slate-200 bg-white space-y-2.5">
-                        <div class="flex items-start justify-between gap-2">
-                            <div>
-                                <div class="font-extrabold text-xs text-slate-900">${escapeHtml(it.name)}</div>
-                                <div class="text-[10px] font-mono text-slate-400">${escapeHtml(it.code)} • ${escapeHtml(it.legalType)}</div>
-                            </div>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${badge.cls}">${badge.text} (${pct}%)</span>
-                        </div>
-                        <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                            <div class="h-full ${badge.bar} rounded-full" style="width: ${barWidth}%"></div>
-                        </div>
-                        <div class="flex justify-between text-[11px] text-slate-600">
-                            <span>Terpakai: <strong>${Number(it.storageUsedGb || 0).toFixed(1)} GB</strong></span>
-                            <span>Kuota: <strong>${Number(it.storageQuotaGb || 0).toFixed(0)} GB</strong></span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderOwnerAggregateDeletedAndAudit(deletedItems, auditLogs) {
-            const delContainer = document.getElementById('agg-deleted-container');
-            if (!deletedItems.length) {
-                delContainer.innerHTML = '<div class="text-xs text-slate-400 py-2">Tidak ada perusahaan agregat di arsip hapus.</div>';
-            } else {
-                delContainer.innerHTML = `
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-slate-200 text-[11px] font-bold uppercase text-slate-400">
-                                <th class="py-2 px-3">Perusahaan</th>
-                                <th class="py-2 px-3">Badan Hukum</th>
-                                <th class="py-2 px-3">Dihapus Pada</th>
-                                <th class="py-2 px-3 text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 text-xs">
-                            ${deletedItems.map(d => `
-                                <tr>
-                                    <td class="py-2 px-3 font-bold text-slate-800">${escapeHtml(d.name)} <span class="font-mono text-[10px] text-slate-400">(${escapeHtml(d.code)})</span></td>
-                                    <td class="py-2 px-3">${escapeHtml(d.legalType)}</td>
-                                    <td class="py-2 px-3 text-slate-500">${escapeHtml(d.deletedAt)}</td>
-                                    <td class="py-2 px-3 text-right">
-                                        <button type="button" onclick="restoreAggCompany('${escapeHtml(d.id)}')" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold">Pulihkan</button>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                `;
-            }
-
-            const auditList = document.getElementById('agg-audit-list');
-            if (!auditLogs.length) {
-                auditList.innerHTML = '<div class="py-3 text-slate-400">Belum ada log audit agregat.</div>';
-            } else {
-                auditList.innerHTML = auditLogs.map(a => `
-                    <div class="py-2 flex flex-wrap items-center justify-between gap-2">
-                        <div>
-                            <span class="font-bold text-slate-800">${escapeHtml(a.action)}</span> —
-                            <span class="font-semibold text-indigo-700">${escapeHtml(a.targetName)}</span>
-                            <span class="text-slate-500">(${escapeHtml(a.detail)})</span>
-                        </div>
-                        <span class="text-[10px] text-slate-400">${escapeHtml(a.time)}</span>
-                    </div>
-                `).join('');
-            }
-        }
-
-        function openOwnerModal(modalId) {
-            const el = document.getElementById(modalId);
+        function openOwnerModal(id) {
+            const el = document.getElementById(id);
             if (!el) return;
             el.classList.remove('hidden');
             el.classList.add('flex');
+            lucide.createIcons();
         }
 
-        function closeOwnerModal(modalId) {
-            const el = document.getElementById(modalId);
+        function closeOwnerModal(id) {
+            const el = document.getElementById(id);
             if (!el) return;
             el.classList.add('hidden');
             el.classList.remove('flex');
         }
 
-        function openOwnerCompanyModal(id) {
-            const list = ensureAggregateStoreInitialized();
-            const existing = id ? list.find(i => i.id === id) : null;
-            document.getElementById('ownerCompanyModalTitle').textContent = existing ? 'Ubah Perusahaan Agregat' : 'Tambah Perusahaan Agregat';
-            document.getElementById('aggCmpEditId').value = existing ? existing.id : '';
-            document.getElementById('aggCmpName').value = existing ? existing.name : '';
-            document.getElementById('aggCmpCode').value = existing ? existing.code : `CMP-${Math.floor(1000 + Math.random() * 9000)}`;
-            document.getElementById('aggCmpLegal').value = existing ? existing.legalType : 'PT';
-            document.getElementById('aggCmpEmployees').value = existing ? existing.employeeCount : 10;
-            document.getElementById('aggCmpActive').value = existing ? existing.activeStatus : 'Aktif';
-            document.getElementById('aggCmpPkgTier').value = existing ? existing.packageTier : 'Growth';
-            document.getElementById('aggCmpPkgStatus').value = existing ? existing.packageStatus : 'Aktif';
-            document.getElementById('aggCmpPkgExpiry').value = existing ? existing.packageExpiry : addDaysToToday(30);
-            document.getElementById('aggCmpStorageUsed').value = existing ? existing.storageUsedGb : 1.0;
-            document.getElementById('aggCmpStorageQuota').value = existing ? existing.storageQuotaGb : 15;
+        function openOwnerCompanyModal(recordId) {
+            const all = getSyncedOwnerAggregateCompanies();
+            const item = recordId ? all.find(c => c.id === recordId) : null;
+            document.getElementById('ownerCompanyModalTitle').textContent = item ? 'Edit Perusahaan Agregat' : 'Tambah Perusahaan Agregat';
+            document.getElementById('aggCmpEditId').value = item ? item.id : '';
+            document.getElementById('aggCmpName').value = item ? item.name : '';
+            document.getElementById('aggCmpCode').value = item ? item.code : `CMP-${Math.floor(1000 + Math.random() * 9000)}`;
+            document.getElementById('aggCmpLegal').value = item ? item.legal_entity : 'PT';
+            document.getElementById('aggCmpEmployees').value = item ? item.employee_count : 10;
+            document.getElementById('aggCmpActive').value = item ? item.active_status : 'Aktif';
+            document.getElementById('aggCmpPkgTier').value = item ? item.package_tier : 'Starter';
+            document.getElementById('aggCmpPkgStatus').value = item ? item.package_status : 'Aktif';
+            document.getElementById('aggCmpPkgExpiry').value = item ? item.package_expiry : new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+            document.getElementById('aggCmpStorageUsed').value = item ? item.storage_used_gb : 0.5;
+            document.getElementById('aggCmpStorageQuota').value = item ? item.storage_quota_gb : 25;
             openOwnerModal('ownerCompanyModal');
         }
 
         function handleSaveOwnerCompany(e) {
             e.preventDefault();
-            const list = ensureAggregateStoreInitialized();
-            const editId = document.getElementById('aggCmpEditId').value.trim();
+            const editId = document.getElementById('aggCmpEditId').value;
+            const all = getSyncedOwnerAggregateCompanies();
             const payload = {
-                code: document.getElementById('aggCmpCode').value.trim().toUpperCase(),
                 name: document.getElementById('aggCmpName').value.trim(),
-                legalType: document.getElementById('aggCmpLegal').value,
-                employeeCount: Math.max(0, Number(document.getElementById('aggCmpEmployees').value || 0)),
-                activeStatus: document.getElementById('aggCmpActive').value,
-                packageTier: document.getElementById('aggCmpPkgTier').value,
-                packageStatus: document.getElementById('aggCmpPkgStatus').value,
-                packageExpiry: document.getElementById('aggCmpPkgExpiry').value,
-                storageUsedGb: Math.max(0, Number(document.getElementById('aggCmpStorageUsed').value || 0)),
-                storageQuotaGb: Math.max(1, Number(document.getElementById('aggCmpStorageQuota').value || 1))
+                code: document.getElementById('aggCmpCode').value.trim(),
+                legal_entity: document.getElementById('aggCmpLegal').value,
+                employee_count: Math.max(0, parseInt(document.getElementById('aggCmpEmployees').value || '0', 10)),
+                active_status: document.getElementById('aggCmpActive').value,
+                package_tier: document.getElementById('aggCmpPkgTier').value,
+                package_status: document.getElementById('aggCmpPkgStatus').value,
+                package_expiry: document.getElementById('aggCmpPkgExpiry').value,
+                storage_used_gb: Math.max(0, parseFloat(document.getElementById('aggCmpStorageUsed').value || '0')),
+                storage_quota_gb: Math.max(1, parseFloat(document.getElementById('aggCmpStorageQuota').value || '1'))
             };
 
             if (editId) {
-                const idx = list.findIndex(i => i.id === editId);
+                const idx = all.findIndex(c => c.id === editId);
                 if (idx !== -1) {
-                    list[idx] = { ...list[idx], ...payload };
-                    appendAggAudit('Ubah Agregat', payload.name, `${payload.legalType} • ${payload.employeeCount} staf`);
+                    all[idx] = { ...all[idx], ...payload };
+                    appendAggAuditLog('EDIT_AGREGAT', payload.name, `Paket ${payload.package_tier}, ${payload.employee_count} staf`);
                 }
             } else {
-                list.unshift({
+                all.push({
                     id: generateId('AGG'),
+                    source_company_id: null,
                     ...payload,
-                    deletedAt: null
+                    deleted_at: null
                 });
-                appendAggAudit('Tambah Agregat', payload.name, `${payload.legalType} • Paket ${payload.packageTier}`);
+                appendAggAuditLog('TAMBAH_AGREGAT', payload.name, `Badan hukum ${payload.legal_entity}, paket ${payload.package_tier}`);
             }
 
-            setStore(STORAGE_KEYS.AGG_COMPANIES, list);
+            setStore(STORAGE_KEYS.AGG_COMPANIES, all);
             closeOwnerModal('ownerCompanyModal');
             renderOwnerAggregateSection();
             showToast('Data agregat perusahaan tersimpan.', 'success');
         }
 
-        function openOwnerPackageModal(id) {
-            const list = ensureAggregateStoreInitialized();
-            const item = list.find(i => i.id === id);
+        function openOwnerPackageModal(recordId) {
+            const all = getSyncedOwnerAggregateCompanies();
+            const item = all.find(c => c.id === recordId);
             if (!item) return;
             document.getElementById('aggPkgId').value = item.id;
             document.getElementById('aggPkgSubtitle').textContent = `${item.name} (${item.code})`;
-            document.getElementById('aggPkgTier').value = item.packageTier || 'Growth';
-            document.getElementById('aggPkgStatus').value = item.packageStatus || 'Aktif';
-            document.getElementById('aggPkgExpiry').value = item.packageExpiry || addDaysToToday(30);
+            document.getElementById('aggPkgTier').value = item.package_tier;
+            document.getElementById('aggPkgStatus').value = item.package_status;
+            document.getElementById('aggPkgExpiry').value = item.package_expiry;
             openOwnerModal('ownerPackageModal');
         }
 
         function extendAggExpiry(days) {
             const input = document.getElementById('aggPkgExpiry');
             const base = input.value ? new Date(`${input.value}T00:00:00`) : new Date();
-            base.setDate(base.getDate() + Number(days || 0));
-            const yyyy = base.getFullYear();
-            const mm = String(base.getMonth() + 1).padStart(2, '0');
-            const dd = String(base.getDate()).padStart(2, '0');
-            input.value = `${yyyy}-${mm}-${dd}`;
+            base.setDate(base.getDate() + days);
+            input.value = base.toISOString().slice(0, 10);
+            document.getElementById('aggPkgStatus').value = 'Aktif';
         }
 
         function handleSaveOwnerPackage(e) {
             e.preventDefault();
             const id = document.getElementById('aggPkgId').value;
-            const list = ensureAggregateStoreInitialized();
-            const item = list.find(i => i.id === id);
+            const all = getSyncedOwnerAggregateCompanies();
+            const item = all.find(c => c.id === id);
             if (!item) return;
-
-            item.packageTier = document.getElementById('aggPkgTier').value;
-            item.packageStatus = document.getElementById('aggPkgStatus').value;
-            item.packageExpiry = document.getElementById('aggPkgExpiry').value;
-
-            setStore(STORAGE_KEYS.AGG_COMPANIES, list);
-            appendAggAudit('Update Paket', item.name, `${item.packageTier} • ${item.packageStatus} s/d ${item.packageExpiry}`);
+            item.package_tier = document.getElementById('aggPkgTier').value;
+            item.package_status = document.getElementById('aggPkgStatus').value;
+            item.package_expiry = document.getElementById('aggPkgExpiry').value;
+            setStore(STORAGE_KEYS.AGG_COMPANIES, all);
+            appendAggAuditLog('UPDATE_PAKET', item.name, `${item.package_tier} (${item.package_status}) s/d ${item.package_expiry}`);
             closeOwnerModal('ownerPackageModal');
             renderOwnerAggregateSection();
-            showToast('Paket langganan agregat diperbarui.', 'success');
+            showToast('Paket agregat diperbarui.', 'success');
         }
 
-        function toggleAggCompanyActive(id) {
-            const list = ensureAggregateStoreInitialized();
-            const item = list.find(i => i.id === id);
+        function toggleAggActiveStatus(recordId) {
+            const all = getSyncedOwnerAggregateCompanies();
+            const item = all.find(c => c.id === recordId);
             if (!item) return;
-            item.activeStatus = item.activeStatus === 'Aktif' ? 'Nonaktif' : 'Aktif';
-            setStore(STORAGE_KEYS.AGG_COMPANIES, list);
-            appendAggAudit('Status Aktif', item.name, item.activeStatus);
+            item.active_status = item.active_status === 'Aktif' ? 'Nonaktif' : 'Aktif';
+            setStore(STORAGE_KEYS.AGG_COMPANIES, all);
+            appendAggAuditLog('TOGGLE_AKTIF', item.name, `Status aktif: ${item.active_status}`);
             renderOwnerAggregateSection();
-            showToast(`Status aktif ${item.name} diubah menjadi ${item.activeStatus}.`, 'info');
+            showToast(`Status ${item.name}: ${item.active_status}.`, 'info');
         }
 
-        function openOwnerDeleteModal(id) {
-            const list = ensureAggregateStoreInitialized();
-            const item = list.find(i => i.id === id);
+        function openOwnerDeleteModal(recordId) {
+            const all = getSyncedOwnerAggregateCompanies();
+            const item = all.find(c => c.id === recordId);
             if (!item) return;
             document.getElementById('aggDelId').value = item.id;
             document.getElementById('aggDelName').textContent = `${item.name} (${item.code})`;
@@ -5644,40 +5336,292 @@
         }
 
         function checkAggDeletePhrase() {
-            const phrase = (document.getElementById('aggDelPhrase')?.value || '').trim();
-            const btn = document.getElementById('aggConfirmDeleteBtn');
-            if (btn) btn.disabled = phrase !== 'HAPUS';
+            const phrase = document.getElementById('aggDelPhrase').value.trim();
+            document.getElementById('aggConfirmDeleteBtn').disabled = phrase !== 'HAPUS';
         }
 
         function confirmAggSoftDelete() {
             const id = document.getElementById('aggDelId').value;
-            const phrase = (document.getElementById('aggDelPhrase')?.value || '').trim();
-            if (phrase !== 'HAPUS') return;
-
-            const list = ensureAggregateStoreInitialized();
-            const item = list.find(i => i.id === id);
+            const all = getSyncedOwnerAggregateCompanies();
+            const item = all.find(c => c.id === id);
             if (!item) return;
-            item.deletedAt = new Date().toLocaleString('id-ID');
-            setStore(STORAGE_KEYS.AGG_COMPANIES, list);
-            appendAggAudit('Arsipkan (Soft Delete)', item.name, item.code);
+            item.deleted_at = new Date().toISOString();
+            setStore(STORAGE_KEYS.AGG_COMPANIES, all);
+            appendAggAuditLog('SOFT_DELETE', item.name, 'Dipindahkan ke arsip hapus');
             closeOwnerModal('ownerDeleteModal');
             renderOwnerAggregateSection();
-            showToast(`${item.name} dipindahkan ke Arsip Hapus.`, 'info');
+            showToast(`${item.name} dipindahkan ke arsip hapus.`, 'info');
         }
 
-        function restoreAggCompany(id) {
-            const list = ensureAggregateStoreInitialized();
-            const item = list.find(i => i.id === id);
+        function restoreAggCompany(recordId) {
+            const all = getSyncedOwnerAggregateCompanies();
+            const item = all.find(c => c.id === recordId);
             if (!item) return;
-            item.deletedAt = null;
-            setStore(STORAGE_KEYS.AGG_COMPANIES, list);
-            appendAggAudit('Pulihkan Arsip', item.name, item.code);
+            item.deleted_at = null;
+            setStore(STORAGE_KEYS.AGG_COMPANIES, all);
+            appendAggAuditLog('RESTORE_AGREGAT', item.name, 'Dipulihkan dari arsip hapus');
             renderOwnerAggregateSection();
-            showToast(`${item.name} dipulihkan dari arsip.`, 'success');
+            showToast(`${item.name} berhasil dipulihkan.`, 'success');
+        }
+
+        function renderOwnerAggregateSection() {
+            if (!currentUser || !isSuperOwnerUser(currentUser)) return;
+            const all = getSyncedOwnerAggregateCompanies();
+            const activeRecords = all.filter(c => !c.deleted_at);
+            const deletedRecords = all.filter(c => Boolean(c.deleted_at));
+
+            const search = (document.getElementById('agg-filter-search')?.value || '').trim().toLowerCase();
+            const legalFilter = document.getElementById('agg-filter-legal')?.value || 'ALL';
+            const pkgFilter = document.getElementById('agg-filter-pkg')?.value || 'ALL';
+            const activeFilter = document.getElementById('agg-filter-active')?.value || 'ALL';
+
+            const filtered = activeRecords.filter(c => {
+                const matchSearch = !search || (c.name || '').toLowerCase().includes(search) || (c.code || '').toLowerCase().includes(search);
+                const matchLegal = legalFilter === 'ALL' || c.legal_entity === legalFilter;
+                const matchPkg = pkgFilter === 'ALL' || c.package_status === pkgFilter;
+                const matchActive = activeFilter === 'ALL' || c.active_status === activeFilter;
+                return matchSearch && matchLegal && matchPkg && matchActive;
+            });
+
+            const totalEmp = activeRecords.reduce((a, b) => a + Number(b.employee_count || 0), 0);
+            const activeCount = activeRecords.filter(c => c.active_status === 'Aktif').length;
+            const expiringCount = activeRecords.filter(c => c.package_status === 'Segera Habis').length;
+            const usedStorage = activeRecords.reduce((a, b) => a + Number(b.storage_used_gb || 0), 0);
+            const quotaStorage = activeRecords.reduce((a, b) => a + Number(b.storage_quota_gb || 0), 0);
+
+            document.getElementById('agg-kpi-companies').textContent = activeRecords.length;
+            document.getElementById('agg-kpi-employees').textContent = totalEmp;
+            document.getElementById('agg-kpi-active').textContent = activeCount;
+            document.getElementById('agg-kpi-expiring').textContent = expiringCount;
+            document.getElementById('agg-kpi-storage').textContent = `${usedStorage.toFixed(1)} / ${quotaStorage.toFixed(0)} GB`;
+
+            renderOwnerAggregateTable(filtered);
+            renderOwnerStorageCards(filtered);
+            renderOwnerDeletedAndAudit(deletedRecords);
+            renderOwnerAggregateCharts(filtered);
+        }
+
+        function renderOwnerAggregateTable(list) {
+            const container = document.getElementById('agg-table-container');
+            if (!list.length) {
+                container.innerHTML = '<div class="py-6 text-center text-xs text-slate-400">Tidak ada data perusahaan agregat sesuai filter.</div>';
+                return;
+            }
+            container.innerHTML = `
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-[11px] font-bold uppercase text-slate-400">
+                            <th class="py-2.5 px-3">Perusahaan &amp; ID</th>
+                            <th class="py-2.5 px-3">Badan Hukum</th>
+                            <th class="py-2.5 px-3">Karyawan</th>
+                            <th class="py-2.5 px-3">Paket &amp; Berakhir</th>
+                            <th class="py-2.5 px-3">Status Aktif</th>
+                            <th class="py-2.5 px-3 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        ${list.map(c => `
+                            <tr class="hover:bg-slate-50">
+                                <td class="py-2.5 px-3">
+                                    <div class="font-bold text-slate-900">${escapeHtml(c.name)}</div>
+                                    <div class="text-[10px] font-mono text-slate-400">${escapeHtml(c.code)}</div>
+                                </td>
+                                <td class="py-2.5 px-3 font-bold text-slate-700">${escapeHtml(c.legal_entity)}</td>
+                                <td class="py-2.5 px-3 font-extrabold text-slate-900">${Number(c.employee_count || 0)}</td>
+                                <td class="py-2.5 px-3">
+                                    <div class="font-bold text-indigo-700">${escapeHtml(c.package_tier)} • ${escapeHtml(c.package_status)}</div>
+                                    <div class="text-[10px] text-slate-400">s/d ${escapeHtml(c.package_expiry)}</div>
+                                </td>
+                                <td class="py-2.5 px-3">
+                                    <button type="button" onclick="toggleAggActiveStatus('${escapeHtml(c.id)}')" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${c.active_status === 'Aktif' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                                        ${escapeHtml(c.active_status)}
+                                    </button>
+                                </td>
+                                <td class="py-2.5 px-3 text-right whitespace-nowrap space-x-1">
+                                    <button type="button" onclick="openOwnerPackageModal('${escapeHtml(c.id)}')" class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold">Paket</button>
+                                    <button type="button" onclick="openOwnerCompanyModal('${escapeHtml(c.id)}')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold">Edit</button>
+                                    <button type="button" onclick="openOwnerDeleteModal('${escapeHtml(c.id)}')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-bold">Hapus</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function renderOwnerStorageCards(list) {
+            const container = document.getElementById('agg-storage-cards');
+            if (!list.length) {
+                container.innerHTML = '<div class="col-span-full text-xs text-slate-400">Belum ada data kuota cloud storage.</div>';
+                return;
+            }
+            container.innerHTML = list.map(c => {
+                const used = Number(c.storage_used_gb || 0);
+                const quota = Math.max(1, Number(c.storage_quota_gb || 1));
+                const pct = Math.min(100, Math.round((used / quota) * 100));
+                const barColor = pct >= 85 ? 'bg-rose-600' : pct >= 60 ? 'bg-amber-500' : 'bg-indigo-600';
+                return `
+                    <div class="p-4 rounded-2xl border border-slate-200 bg-white space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="font-extrabold text-xs text-slate-900 truncate">${escapeHtml(c.name)}</span>
+                            <span class="text-[11px] font-extrabold text-indigo-700">${pct}%</span>
+                        </div>
+                        <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                            <div class="h-full ${barColor}" style="width: ${pct}%"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                            <span>Terpakai: ${used.toFixed(1)} GB</span>
+                            <span>Kuota: ${quota.toFixed(0)} GB</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderOwnerDeletedAndAudit(deletedRecords) {
+            const delContainer = document.getElementById('agg-deleted-container');
+            if (!deletedRecords.length) {
+                delContainer.innerHTML = '<div class="text-xs text-slate-400">Arsip perusahaan terhapus kosong.</div>';
+            } else {
+                delContainer.innerHTML = `
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-200 text-[11px] font-bold uppercase text-slate-400">
+                                <th class="py-2 px-3">Perusahaan</th>
+                                <th class="py-2 px-3">Badan Hukum</th>
+                                <th class="py-2 px-3">Dihapus Pada</th>
+                                <th class="py-2 px-3 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            ${deletedRecords.map(d => `
+                                <tr>
+                                    <td class="py-2 px-3 font-bold text-slate-800">${escapeHtml(d.name)} (${escapeHtml(d.code)})</td>
+                                    <td class="py-2 px-3">${escapeHtml(d.legal_entity)}</td>
+                                    <td class="py-2 px-3 text-[11px] text-slate-500">${escapeHtml(d.deleted_at || '-')}</td>
+                                    <td class="py-2 px-3 text-right">
+                                        <button type="button" onclick="restoreAggCompany('${escapeHtml(d.id)}')" class="px-2.5 py-1 rounded-lg bg-emerald-600 text-white text-[11px] font-bold">Pulihkan</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            const auditList = document.getElementById('agg-audit-list');
+            const audits = getStore(STORAGE_KEYS.AGG_AUDIT, []);
+            if (!audits.length) {
+                auditList.innerHTML = '<div class="py-3 text-slate-400">Belum ada log audit agregat.</div>';
+            } else {
+                auditList.innerHTML = audits.slice(0, 12).map(a => `
+                    <div class="py-2 flex items-center justify-between gap-2">
+                        <div>
+                            <span class="font-extrabold text-slate-800">${escapeHtml(a.action)}</span>
+                            <span class="text-slate-600">• ${escapeHtml(a.target)} (${escapeHtml(a.detail)})</span>
+                        </div>
+                        <span class="text-[10px] font-mono text-slate-400 shrink-0">${escapeHtml(a.time)}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function recreateChart(key, canvasId, config) {
+            if (!window.Chart) return;
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            if (aggCharts[key]) {
+                aggCharts[key].destroy();
+                aggCharts[key] = null;
+            }
+            aggCharts[key] = new Chart(canvas.getContext('2d'), config);
+        }
+
+        function renderOwnerAggregateCharts(list) {
+            if (!window.Chart) return;
+            const labels = list.map(c => c.name);
+            const storageVals = list.map(c => Number(c.storage_used_gb || 0));
+            const empVals = list.map(c => Number(c.employee_count || 0));
+
+            recreateChart('storageBar', 'aggStorageBarChart', {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Terpakai (GB)',
+                        data: storageVals,
+                        backgroundColor: '#4f46e5',
+                        borderRadius: 6
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+
+            recreateChart('employeeBar', 'aggEmployeeBarChart', {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Karyawan Agregat',
+                        data: empVals,
+                        backgroundColor: '#0284c7',
+                        borderRadius: 6
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+
+            const countBy = (arr, field) => {
+                const map = {};
+                arr.forEach(item => {
+                    const k = item[field] || 'Lainnya';
+                    map[k] = (map[k] || 0) + 1;
+                });
+                return map;
+            };
+
+            const legalMap = countBy(list, 'legal_entity');
+            recreateChart('legalDonut', 'aggLegalDonutChart', {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(legalMap),
+                    datasets: [{
+                        data: Object.values(legalMap),
+                        backgroundColor: ['#4f46e5', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899', '#64748b']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+            });
+
+            const pkgMap = countBy(list, 'package_status');
+            recreateChart('packageDonut', 'aggPackageDonutChart', {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(pkgMap),
+                    datasets: [{
+                        data: Object.values(pkgMap),
+                        backgroundColor: ['#10b981', '#f59e0b', '#f97316', '#ef4444']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+            });
+
+            const activeMap = countBy(list, 'active_status');
+            recreateChart('activeDonut', 'aggActiveDonutChart', {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(activeMap),
+                    datasets: [{
+                        data: Object.values(activeMap),
+                        backgroundColor: ['#059669', '#e11d48']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+            });
         }
 
         // ==========================================
-        // 13D. ABOUT APLIKASI & SARAN MASUKAN
+        // 13D. ABOUT APLIKASI & SARAN PENGGUNA
         // ==========================================
         document.getElementById('app-feedback-form').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -5690,49 +5634,50 @@
                 id: generateId('FBK'),
                 company_id: currentCompany?.id || null,
                 sender_name: currentUser?.name || 'Pengguna',
-                sender_role: isSuperOwnerUser(currentUser) ? 'Super Owner' : (currentUser?.role === 'admin' ? 'Admin HRD' : 'Karyawan'),
+                sender_nip: currentUser?.nip || '-',
                 category,
                 message,
                 created_at: new Date().toLocaleString('id-ID')
             });
             setStore(STORAGE_KEYS.FEEDBACKS, feedbacks);
-
-            document.getElementById('feedback-message').value = '';
+            e.target.reset();
             renderFeedbackList();
-            showToast('Terima kasih! Saran dan masukan Anda telah tercatat.', 'success');
+            showToast('Terima kasih! Saran & masukan Anda telah terkirim.', 'success');
         });
 
         function renderFeedbackList() {
             const container = document.getElementById('feedback-history-list');
             if (!container) return;
-            const feedbacks = getStore(STORAGE_KEYS.FEEDBACKS);
+            const allFeedbacks = getStore(STORAGE_KEYS.FEEDBACKS);
+            const mine = currentUser
+                ? allFeedbacks.filter(f => f.sender_nip === currentUser.nip || f.company_id === currentCompany?.id).slice(0, 5)
+                : [];
 
-            if (!feedbacks.length) {
-                container.innerHTML = '<div class="text-[11px] text-slate-400 text-center py-2">Belum ada saran atau masukan terkirim.</div>';
+            if (!mine.length) {
+                container.innerHTML = '<div class="text-[11px] text-slate-400">Belum ada saran yang dikirim pada workspace ini.</div>';
                 return;
             }
 
-            container.innerHTML = feedbacks.slice(0, 5).map(fb => `
-                <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/70 space-y-1 text-xs">
+            container.innerHTML = mine.map(f => `
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-xs space-y-1">
                     <div class="flex items-center justify-between gap-2">
-                        <span class="px-2 py-0.5 rounded-md bg-brand-50 text-brand-700 font-extrabold text-[10px]">${escapeHtml(fb.category)}</span>
-                        <span class="text-[10px] text-slate-400">${escapeHtml(fb.created_at)}</span>
+                        <span class="font-extrabold text-brand-700 text-[11px]">${escapeHtml(f.category)}</span>
+                        <span class="text-[10px] text-slate-400">${escapeHtml(f.created_at)}</span>
                     </div>
-                    <p class="text-slate-700 leading-relaxed">${escapeHtml(fb.message)}</p>
-                    <div class="text-[10px] text-slate-400 font-semibold">Oleh: ${escapeHtml(fb.sender_name)} (${escapeHtml(fb.sender_role)})</div>
+                    <p class="text-slate-700 leading-relaxed">${escapeHtml(f.message)}</p>
                 </div>
             `).join('');
         }
 
         // ==========================================
-        // 14. LIVE CLOCK & APP BOOTSTRAP
+        // 14. REALTIME CLOCK & SESSION RESTORE
         // ==========================================
-        function startLiveClock() {
+        function startClock() {
             const tick = () => {
                 const now = new Date();
                 const clockEl = document.getElementById('live-clock');
                 const dateEl = document.getElementById('live-date');
-                if (clockEl) clockEl.textContent = now.toLocaleTimeString('id-ID', { hour12: false });
+                if (clockEl) clockEl.textContent = now.toTimeString().slice(0, 8);
                 if (dateEl) dateEl.textContent = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
                 updateClockOutAvailability();
             };
@@ -5742,35 +5687,40 @@
 
         function checkConnectionIndicator() {
             const dot = document.getElementById('auth-sync-dot');
-            const label = document.getElementById('auth-sync-label');
+            const lbl = document.getElementById('auth-sync-label');
             if (supabaseClient && navigator.onLine) {
                 dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
-                label.textContent = 'Terhubung ke Supabase & Penyimpanan Lokal';
+                lbl.textContent = 'Terhubung ke Supabase Cloud & Sinkronisasi Otomatis';
             } else {
                 dot.className = 'w-2 h-2 rounded-full bg-amber-500';
-                label.textContent = 'Mode Penyimpanan Lokal Aktif (Siap Digunakan)';
+                lbl.textContent = 'Mode Penyimpanan Lokal Otomatis (Siap Pakai)';
             }
         }
 
-        (async function initApp() {
+        window.addEventListener('DOMContentLoaded', async () => {
             runProductionLaunchPurgeOnce();
             applyExternalLogoReferences();
-            startLiveClock();
+            startClock();
             checkConnectionIndicator();
-            await syncFromSupabase(false);
+            startAutomaticSyncEverywhere();
+            await triggerAutoSync(false);
             await handleEmailConfirmationCallback();
 
             const session = getStore(STORAGE_KEYS.SESSION, null);
-            if (session && session.userId && session.companyId) {
-                const user = getStore(STORAGE_KEYS.USERS).find(u => u.id === session.userId);
-                const comp = getStore(STORAGE_KEYS.COMPANIES).find(c => c.id === session.companyId);
-                if (user && comp) {
-                    loginSession(user, comp);
-                    return;
+            if (session && session.userId) {
+                const users = getStore(STORAGE_KEYS.USERS);
+                const companies = getStore(STORAGE_KEYS.COMPANIES);
+                const u = users.find(item => item.id === session.userId);
+                const c = companies.find(item => item.id === session.companyId) || companies[0];
+                if (u && c) {
+                    currentUser = u;
+                    currentCompany = c;
+                    checkAutoFreeze25Days();
+                    showDashboardAfterLogin();
                 }
             }
             lucide.createIcons();
-        })();
+        });
     </script>
 </body>
 </html>
